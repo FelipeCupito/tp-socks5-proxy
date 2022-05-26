@@ -13,7 +13,6 @@ typedef enum {DEBUG=0, INFO, ERROR, FATAL} LOG_LEVEL;
 
 extern LOG_LEVEL current_level;
 
-bool logError = false;
 
 /**
 *  Minimo nivel de log a registrar. Cualquier llamada a log con un nivel mayor a newLevel sera ignorada
@@ -27,6 +26,5 @@ char * levelDescription(LOG_LEVEL level);
 	fprintf (stderr, "%s: %s:%d, ", levelDescription(level), __FILE__, __LINE__); \
 	fprintf(stderr, fmt, ##__VA_ARGS__); \
 	fprintf(stderr,"\n"); }\
-	if ( level==FATAL) exit(1);\
-	if(level==ERROR) logError=ture;}
+	if ( level==FATAL) exit(1);}
 #endif

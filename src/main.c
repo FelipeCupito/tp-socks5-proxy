@@ -10,9 +10,11 @@
  * DNS utilizando getaddrinfo), pero toda esa complejidad está oculta en
  * el selector.
  */
+#include <arpa/inet.h>
 #include <errno.h>
 #include <limits.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,67 +25,100 @@
 #include <sys/types.h>  // socket
 #include <unistd.h>
 
-#include "args.h"
-#include "logger.h"
-//#include "selector.h"
+#include "../include/args.h"
+#include "../include/selector.h"
 //#include "socks5.h"
 //#include "socks5nio.h"
 
-#define DEFAULT_PORT 1080
 
-//static bool done = false;
-//static void sigterm_handler(const int signal);
+static fd_selector selectorInit(char **em);
 
-int main(const int argc, const char **argv) {
-  unsigned port = DEFAULT_PORT;
 
-  //lee los argumetos 
+static bool done = false;
+
+static void sigterm_handler(const int signal) {
+  printf("signal %d, cleaning up and exiting\n", signal);
+  done = true;
+}
+
+// lee los argumetos
+int main(const int argc, char **argv) {
+
   struct socks5args arguments;
-  parse_args(argc, argv, arguments);
+  parse_args(argc, argv, &arguments);
 
-  close(0); // no tenemos nada que leer de stdin
-  // close(1); // no tenemos nada que leer de stdout, log imprimer en stderr
+  // no tenemos nada que leer de stdin
+  close(0);
+  // close(1);
 
-  // const char *err_msg = NULL; //no se, usa usamos log
-  //selector_status ss = SELECTOR_SUCCESS; // de selector.h
-  //fd_selector selector = NULL;           // de selector.h
+  const char *err_msg = NULL;
+  selector_status ss = SELECTOR_SUCCESS;
+  fd_selector selector = NULL;
 
-  //creamos el socket pasivos TCP
+  // IP V4
+  // if (true) {
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  addr.sin_port = htons(port);
+  inet_pton(AF_INET, arguments.socks_addr, &addr.sin_addr);
+  // addr.sin_addr.s_addr = htonl(*arguments.socks_addr);
+  addr.sin_port = htons(arguments.socks_port);
 
-  const int serverTCP = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (serverTCP < 0) {
-    log(ERROR, "unable to create socket");
+  int server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (server < 0) {
+    err_msg = "unable to create socket";
     goto finally;
   }
 
-  // fprintf(stdout, "Listening on TCP port %d\n", port);
-  log(INFO, "Listening on TCP port %d\n", port);
+  fprintf(stdout, "Listening on TCP port %d\n", arguments.socks_port);
 
   // man 7 ip. no importa reportar nada si falla.
-  setsockopt(serverTCP, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+  setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
 
-  if (bind(serverTCP, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-    LOG(ERROR, "unable to bind socket");
-    // err_msg = "unable to bind socket";
+  if (bind(server, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+    err_msg = "unable to bind socket_v4";
     goto finally;
   }
 
-  if (listen(serverTCP, 20) < 0) {
-    log(ERROR, "unable to listen");
-    // err_msg = "unable to listen";
+  if (listen(server, 20) < 0) {
+    err_msg = "unable to listen";
+    goto finally;
+  }
+  //}
+  // IP v6
+  // else {
+  /*
+  struct sockaddr_in6 addr6;
+  memset(&addr6, 0, sizeof(addr6));
+  addr6.sin6_family = AF_INET6;
+  inet_pton(AF_INET6, arguments.socks_addr, &addr6.sin6_addr);
+  //addr.sin_addr.s_addr = htonl(*arguments.socks_addr);
+  addr6.sin6_port = htons(arguments.socks_port);
+
+  int server = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+  if (server < 0) {
+    err_msg = "unable to create socket_v6";
     goto finally;
   }
 
+  fprintf(stdout, "Listening on TCP port %d\n", arguments.socks_port);
 
-    select()
+  // man 7 ip. no importa reportar nada si falla.
+  setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
 
-/*
-  // registrar sigterm es útil para terminar el programa normalmente.
+  if (bind(server, (struct sockaddr *)&addr6, sizeof(addr6)) < 0) {
+    err_msg = "unable to bind socket_v6";
+    goto finally;
+  }
+
+  if (listen(server, 20) < 0) {
+    err_msg = "unable to listen";
+    goto finally;
+  }
+// }
+*/
+
+  // registrar sigterm es Ãºtil para terminar el programa normalmente.
   // esto ayuda mucho en herramientas como valgrind.
   signal(SIGTERM, sigterm_handler);
   signal(SIGINT, sigterm_handler);
@@ -92,29 +127,18 @@ int main(const int argc, const char **argv) {
     err_msg = "getting server socket flags";
     goto finally;
   }
-  const struct selector_init conf = {
-      .signal = SIGALRM,
-      .select_timeout =
-          {
-              .tv_sec = 10,
-              .tv_nsec = 0,
-          },
-  };
-  if (0 != selector_init(&conf)) {
-    err_msg = "initializing selector";
+
+  fd_selector selector selectorInit(&err_msg);
+  if(selector == NULL){
     goto finally;
   }
 
-  selector = selector_new(1024);
-  if (selector == NULL) {
-    err_msg = "unable to create selector";
-    goto finally;
-  }
   const struct fd_handler socksv5 = {
       .handle_read = socksv5_passive_accept,
       .handle_write = NULL,
-      .handle_close = NULL, // nada que liberar
+      .handle_close = NULL, 
   };
+
   ss = selector_register(selector, server, &socksv5, OP_READ, NULL);
   if (ss != SELECTOR_SUCCESS) {
     err_msg = "registering fd";
@@ -133,17 +157,7 @@ int main(const int argc, const char **argv) {
   }
 
   int ret = 0;
-
-  */
 finally:
-    if(logError){
-        //cerrar todo
-        return;
-    }
-    //todo salio bine
-    return;
-
-  /*
   if (ss != SELECTOR_SUCCESS) {
     fprintf(stderr, "%s: %s\n", (err_msg == NULL) ? "" : err_msg,
             ss == SELECTOR_IO ? strerror(errno) : selector_error(ss));
@@ -163,14 +177,27 @@ finally:
     close(server);
   }
   return ret;
-    */
-
 }
 
-/*
-static void sigterm_handler(const int signal) {
-  printf("signal %d, cleaning up and exiting\n", signal);
-  done = true;
-}
+static fd_selector selectorInit(char **em) {
+  const struct selector_init conf = {
+      .signal = SIGALRM,
+      .select_timeout =
+          {
+              .tv_sec = 10,
+              .tv_nsec = 0,
+          },
+  };
 
-*/
+  if (0 != selector_init(&conf)) {
+    *em = "initializing selector";
+    return NULL;
+  }
+
+  fd_selector selector = selector_new(1024);
+  if (selector == NULL) {
+    *em = "unable to create selector";
+    return NULL;
+  }
+  return selector;
+}

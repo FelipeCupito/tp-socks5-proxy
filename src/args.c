@@ -5,8 +5,7 @@
 #include <stdlib.h> /* for exit */
 #include <string.h> /* memset */
 
-#include "logger.h"
-#include "args.h"
+#include "../include/args.h"
 
 static unsigned short port(const char *s) {
   char *end = 0;
@@ -14,7 +13,7 @@ static unsigned short port(const char *s) {
 
   if (end == s || '\0' != *end ||
       ((LONG_MIN == sl || LONG_MAX == sl) && ERANGE == errno) || sl < 0 || sl > USHRT_MAX) {
-    log(FATAL, "port should in in the range of 1-65536: %s\n", s);
+    //log(FATAL, "port should in in the range of 1-65536: %s\n", s);
     //fprintf(stderr, "port should in in the range of 1-65536: %s\n", s);
     //exit(1);
     return 1;
@@ -25,7 +24,7 @@ static unsigned short port(const char *s) {
 static void user(char *s, struct users *user) {
   char *p = strchr(s, ':');
   if (p == NULL) {
-    log(FATAL, "password not found\n");
+    //log(FATAL, "password not found\n", );
     //fprintf(stderr, "password not found\n");
     //exit(1);
   } else {
@@ -61,7 +60,7 @@ static void usage(const char *progname) {
   exit(0);
 }
 
-void parse_args(const int argc, char **argv, struct socks5args *args) {
+void parse_args(const int argc,  char **argv, struct socks5args *args) {
   memset(args, 0,sizeof(*args)); // sobre todo para setear en null los punteros de users
 
   args->socks_addr = "0.0.0.0";
@@ -98,7 +97,7 @@ void parse_args(const int argc, char **argv, struct socks5args *args) {
       break;
     case 'u':
       if (nusers >= MAX_USERS) {
-        log(FATAL,"maximun number of command line users reached: %d.\n",MAX_USERS );
+        //log(FATAL,"maximun number of command line users reached: %d.\n",MAX_USERS );
         //fprintf(stderr, "maximun number of command line users reached: %d.\n",MAX_USERS);
         //exit(1);
       } else {
@@ -111,20 +110,20 @@ void parse_args(const int argc, char **argv, struct socks5args *args) {
       exit(0);
       break;
     default:
-        log(FATAL,"unknown argument %d.\n", c);
-        //fprintf(stderr, "unknown argument %d.\n", c);
-        //exit(1);
+        //log(FATAL,"unknown argument %d.\n", c);
+        fprintf(stderr, "unknown argument %d.\n", c);
+        exit(1);
     }
   }
 
   if (optind < argc) {
-      log(ERROR,"argument not accepted: ");
+      //log(ERROR,"argument not accepted: ");
     //fprintf(stderr, "argument not accepted: ");
     while (optind < argc) {
-        log(ERROR,"%s ", argv[optind++]);
+        //log(ERROR,"%s ", argv[optind++]);
       //fprintf(stderr, "%s ", argv[optind++]);
     }
-    log(FATAL, "\n");
+    //log(FATAL, "\n");
     //fprintf(stderr, "\n");
     //exit(1);
   }
