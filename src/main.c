@@ -26,13 +26,10 @@
 #include <unistd.h>
 
 #include "../include/args.h"
+#include "../include/client_handler.h"
 #include "../include/selector.h"
 //#include "socks5.h"
 //#include "socks5nio.h"
-
-
-static fd_selector selectorInit(char **em);
-
 
 static bool done = false;
 
@@ -53,7 +50,7 @@ int main(const int argc, char **argv) {
 
   const char *err_msg = NULL;
   selector_status ss = SELECTOR_SUCCESS;
-  fd_selector selector = NULL;
+  // fd_selector selector = NULL;
 
   // IP V4
   // if (true) {
@@ -128,15 +125,31 @@ int main(const int argc, char **argv) {
     goto finally;
   }
 
-  fd_selector selector selectorInit(&err_msg);
-  if(selector == NULL){
+  const struct selector_init conf = {
+      .signal = SIGALRM,
+      .select_timeout =
+          {
+              .tv_sec = 10,
+              .tv_nsec = 0,
+          },
+  };
+
+  if (0 != selector_init(&conf)) {
+    err_msg = "initializing selector";
     goto finally;
   }
 
+  fd_selector selector = selector_new(1024);
+  if (selector == NULL) {
+    err_msg = "unable to create selector";
+    goto finally;
+  }
+
+
   const struct fd_handler socksv5 = {
-      .handle_read = socksv5_passive_accept,
+      .handle_read = client_passive_accept,
       .handle_write = NULL,
-      .handle_close = NULL, 
+      .handle_close = NULL,
   };
 
   ss = selector_register(selector, server, &socksv5, OP_READ, NULL);
@@ -171,33 +184,10 @@ finally:
   }
   selector_close();
 
-  socksv5_pool_destroy();
+  // socksv5_pool_destroy();
 
   if (server >= 0) {
     close(server);
   }
   return ret;
-}
-
-static fd_selector selectorInit(char **em) {
-  const struct selector_init conf = {
-      .signal = SIGALRM,
-      .select_timeout =
-          {
-              .tv_sec = 10,
-              .tv_nsec = 0,
-          },
-  };
-
-  if (0 != selector_init(&conf)) {
-    *em = "initializing selector";
-    return NULL;
-  }
-
-  fd_selector selector = selector_new(1024);
-  if (selector == NULL) {
-    *em = "unable to create selector";
-    return NULL;
-  }
-  return selector;
 }

@@ -14,3 +14,16 @@ char * levelDescription(LOG_LEVEL level) {
         return "";
     return description[level];
 }
+
+
+void log_log(int level, const char *file, int line, const char *fmt, ...){
+    if(level >= current_level){
+        fprintf (stderr, "%s: %s:%d, ", levelDescription(level), file, line); 
+        va_list arg; 
+        va_start(arg, fmt); 
+        vfprintf(stderr, fmt, arg);
+        va_end(arg);
+        fprintf(stderr,"\n"); 
+    }
+	if ( level==FATAL) exit(1);
+}
