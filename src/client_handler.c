@@ -18,7 +18,6 @@ void client_passive_accept(struct selector_key *key) {
         goto fail;
     }
 
-
     if (SELECTOR_SUCCESS != selector_register(key->s, client, &client_handler, OP_READ, NULL)) {
         goto fail;
     }
@@ -26,16 +25,17 @@ void client_passive_accept(struct selector_key *key) {
     
 fail:
     if (client != -1) {
-        close(client);
+        //printf("no\n");
+        //close(client);
     }
-    close(key->fd);
+    //close(key->fd);
 }
 
 
 
 void client_read(struct selector_key *key){
     printf("llamo a la funcion de read(23)\n");
-    printf("%s\n", key->data);
+    printf("%d\n", key->data);
 
 }
 void client_write(struct selector_key *key){
