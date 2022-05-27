@@ -28,6 +28,7 @@
 #include "../include/args.h"
 #include "../include/client_handler.h"
 #include "../include/selector.h"
+#include "../include/ipversion.h"
 //#include "socks5.h"
 //#include "socks5nio.h"
 
@@ -43,7 +44,6 @@ int main(const int argc, char **argv) {
 
   struct socks5args arguments;
   parse_args(argc, argv, &arguments);
-
   // no tenemos nada que leer de stdin
   close(0);
   // close(1);
@@ -52,68 +52,72 @@ int main(const int argc, char **argv) {
   selector_status ss = SELECTOR_SUCCESS;
   // fd_selector selector = NULL;
 
+  int ip_v = ip_version(arguments.socks_addr);
   // IP V4
-  // if (true) {
-  struct sockaddr_in addr;
-  memset(&addr, 0, sizeof(addr));
-  addr.sin_family = AF_INET;
-  inet_pton(AF_INET, arguments.socks_addr, &addr.sin_addr);
-  // addr.sin_addr.s_addr = htonl(*arguments.socks_addr);
-  addr.sin_port = htons(arguments.socks_port);
+  if (ip_v == 4) {
+    print("4");
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
 
-  int server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (server < 0) {
-    err_msg = "unable to create socket";
-    goto finally;
+    inet_pton(AF_INET, arguments.socks_addr, &addr.sin_addr);
+    // addr.sin_addr.s_addr = htonl(*arguments.socks_addr);
+    addr.sin_port = htons(arguments.socks_port);
+
+    int server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (server < 0) {
+      err_msg = "unable to create socket";
+      goto finally;
+    }
+
+    fprintf(stdout, "Listening on TCP port %d\n", arguments.socks_port);
+
+    // man 7 ip. no importa reportar nada si falla.
+    setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+
+    if (bind(server, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+      err_msg = "unable to bind socket_v4";
+      goto finally;
+    }
+
+    if (listen(server, 20) < 0) {
+      err_msg = "unable to listen";
+      goto finally;
+    }
   }
-
-  fprintf(stdout, "Listening on TCP port %d\n", arguments.socks_port);
-
-  // man 7 ip. no importa reportar nada si falla.
-  setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
-
-  if (bind(server, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-    err_msg = "unable to bind socket_v4";
-    goto finally;
-  }
-
-  if (listen(server, 20) < 0) {
-    err_msg = "unable to listen";
-    goto finally;
-  }
-  //}
   // IP v6
-  // else {
-  /*
-  struct sockaddr_in6 addr6;
-  memset(&addr6, 0, sizeof(addr6));
-  addr6.sin6_family = AF_INET6;
-  inet_pton(AF_INET6, arguments.socks_addr, &addr6.sin6_addr);
-  //addr.sin_addr.s_addr = htonl(*arguments.socks_addr);
-  addr6.sin6_port = htons(arguments.socks_port);
+  else {
+    if (ip_v == 6) {
+      print("6");
+      struct sockaddr_in6 addr6;
+      memset(&addr6, 0, sizeof(addr6));
+      addr6.sin6_family = AF_INET6;
+      inet_pton(AF_INET6, arguments.socks_addr, &addr6.sin6_addr);
+      //addr.sin_addr.s_addr = htonl(*arguments.socks_addr);
+      addr6.sin6_port = htons(arguments.socks_port);
 
-  int server = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-  if (server < 0) {
-    err_msg = "unable to create socket_v6";
-    goto finally;
+      int server = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+      if (server < 0) {
+        err_msg = "unable to create socket_v6";
+        goto finally;
+      }
+
+      fprintf(stdout, "Listening on TCP port %d\n", arguments.socks_port);
+
+      // man 7 ip. no importa reportar nada si falla.
+      setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+
+      if (bind(server, (struct sockaddr *)&addr6, sizeof(addr6)) < 0) {
+        err_msg = "unable to bind socket_v6";
+        goto finally;
+      }
+
+      if (listen(server, 20) < 0) {
+        err_msg = "unable to listen";
+        goto finally;
+      }
+    }
   }
-
-  fprintf(stdout, "Listening on TCP port %d\n", arguments.socks_port);
-
-  // man 7 ip. no importa reportar nada si falla.
-  setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
-
-  if (bind(server, (struct sockaddr *)&addr6, sizeof(addr6)) < 0) {
-    err_msg = "unable to bind socket_v6";
-    goto finally;
-  }
-
-  if (listen(server, 20) < 0) {
-    err_msg = "unable to listen";
-    goto finally;
-  }
-// }
-*/
 
   // registrar sigterm es Ãºtil para terminar el programa normalmente.
   // esto ayuda mucho en herramientas como valgrind.
