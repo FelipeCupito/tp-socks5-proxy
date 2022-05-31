@@ -16,9 +16,9 @@ char * levelDescription(LOG_LEVEL level) {
 }
 
 
-void log_log(int level, const char *file, int line, const char *fmt, ...){
+void log(int level, const char *fmt, ...){
     if(level >= current_level){
-        fprintf (stderr, "%s: %s:%d, ", levelDescription(level), file, line); 
+        fprintf (stderr, "%s: ", levelDescription(level)); 
         va_list arg; 
         va_start(arg, fmt); 
         vfprintf(stderr, fmt, arg);

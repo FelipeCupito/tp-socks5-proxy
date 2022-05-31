@@ -2,8 +2,17 @@
 #define ARGS_H_kFlmYm1tW9p5npzDr2opQJ9jM8
 
 #include <stdbool.h>
+#include <errno.h>
+#include <getopt.h>
+#include <limits.h>  /* LONG_MIN et al */
+#include <stdio.h>   /* for printf */
+#include <stdlib.h>  /* for exit */
+#include <string.h>  /* memset */
 
-#define MAX_USERS 10 
+#include "../include/logger.h"
+
+#define MAX_USERS 10
+#define DEFAULT_
 
 struct users {
     char *name;

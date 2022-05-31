@@ -9,6 +9,7 @@ FILES=$(shell find $(SRC) -name '*.c' | sed 's/^.\///')
 OFILES=$(patsubst %.c,./%.o,$(FILES))
 CFLAGS = -Wall -Wextra -pedantic -lpthread -pedantic-errors -O3 -g -std=c11 -D_POSIX_C_SOURCE=200112L $(MYCFLAGS)
 
+
 %.o: %.c $(HFILES)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
@@ -18,4 +19,7 @@ all:$(OFILES)
 
 clean:	
 	rm -rf $(OFILES)
+
+
+
 	
