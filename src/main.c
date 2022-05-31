@@ -53,9 +53,10 @@ int main(const int argc, char **argv) {
   // fd_selector selector = NULL;
 
   int ip_v = ip_version(arguments.socks_addr);
+  int server;
   // IP V4
   if (ip_v == 4) {
-    print("4");
+    printf("4");
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -64,7 +65,8 @@ int main(const int argc, char **argv) {
     // addr.sin_addr.s_addr = htonl(*arguments.socks_addr);
     addr.sin_port = htons(arguments.socks_port);
 
-    int server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
     if (server < 0) {
       err_msg = "unable to create socket";
       goto finally;
@@ -88,7 +90,7 @@ int main(const int argc, char **argv) {
   // IP v6
   else {
     if (ip_v == 6) {
-      print("6");
+      printf("6");
       struct sockaddr_in6 addr6;
       memset(&addr6, 0, sizeof(addr6));
       addr6.sin6_family = AF_INET6;
@@ -96,7 +98,8 @@ int main(const int argc, char **argv) {
       //addr.sin_addr.s_addr = htonl(*arguments.socks_addr);
       addr6.sin6_port = htons(arguments.socks_port);
 
-      int server = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+      server = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+
       if (server < 0) {
         err_msg = "unable to create socket_v6";
         goto finally;
@@ -117,7 +120,7 @@ int main(const int argc, char **argv) {
         goto finally;
       }
     }
-  }
+  } 
 
   // registrar sigterm es Ãºtil para terminar el programa normalmente.
   // esto ayuda mucho en herramientas como valgrind.
@@ -174,6 +177,7 @@ int main(const int argc, char **argv) {
   }
 
   int ret = 0;
+  
 finally:
   if (ss != SELECTOR_SUCCESS) {
     fprintf(stderr, "%s: %s\n", (err_msg == NULL) ? "" : err_msg,
