@@ -1,113 +1,123 @@
 #include "../../include/parsers/hello.h";
-
+#include "../../include/logger.h";
+#include "../../include/buffer.h";
 /*
-struct hello_parser {
-  uint8_t version;
-  uint8_t NMETHODS; 
-  uint8_t METHODS;
-  uint8_t non_auth; // ?
-  uint8_t * auth;
-
-  unsigned int bytes_to_read;
-  hello_state state;
+enum hello_state {
+  hello_version,
+  // Estamos leyendo la cantidad de metodos
+  hello_nmethods,
+  // Estamos leyendo los metodos
+  hello_methods,
+  hello_done,
+  hello_error_unsupported_version,
 }
+
 */
 
-void hello_parser_init (hello_parser p) {
-  memset(p, 0, sizeof(struct hello_parser));
-  p->auth = NULL;
+extern void hello_parser_init (struct hello_parser *p) {
+  p -> state = hello_version;
+  p -> remaining = 0;
 }
 
-enum hello_state hello_parser_feed(hello_parser p, const uint8_t b) {
-  switch(p->state) {
-    case VERSION:
+extern enum hello_state hello_parser_feed (struct hello_parser *p , const uint8_t b) {
+  switch (p -> state) {
+    case hello_version:
       if (b == 0x05) {
-        p -> state = AUTH;
+        p -> state = hello_nmethods;
       } else {
-        p -> state = ERROR_INV_VERSION;
+        p -> state = hello_error_unsupported_version;
       }
       break;
-    case NAUTH:
-      if (b == 0) {
-        p->state = ERROR_INV_NAUTH;
+
+    case hello_nmethods:
+      if (b <= 0) {
+        p -> state = hello_done;
+      } else {
+        p -> remaining = b;
+        p -> state = hello_methods;
       }
-      p->nauth = b; // ?
-      p->auth = malloc(b); // ?
-      p->bytes_to_read = b; // ?
-      p->state = HELLO_AUTH; // ?
       break;
-    case AUTH:
-      if (p->bytes_to_read) {
-        p->auth[p->nauth - p->bytes_to_read] = b;
-        p->bytes_to_read--;
-        if (p->bytes_to_read == 0) {
-            p->state = DONE;
-          }
+
+    case hello_methods:
+      if (NULL != p -> on_auth_method) {
+        p -> on_auth_method(p,b);
       }
-    case DONE:   
+      p -> remaining--;
+      if (p -> remaining <= 0) {
+        p -> state = hello_done;
+      }
       break;
-    case ERROR_INV_VERSION:
+    case hello_done:
       break;
-    case ERROR_INV_NAUTH:
-      break;
-    case ERROR_UNASSIGNED_METHOD:
-      break;
-    case ERROR_UNSUPPORTED_METHOD:
+    case hello_error_unsupported_version:
       break;
     default:
-      abort();
+      log(FATAL,"Invalid state %d.\n", p -> state);
   }
-
+  
   return p -> state;
 }
 
-enum hello_state hello_consume(buffer * b, hello_parser p, bool *errored) {
-  hello_state state = p -> state;
-  
-  while (buffer_can_read(b) && !parsing_done(p, errored)) {
-    const uint8_t character = buffer_read(b);
-    state = hello_read_next(p, c);
+extern bool hello_is_done (const enum hello_state state, bool *errored) {
+  bool res;
+  switch (state) {
+    case hello_error_unsupported_version:
+      if (errored != 0) {
+        *errored = true;
+      }
+    case hello_done:
+      res = true;
+      break;
+    default:
+      res = false;
+      break;
+  }
+
+  return res;
+}
+
+extern const char * hello_error(const struct hello_parser *p) {
+  char *res;
+  switch (p -> state) {
+    case hello_error_unsupported_version:
+      res = "unsupported version";
+      break;
+    default:
+      res = "";
+      break;
+  }
+
+  return res;
+}
+
+extern void hello_parser_close (struct hello_parser *p) {
+  //
+}
+
+extern enum hello_state hello_consume(buffer *buff, struct hello_parser *p, bool *errored) {
+  enum hello_state state = p -> state;
+
+  while (buffer_can_read(buff)){
+    const uint8_t c = buffer_read(b);
+    state = hello_parser_feed(p,c);
+    if (hello_is_done(state,errored)) {
+      break;
+    }
   }
 
   return state;
 }
 
-int parsing_done (hello_parser p, bool *errored) {
-  return is_done(p -> state, errored);
-}
-
-int is_done(hello_state s, bool *errored) {
-  if (s > DONE) {
-    *errored = true;
-  }
-  return s >= DONE;
-}
-
-uint8_t get_nauth (hello_parser p) {
-  return p -> nauth;
-}
-
-const uint8_t * get_auth_types (hello_parser p) {
-  return p -> auth;
-}
-
-hello_state get_state (hello_parser p) {
-  return p -> state;
-}
-
-// Ojo con esto del enum, no estoy seguro
-extern int hello_marshall (buffer *b, enum hello_methods method) {
+extern int hello_marshall (buffer *b, const uint8_t method) {
   size_t n;
-  // Que es buffer write ptr?
-  uint8_t *buff = buffer_write_ptr(b, &n);
-
+  uint8_t *buff = buffer_write_ptr(b,&n);
+  
   if (n < 2) {
     return -1;
   }
-
+  
   buff[0] = 0x05;
   buff[1] = method;
-  buffer_write_adv(b, 2);
-  
-  return 2; // ?
+  buffer_write_adv(b,2);
+  return 2;
 }

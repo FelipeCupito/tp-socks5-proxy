@@ -97,7 +97,7 @@ void parse_args(const int argc,  char **argv, struct socks5args *args) {
       exit(0);
       break;
     default:
-        log(FATAL,"unknown argument %d.\n", c);
+      log(FATAL,"unknown argument %d.\n", c);
     }
   }
 

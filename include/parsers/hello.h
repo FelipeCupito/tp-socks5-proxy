@@ -9,6 +9,8 @@
 
 #include "buffer.h"
 
+#define VERSION = 0x05;
+
 static const uint8_t METHOD_NO_AUTH_REQUIRED = 0X00;
 static const uint8_t METHOD_AUTH_REQUIRED = 0x02;
 static const uint8_t METHOD_NO_ACCEPTABLE_METHODS = 0XFF;
@@ -41,7 +43,7 @@ enum hello_state hello_parser_feed (
 );
 
 // te doy el buffer, consumi todos los bytes que puedas
-enum hello_state hello_consume (buffer *b, struct hello_parser *p, bool *errored);
+enum hello_state hello_consume (buffer *buff, struct hello_parser *p, bool *errored);
 
 bool hello_is_done (const enum hello_state state, bool *errored);
 
