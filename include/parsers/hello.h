@@ -15,12 +15,13 @@ typedef enum hello_state {
   AUTH,
   DONE,
   ERROR_INV_VERSION, // ?
-  ERROR_INV_AUTH, // ?
+  ERROR_INV_AUTH,    // ?
   ERROR_UNASSIGNED_METHOD,
   ERROR_UNSUPPORTED_METHOD
 } hello_state;
 
-struct hello_parser {
+struct hello_parser
+{
   uint8_t version;
   // uint8_t NMETHODS;  
   // uint8_t METHODS;
@@ -45,13 +46,20 @@ int is_done (hello_state s, bool *errored);
 
 uint8_t get_nauth (hello_parser p); // TODO
 const uint8_t * get_auth_types (hello_parser p);
+enum hello_state hello_read_next(hello_parser p, const uint8_t b);
+enum hello_state hello_consume(buffer *b, hello_parser p, bool *errored);
 
-int hello_marshall (buffer *b, const uint8_t method);
+int parsing_done(hello_parser p, bool *errored);
+int is_done(hello_state s, bool *errored);
 
 int hello_parser_close(struct hello_parser *p);
 void free_hello_parser(hello_parser p);
+uint8_t get_nauth(hello_parser p);
+const uint8_t *get_auth_types(hello_parser p);
 
-hello_state get_state (hello_parser p);
+int hello_marshall(buffer *b, const uint8_t method);
+
+hello_state get_state(hello_parser p);
 
 static bool read_hello(const int fd, const uint8_t *method)
 
