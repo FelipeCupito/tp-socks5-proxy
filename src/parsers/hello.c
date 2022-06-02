@@ -59,3 +59,14 @@ enum hello_state hello_read_next(hello_parser p, const uint8_t b) {
 
   return p -> state;
 }
+
+enum hello_state hello_consume(buffer * b, hello_parser p, bool *errored) {
+  hello_state state = p -> state;
+  
+  while (buffer_can_read(b) && !parsing_done(p, errored)) {
+    const uint8_t character = buffer_read(b);
+    state = hello_read_next(p, c);
+  }
+
+  return state;
+}

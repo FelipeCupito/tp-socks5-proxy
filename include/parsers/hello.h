@@ -7,6 +7,8 @@
 #include <ctype.h>
 #include <stdint.h>
 
+#include "buffer.h"
+
 #define VERSION_FIELD = 0x05;
 
 typedef enum hello_state {
@@ -41,8 +43,7 @@ enum hello_methods {
 void hello_parser_init (hello_parser p);
 
 enum hello_state hello_read_next (hello_parser p, const uint8_t b);
-// Falta el buffer
-// enum hello_state hello_consume (buffer * b, hello_parser p, bool *errored);
+enum hello_state hello_consume (buffer * b, hello_parser p, bool *errored);
 
 int parsing_done (hello_parser p, bool *errored);
 int is_done (hello_state s, bool *errored);
