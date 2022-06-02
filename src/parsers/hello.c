@@ -18,10 +18,10 @@ void hello_parser_init (hello_parser p) {
   p->auth = NULL;
 }
 
-enum hello_state hello_read_next(hello_parser p, const uint8_t b) {
+enum hello_state hello_parser_feed(hello_parser p, const uint8_t b) {
   switch(p->state) {
     case VERSION:
-      if (b == VERSION_FIELD) {
+      if (b == 0x05) {
         p -> state = AUTH;
       } else {
         p -> state = ERROR_INV_VERSION;
@@ -54,6 +54,8 @@ enum hello_state hello_read_next(hello_parser p, const uint8_t b) {
       break;
     case ERROR_UNSUPPORTED_METHOD:
       break;
+    default:
+      abort();
   }
 
   return p -> state;
@@ -104,7 +106,6 @@ extern int hello_marshall (buffer *b, enum hello_methods method) {
   }
 
   buff[0] = 0x05;
-  // buff[0] = VERSION_FIELD; ??
   buff[1] = method;
   buffer_write_adv(b, 2);
   
