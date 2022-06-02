@@ -9,8 +9,6 @@
 
 #include "buffer.h"
 
-#define VERSION = 0x05;
-
 static const uint8_t METHOD_NO_AUTH_REQUIRED = 0X00;
 static const uint8_t METHOD_AUTH_REQUIRED = 0x02;
 static const uint8_t METHOD_NO_ACCEPTABLE_METHODS = 0XFF;
@@ -23,7 +21,7 @@ enum hello_state {
   hello_methods,
   hello_done,
   hello_error_unsupported_version,
-}
+};
 
 struct hello_parser {
   // invocado cada vez que se presenta un nuevo metodo
@@ -34,7 +32,7 @@ struct hello_parser {
   enum hello_state state;
   // metodos que faltan leer
   uint8_t remaining;
-}
+};
 
 struct hello_parser_init (struct hello_parser *p);
 // basico, le damos un byte al parser
