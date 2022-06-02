@@ -24,6 +24,7 @@
 #include <sys/socket.h> // socket
 #include <sys/types.h>  // socket
 #include <unistd.h>
+#include <netdb.h>
 
 #include "../include/args.h"
 #include "../include/client_handler.h"
@@ -56,7 +57,6 @@ int main(const int argc, char **argv) {
   int server;
   // IP V4
   if (ip_v == 4) {
-    printf("4");
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -90,7 +90,6 @@ int main(const int argc, char **argv) {
   // IP v6
   else {
     if (ip_v == 6) {
-      printf("6");
       struct sockaddr_in6 addr6;
       memset(&addr6, 0, sizeof(addr6));
       addr6.sin6_family = AF_INET6;
@@ -177,7 +176,7 @@ int main(const int argc, char **argv) {
   }
 
   int ret = 0;
-  
+
 finally:
   if (ss != SELECTOR_SUCCESS) {
     fprintf(stderr, "%s: %s\n", (err_msg == NULL) ? "" : err_msg,
