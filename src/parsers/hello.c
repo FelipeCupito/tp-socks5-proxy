@@ -35,7 +35,6 @@ enum hello_state hello_read_next(hello_parser p, const uint8_t b) {
       p->auth = malloc(b); // ?
       p->bytes_to_read = b; // ?
       p->state = HELLO_AUTH; // ?
-      // completar
       break;
     case AUTH:
       if (p->bytes_to_read) {
