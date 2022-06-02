@@ -70,3 +70,44 @@ enum hello_state hello_consume(buffer * b, hello_parser p, bool *errored) {
 
   return state;
 }
+
+int parsing_done (hello_parser p, bool *errored) {
+  return is_done(p -> state, errored);
+}
+
+int is_done(hello_state s, bool *errored) {
+  if (s > DONE) {
+    *errored = true;
+  }
+  return s >= DONE;
+}
+
+uint8_t get_nauth (hello_parser p) {
+  return p -> nauth;
+}
+
+const uint8_t * get_auth_types (hello_parser p) {
+  return p -> auth;
+}
+
+hello_state get_state (hello_parser p) {
+  return p -> state;
+}
+
+// Ojo con esto del enum, no estoy seguro
+extern int hello_marshall (buffer *b, enum hello_methods method) {
+  size_t n;
+  // Que es buffer write ptr?
+  uint8_t *buff = buffer_write_ptr(b, &n);
+
+  if (n < 2) {
+    return -1;
+  }
+
+  buff[0] = 0x05;
+  // buff[0] = VERSION_FIELD; ??
+  buff[1] = method;
+  buffer_write_adv(b, 2);
+  
+  return 2; // ?
+}

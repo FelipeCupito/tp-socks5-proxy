@@ -45,7 +45,7 @@ void hello_parser_init (hello_parser p);
 enum hello_state hello_read_next (hello_parser p, const uint8_t b);
 enum hello_state hello_consume (buffer * b, hello_parser p, bool *errored);
 
-int parsing_done (hello_parser p, bool *errored);
+int parsing_done (hello_parser p, bool *errored); // podria ser bool o no
 int is_done (hello_state s, bool *errored);
 
 uint8_t get_nauth (hello_parser p);
