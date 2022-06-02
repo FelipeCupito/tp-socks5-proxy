@@ -7,6 +7,8 @@
 #include <ctype.h>
 #include <stdint.h>
 
+#define VERSION_FIELD = 0x05;
+
 typedef enum hello_state {
   VERSION = 0,
   NAUTH,
@@ -20,7 +22,8 @@ typedef enum hello_state {
 
 struct hello_parser {
   uint8_t version;
-  uint8_t NMETHODS; 
+  // Ah son lo mismo estos dos, ver con cual quedarse, no entiendo lo de *
+  uint8_t NMETHODS;  
   uint8_t METHODS;
   uint8_t non_auth; // ?
   uint8_t * auth;
@@ -29,10 +32,10 @@ struct hello_parser {
   hello_state state;
 }
 
-typedef enum hello_methods {
+enum hello_methods {
   NO_AUTH_REQUIRED = 0x00,
   USERPASS = 0x02,
-  NO_ACCEPTABLE = 0xff
+  NO_ACCEPTABLE = 0xFF
 }
 
 void hello_parser_init (hello_parser p);
