@@ -21,7 +21,7 @@ static enum request_state version(const uint8_t c, struct request_parser *p)
   }
   else
   {
-    next = reques_error_unsupported_version;
+    next = request_error_unsupported_version;
   }
 
   return next;
@@ -55,7 +55,7 @@ static enum request_state atyp(const uint8_t c, struct request_parser *p)
   case socks_req_addrtype_ipv6:
     remaining_set(p, 16);
     memset(&(p->request->dst_addr.ipv6), 0, sizeof(p->request->dst_addr.ipv6));
-    p->request->dst_addr.ipv6.sin_family = AF_INET6;
+    p->request->dst_addr.ipv6.sin6_family = AF_INET6;
     next = request_dstaddr;
     break;
 
@@ -99,7 +99,7 @@ static enum request_state dstaddr(const uint8_t c, struct request_parser *p)
     ((uint8_t *)&(p->request->dst_addr.ipv6.sin6_addr))[p->bytes_read++] = c;
     break;
   case socks_req_addrtype_domain:
-    p->request->dst_addr.fqdn[p->i++] = c;
+    p->request->dst_addr.fqdn[p->bytes_read++] = c;
     break;
   }
 
@@ -135,21 +135,21 @@ static enum request_state dstport(const uint8_t c, struct request_parser *p)
   return next;
 }
 
-extern void request_parser_init(struct reques_parser *p)
+void request_parser_init(struct request_parser *p)
 {
   p->state = request_version;
   memset(p->request, 0, sizeof(*(p->request)));
 }
 
-extern enum request_state request_state_feed(struct request_parser *p, const uint8_t c)
-{
-  enum request_state next;
+// extern enum request_state request_state_feed(struct request_parser *p, const uint8_t c)
+// {
+//   enum request_state next;
 
-  switch (p->state)
-  {
-  case request_version:
-  }
-}
+//   switch (p->state)
+//   {
+//   case request_version:
+//   }
+// }
 
 extern enum request_state reques_parser_feed(struct request_parser *p, const uint8_t c)
 {

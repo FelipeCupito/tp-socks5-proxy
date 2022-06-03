@@ -31,16 +31,16 @@ esto se traduce en tener un estado para leer:
 
 enum socks_req_cmd
 {
-  socks_req_cmd_connect = 0x01;
-  socks_req_cmd_bind = 0x02;
-  socks_req_cmd_associate = 0x03;
+  socks_req_cmd_connect = 0x01,
+  socks_req_cmd_bind = 0x02,
+  socks_req_cmd_associate = 0x03,
 };
 
 enum socks_addr_type
 {
-  socks_req_addrtype_ipv4 = 0x01;
-  socks_req_addrtype_domain = 0x03;
-  socks_req_addrtype_ipv6 = 0x04;
+  socks_req_addrtype_ipv4 = 0x01,
+  socks_req_addrtype_domain = 0x03,
+  socks_req_addrtype_ipv6 = 0x04,
 };
 
 union socks_addr
