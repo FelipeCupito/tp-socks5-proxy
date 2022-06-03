@@ -14,8 +14,7 @@ static const uint8_t METHOD_NO_AUTH_REQUIRED = 0X00;
 static const uint8_t METHOD_AUTH_REQUIRED = 0x02;
 static const uint8_t METHOD_NO_ACCEPTABLE_METHODS = 0XFF;
 
-enum hello_state
-{
+enum hello_state {
   hello_version,
   // Estamos leyendo la cantidad de metodos
   hello_nmethods,
@@ -25,8 +24,7 @@ enum hello_state
   hello_error_unsupported_version,
 };
 
-struct hello_parser
-{
+struct hello_parser {
   // invocado cada vez que se presenta un nuevo metodo
   // el usuario me pasa una funcion y a esa funcion le paso el parser y el metodo que lei
   void (*on_auth_method)(struct hello_parser *parser, const uint8_t method);

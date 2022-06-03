@@ -19,6 +19,7 @@
 
 */
 static const uint8_t AUTH_SUCCESS = 0X00;
+static const uint8_t AUTH_FAIL = 0X01;
 // static const uint8_t MAX_USER_PASS_SIZE = 0XFF;
 // static const uint8_t METHOD_AUTH_REQUIRED = 0x02;
 // static const uint8_t METHOD_NO_ACCEPTABLE_METHODS = 0XFF;
@@ -62,6 +63,8 @@ typedef struct auth_parser {
 
   uint8_t remaining;
   uint8_t read;
+
+  uint8_t version; // necesario?
 } auth_parser;
 
 void auth_parser_init(struct auth_parser *p,enum auth_type type);
