@@ -1,11 +1,13 @@
 #ifndef AUTH_PARSER_H
 #define AUTH_PARSER_H
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include "../buffer.h"
 
