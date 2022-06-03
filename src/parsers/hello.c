@@ -16,7 +16,7 @@ enum hello_state {
 
 */
 
-extern void hello_parser_init(struct hello_parser *p)
+/*extern*/ void hello_parser_init(struct hello_parser *p)
 {
   p->state = hello_version;
   p->remaining = 0;
@@ -116,7 +116,7 @@ extern enum hello_state hello_consume(buffer *buff, struct hello_parser *p, bool
 
   while (buffer_can_read(buff))
   {
-    const uint8_t c = buffer_read(b);
+    const uint8_t c = buffer_read(buff);
     state = hello_parser_feed(p, c);
     if (hello_is_done(state, errored))
     {

@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <stdint.h>
 
-#include "buffer.h"
+#include "../buffer.h"
 
 #ifndef REQUEST_PARSER_H
 #define REQUEST_PARSER_H
@@ -29,32 +29,37 @@ esto se traduce en tener un estado para leer:
 
 */
 
-enum socks_req_cmd {
-  socks_req_cmd_connect   = 0x01;
-  socks_req_cmd_bind      = 0x02;
+enum socks_req_cmd
+{
+  socks_req_cmd_connect = 0x01;
+  socks_req_cmd_bind = 0x02;
   socks_req_cmd_associate = 0x03;
 };
 
-enum socks_addr_type {
-  socks_req_addrtype_ipv4   = 0x01;
+enum socks_addr_type
+{
+  socks_req_addrtype_ipv4 = 0x01;
   socks_req_addrtype_domain = 0x03;
-  socks_req_addrtype_ipv6   = 0x04;
+  socks_req_addrtype_ipv6 = 0x04;
 };
 
-union socks_addr {
+union socks_addr
+{
   char fqdn[0xff];
   struct sockaddr_in ipv4;
   struct sockaddr_in6 ipv6;
 };
 
-struct request {
-  enum socks_req_cmd  cmd;
+struct request
+{
+  enum socks_req_cmd cmd;
   enum socks_addr_type dst_addr_type;
   union socks_addr dst_addr;
   in_port_t dst_port;
 };
 
-enum request_state {
+enum request_state
+{
   request_version,
   request_cmd,
   request_rsv,
@@ -70,7 +75,8 @@ enum request_state {
   request_error_unsupported_addresstype,
 };
 
-struct request_parser {
+struct request_parser
+{
   struct request *request;
   enum request_state state;
   // cuantos bytes tenemos que leer
@@ -79,7 +85,8 @@ struct request_parser {
   uint8_t bytes_read;
 };
 
-enum socks_response_status {
+enum socks_response_status
+{
   status_succeeded = 0x00,
   status_general_SOCKS_server_failure = 0x01,
   status_connection_not_allowed_by_rules = 0x02,
@@ -91,20 +98,20 @@ enum socks_response_status {
   status_address_type_not_supported = 0x08,
 };
 
-void request_parser_init (struct request_parser *p);
+void request_parser_init(struct request_parser *p);
 
-enum request_state request_parser_feed (struct request_parser *p, const uint8_t c);
+enum request_state request_parser_feed(struct request_parser *p, const uint8_t c);
 
-enum request_state request_consume (buffer *b, struct request_parser *p, bool *errored);
+enum request_state request_consume(buffer *b, struct request_parser *p, bool *errored);
 
-bool request_is_done (const enum request_state state, bool *errored);
+bool request_is_done(const enum request_state state, bool *errored);
 
-void request_close (struct request_parser *p);
+void request_close(struct request_parser *p);
 
-extern int request_marshall (buffer *b, const enum socks_response_status status);
+extern int request_marshall(buffer *b, const enum socks_response_status status);
 
 enum socks_response_status errno_to_socks(int e);
 
-enum socks_response_status cmd_resolve (struct request* request, struct sockaddr **originaddr, socklen_t *originlen, int *domain);
+enum socks_response_status cmd_resolve(struct request *request, struct sockaddr **originaddr, socklen_t *originlen, int *domain);
 
 #endif

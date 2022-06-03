@@ -1,22 +1,22 @@
-CFLAGS = -lcheck -lrt -lm -lsubunit -D_POSIX_C_SOURCE=200112L -std=c11 -pthread
+CC=-D gcc
 
-all: tests
+TESTFLAGS = -lcheck -lrt -lm -lsubunit -D_POSIX_C_SOURCE=200112L -std=c11 -pthread
 
-tests: hello_test
-# test_netutils
-# buffer_test: buffer_test.o ../src/buffer.c
-# 	$(CC) buffer_test.c -o buffer_test.out $(CFLAGS)
+SOURCES_PARSERS=$(wildcard parser_tests/*.c)
 
-# auth_test: auth_test.o ../src/auth.c
-# 	$(CC) auth_test.c ../src/auth.c ../src/buffer.c -o auth_test.out $(CFLAGS)
+OBJECTS_PARSERS=$(wildcard SOURCES_PARSERS:.c=.o)
 
-hello_test: hello_test.o
-	$(CC) ./parser_tests/hello_test.c ../src/parsers/hello.c ../src/buffer.c -o hello_test.out $(CFLAGS)
+ALL_OBJECTS= $(OBJECTS_PARSERS)
 
-# test_request: request_test.o 
-# 	$(CC) request_test.c ../src/request.c ../src/buffer.c -o request_test.out $(CFLAGS)
+%.o: %.c
+	$(CC) $(TESTFLAGS) -I../include -c $< -o $@
 
+all: parser_tests
 
+parser_tests: hello_test.o
+	$(CC) ./hello_test.c ../src/parsers/hello.c ../src/buffer.c -o hello_test.out $(TESTFLAGS)
 
 clean: 
-	rm -rf *.o *.out
+	rm -rf *.o *.out parser_tests/*.o parser_tests/*.out
+
+.PHONY: all clean

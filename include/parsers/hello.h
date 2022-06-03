@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdint.h>
-#include "buffer.h"
+#include "../buffer.h"
 
 /* METHOD VALUES:
  */
@@ -41,7 +41,7 @@ struct hello_parser
 };
 
 // Inicializa el parser
-struct hello_parser_init(struct hello_parser *p);
+void hello_parser_init(struct hello_parser *p);
 
 // Le entrega un byte al parser, retorna true si llego al final
 enum hello_state hello_parser_feed(struct hello_parser *p, uint8_t b);
