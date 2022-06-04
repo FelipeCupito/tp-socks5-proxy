@@ -1,25 +1,37 @@
 #ifndef __logger_h_
 #define __logger_h_
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>   
 
+#include <arpa/inet.h>
+#include <errno.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <unistd.h>
+#include <limits.h>  /* LONG_MIN et al */
+#include <stdio.h>   /* for printf */
+#include <stdlib.h>  /* for exit */
+#include <string.h>  /* memset */
+#include <sys/socket.h> // socket
+#include <sys/types.h>  // socket
+#include <stdarg.h> //para el parametro ...
 /* 
 *  Macros y funciones simples para log de errores.
 *  EL log se hace en forma simple
 *  Alternativa: usar syslog para un log mas completo. Ver sección 13.4 del libro de  Stevens
 */
 
-typedef enum {DEBUG=0, INFO, ERROR, FATAL} LOG_LEVEL;
+typedef enum {DEBUG=0, INFO, LOG_ERROR, FATAL} LOG_LEVEL;
 
 extern LOG_LEVEL current_level;
+extern bool error_flag;
 
 /**
 *  Minimo nivel de log a registrar. Cualquier llamada a log con un nivel mayor a newLevel sera ignorada
 **/
 void setLogLevel(LOG_LEVEL newLevel);
 
-void log(int level, const char *fmt, ...);
+void log(LOG_LEVEL level, const char *fmt, ...);
 
 
 // Debe ser una macro para poder obtener nombre y linea de archivo. 

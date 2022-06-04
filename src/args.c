@@ -5,8 +5,9 @@ static unsigned short port(const char *s) {
   const long sl = strtol(s, &end, 10);
 
   if (end == s || '\0' != *end ||
-      ((LONG_MIN == sl || LONG_MAX == sl) && ERANGE == errno) || sl < 0 || sl > USHRT_MAX) {
-    log(FATAL, "port should in in the range of 1-65536: %s\n", s);
+      ((LONG_MIN == sl || LONG_MAX == sl) && ERANGE == errno) || sl < 0 ||
+      sl > USHRT_MAX) {
+    log(LOG_ERROR, "port should in in the range of 1-65536: %s\n", s);
     return 1;
   }
   return (unsigned short)sl;
@@ -15,7 +16,7 @@ static unsigned short port(const char *s) {
 static void user(char *s, struct users *user) {
   char *p = strchr(s, ':');
   if (p == NULL) {
-    log(FATAL, "password not found\n");
+    log(LOG_ERROR, "password not found\n");
   } else {
     *p = 0;
     p++;
@@ -26,8 +27,7 @@ static void user(char *s, struct users *user) {
 
 static void version(void) {
   fprintf(stderr, "socks5v version 0.0\n"
-                  "ITBA Protocolos de Comunicación 2022/1 -- Grupo 6\n"
-                  "AQUI VA LA LICENCIA\n");
+                  "ITBA Protocolos de Comunicación 2022/1 -- Grupo 6\n");
 }
 
 static void usage(const char *progname) {
@@ -44,51 +44,94 @@ static void usage(const char *progname) {
       "proxy. Hasta 10.\n"
       "   -v               Imprime información sobre la versión versión y "
       "termina.\n"
+      "   -N               Deshabilita los passwords disectors.\n"
       "\n",
       progname);
   exit(0);
 }
 
-void parse_args(const int argc,  char **argv, struct socks5args *args) {
-  memset(args, 0,sizeof(*args)); // sobre todo para setear en null los punteros de users
+int get_sockaddr(const char *src, union IPAddress *sockaddr) {
 
-  args->socks_addr = "0.0.0.0";
-  args->socks_port = 1080;
+  memset(sockaddr, 0, sizeof(sockaddr));
 
-  args->mng_addr = "127.0.0.1";
-  args->mng_port = 8080;
+  if (inet_pton(AF_INET, src, &sockaddr->v4.sin_addr)) {
+    sockaddr->v4.sin_family = AF_INET;
+    return 4;
+  } else if (inet_pton(AF_INET6, src, &sockaddr->v6.sin6_addr)) {
+    sockaddr->v6.sin6_family = AF_INET6;
+    return 6;
+  }
+  return -1;
+}
 
-  args->disectors_enabled = true;
+void parse_args(const int argc, char **argv, serverConfig *config) {
 
+
+  memset(config, 0, sizeof(serverConfig));
+
+  // default config
+  config->socks_sockaddr.v4.sin_family = AF_INET;
+  inet_pton(AF_INET, DEFAULT_SOCKS_ADDRESS, &config->socks_sockaddr.v4.sin_addr);
+  config->socks_sockaddr.v4.sin_port = htons(DEFAULT_SOCKS_PORT);
+  config->is_socks_v4 = true;
+
+  // mng config
+  config->mng_sockaddr.v4.sin_family = AF_INET;
+  inet_pton(AF_INET, DEFAULT_MNG_ADDRESS, &config->mng_sockaddr.v4.sin_addr);
+  config->mng_sockaddr.v4.sin_port = htons(DEFAULT_MNG_PORT);
+  config->is_mng_v4 = true;
+
+  config->disectors_enabled = true;
+  config->socks_buffer_size = DEFAULT_SOCKS_BUFFER_SIZE;
+  config->timeout = SELECT_TIMEOUT;
+
+  // guardo los argumentos
   int c;
   int nusers = 0;
+  int flagIpMng = 0;
+  int flagIpSocks = 0; 
+  unsigned int portSocks = -1;
+  unsigned int portMng = -1;
 
-  while ((c = getopt(argc, argv, "hl:L:Np:P:u:v" )) != -1) {
+  while ((c = getopt(argc, argv, "hl:L:Np:P:u:v")) != -1) {
 
     switch (c) {
     case 'h':
       usage(argv[0]);
       break;
     case 'l':
-      args->socks_addr = optarg;
+      flagIpSocks = 1;
+      int ipv = get_sockaddr(optarg, &config->socks_sockaddr);
+      if (ipv == -1) {
+        log(LOG_ERROR, "invalid server ip addr: %s\n", optarg);
+        goto finally;
+      }
+      config->is_socks_v4 = (ipv == 4) ? true : false;
       break;
     case 'L':
-      args->mng_addr = optarg;
+      flagIpMng = 1;
+      ipv = get_sockaddr(optarg, &config->mng_sockaddr);
+      if (ipv == -1) {
+        log(LOG_ERROR, "invalid Mng server ip addr: %s\n", optarg);
+        goto finally;
+      }
+      config->is_mng_v4 = (ipv == 4) ? true : false;
       break;
     case 'N':
-      args->disectors_enabled = false;
+      config->disectors_enabled = false;
       break;
     case 'p':
-      args->socks_port = port(optarg);
+      portSocks = port(optarg);
       break;
     case 'P':
-      args->mng_port = port(optarg);
+      portMng = port(optarg);
       break;
     case 'u':
       if (nusers >= MAX_USERS) {
-        log(FATAL,"maximun number of command line users reached: %d.\n",MAX_USERS );
+        log(LOG_ERROR, "maximum number of command line users reached: %d.\n",
+            MAX_USERS);
       } else {
-        user(optarg, args->users + nusers);
+        user(optarg, config->users + nusers);
         nusers++;
       }
       break;
@@ -97,15 +140,34 @@ void parse_args(const int argc,  char **argv, struct socks5args *args) {
       exit(0);
       break;
     default:
-        log(FATAL,"unknown argument %d.\n", c);
+      log(LOG_ERROR, "unknown argument %d.\n", c);
     }
   }
 
+  if(portSocks != -1){
+    if(config->is_socks_v4)
+      config->socks_sockaddr.v4.sin_port = htons(portSocks);
+    else
+      config->socks_sockaddr.v6.sin6_port = htons(portSocks);
+  }
+
+  if(flagIpMng && portMng != -1){
+    if(config->is_mng_v4)
+      config->mng_sockaddr.v4.sin_port = htons(portSocks);
+    else
+      config->mng_sockaddr.v6.sin6_port = htons(portSocks);
+  }
+
+
   if (optind < argc) {
-      log(ERROR,"argument not accepted: ");
+    log(LOG_ERROR, "argument not accepted: ");
     while (optind < argc) {
-      log(ERROR,"%s ", argv[optind++]);
+      log(LOG_ERROR, "%s ", argv[optind++]);
     }
+  }
+
+finally:
+  if (error_flag) {
     exit(1);
   }
 }
