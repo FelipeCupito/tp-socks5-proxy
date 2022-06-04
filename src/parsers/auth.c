@@ -17,7 +17,7 @@
 
 */
 
-void auth_parser_init (struct auth_parser *p, enum auth_type type) {
+void auth_parser_init (struct auth_parser *p) {
   p -> state = auth_version;
   memset(&p -> user, 0, sizeof(p -> user));
 
@@ -83,7 +83,7 @@ enum auth_state auth_parser_feed(auth_parser *p, uint8_t b) {
       p -> read ++;
 
       if (remaining_is_done(p)) {
-        *( (p->usr.uname) + p->read ) = '\0';
+        *( (p->user.username) + p->read ) = '\0';
         p -> state = auth_passlen;
       } else {
         p -> state = auth_userlen;
@@ -139,6 +139,7 @@ bool auth_is_done(const enum auth_state state, bool *errored)
       *errored = true;
     }
     done = true;
+    break;
   case auth_done:
     done = true;
     break;

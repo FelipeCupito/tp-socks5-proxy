@@ -22,7 +22,7 @@
 */
 static const uint8_t AUTH_SUCCESS = 0X00;
 static const uint8_t AUTH_FAIL = 0X01;
-static const uint8_t MAX_USR_PASS_SIZE = 0XFF;
+#define MAX_USR_PASS_SIZE 0XFF
 
 // enum auth_type {
 //   auth_socks,

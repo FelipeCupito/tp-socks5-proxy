@@ -88,7 +88,7 @@ extern bool hello_is_done(const enum hello_state state, bool *errored)
     break;
   }
 
-  return res;
+  return done;
 }
 
 extern const char *hello_error(const struct hello_parser *p)
