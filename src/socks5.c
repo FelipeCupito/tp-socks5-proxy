@@ -3,6 +3,9 @@
 // handler de cada estado de socks5
 const struct state_definition socks_state_definition[] = {
     {
+        .state = HELLO_READ,
+    },
+    {
         .state = CONNECTING,
         .on_arrival = connecting_init,
         .on_departure = connecting_close,
@@ -22,7 +25,8 @@ const struct state_definition socks_state_definition[] = {
     },
     {
         .state = ERROR,
-    }};
+    }
+};
 
 /////////////////////////////////////////////////////////////////////////
 /*                                                                     */
@@ -31,7 +35,7 @@ struct socks5 *socks5_new(const int client) {
 
   struct socks5 *sockState = malloc(sizeof(struct socks5));
   if (sockState == NULL) {
-    log(LOG_ERROR, "Error: Initizalizing null Socks5\n");
+    log_print(LOG_ERROR, "Error: Initizalizing null Socks5\n");
   }
 
   // inicializamos la maquina de estados
@@ -44,14 +48,14 @@ struct socks5 *socks5_new(const int client) {
   // creamos los buffer de lectura y escritura
 
   // TODO: cambiar
-  buffer_init(&(sockState->write_buffer), BUFFERSIZE + 1,
-              malloc(BUFFERSIZE + 1));
-  buffer_init(&(sockState->read_buffer), BUFFERSIZE + 1,
-              malloc(BUFFERSIZE + 1));
+  buffer_init(&(sockState->write_buffer), BUFFER_SIZE + 1,
+              malloc(BUFFER_SIZE + 1));
+  buffer_init(&(sockState->read_buffer), BUFFER_SIZE + 1,
+              malloc(BUFFER_SIZE + 1));
 
   // Intialize the client_fd and the server_fd
   sockState->client_fd = client;
-  sockState->origin_fd = sockState->sel_origin_fd = -1;
+  sockState->final_server_fd = sockState->sel_origin_fd = -1;
 
   //   sockState->reply_type = -1;
   // 1 -> se puede borrar

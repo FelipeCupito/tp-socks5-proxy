@@ -7,7 +7,7 @@ static unsigned short port(const char *s) {
   if (end == s || '\0' != *end ||
       ((LONG_MIN == sl || LONG_MAX == sl) && ERANGE == errno) || sl < 0 ||
       sl > USHRT_MAX) {
-    log(LOG_ERROR, "port should in in the range of 1-65536: %s\n", s);
+    log_print(LOG_ERROR, "port should in in the range of 1-65536: %s\n", s);
     return 1;
   }
   return (unsigned short)sl;
@@ -16,7 +16,7 @@ static unsigned short port(const char *s) {
 static void user(char *s, struct users *user) {
   char *p = strchr(s, ':');
   if (p == NULL) {
-    log(LOG_ERROR, "password not found\n");
+    log_print(LOG_ERROR, "password not found\n");
   } else {
     *p = 0;
     p++;
@@ -103,7 +103,7 @@ void parse_args(const int argc, char **argv, serverConfig *config) {
       flagIpSocks = 1;
       int ipv = get_sockaddr(optarg, &config->socks_sockaddr);
       if (ipv == -1) {
-        log(LOG_ERROR, "invalid server ip addr: %s\n", optarg);
+        log_print(LOG_ERROR, "invalid server ip addr: %s\n", optarg);
         goto finally;
       }
       config->is_socks_v4 = (ipv == 4) ? true : false;
@@ -112,7 +112,7 @@ void parse_args(const int argc, char **argv, serverConfig *config) {
       flagIpMng = 1;
       ipv = get_sockaddr(optarg, &config->mng_sockaddr);
       if (ipv == -1) {
-        log(LOG_ERROR, "invalid Mng server ip addr: %s\n", optarg);
+        log_print(LOG_ERROR, "invalid Mng server ip addr: %s\n", optarg);
         goto finally;
       }
       config->is_mng_v4 = (ipv == 4) ? true : false;
@@ -128,7 +128,7 @@ void parse_args(const int argc, char **argv, serverConfig *config) {
       break;
     case 'u':
       if (nusers >= MAX_USERS) {
-        log(LOG_ERROR, "maximum number of command line users reached: %d.\n",
+        log_print(LOG_ERROR, "maximum number of command line users reached: %d.\n",
             MAX_USERS);
       } else {
         user(optarg, config->users + nusers);
@@ -140,7 +140,7 @@ void parse_args(const int argc, char **argv, serverConfig *config) {
       exit(0);
       break;
     default:
-      log(LOG_ERROR, "unknown argument %d.\n", c);
+      log_print(LOG_ERROR, "unknown argument %d.\n", c);
     }
   }
 
@@ -160,9 +160,9 @@ void parse_args(const int argc, char **argv, serverConfig *config) {
 
 
   if (optind < argc) {
-    log(LOG_ERROR, "argument not accepted: ");
+    log_print(LOG_ERROR, "argument not accepted: ");
     while (optind < argc) {
-      log(LOG_ERROR, "%s ", argv[optind++]);
+      log_print(LOG_ERROR, "%s ", argv[optind++]);
     }
   }
 

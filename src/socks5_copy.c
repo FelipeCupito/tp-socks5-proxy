@@ -10,6 +10,7 @@
 void copy_init(const unsigned state, struct selector_key *key) {
 
   struct socks5 *sockState = ATTACHMENT(key);
+  sockState->error = 0;
 
   // Init of the copy for the client
   struct copy_st *client_copy = &sockState->client_handler.copy;
@@ -81,7 +82,7 @@ unsigned copy_read(struct selector_key *key) {
   // Getting the state struct
   struct copy_st *data = get_copy_ptr(key);
 
-  log(INFO, "esoty en copy_read");
+  log_print(INFO, "esoty en copy_read");
 
   // Getting the read buffer
   buffer *b = data->rb;

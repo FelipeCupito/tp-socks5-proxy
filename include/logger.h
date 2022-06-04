@@ -31,14 +31,14 @@ extern bool error_flag;
 **/
 void setLogLevel(LOG_LEVEL newLevel);
 
-void log(LOG_LEVEL level, const char *fmt, ...);
+void log_print(LOG_LEVEL level, const char *fmt, ...);
 
 
 // Debe ser una macro para poder obtener nombre y linea de archivo. 
 /*
 char * levelDescription(LOG_LEVEL level);
 
-#define log(level, fmt, ...)   {if(level >= current_level) {\
+#define log_print(level, fmt, ...)   {if(level >= current_level) {\
 	fprintf (stderr, "%s: %s:%d, ", levelDescription(level), __FILE__, __LINE__); \
 	fprintf(stderr, fmt, ##__VA_ARGS__); \
 	fprintf(stderr,"\n"); }\

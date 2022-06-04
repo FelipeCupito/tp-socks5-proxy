@@ -34,6 +34,7 @@ struct socks5 *socks5_new(const int client);
 // Estados posibles de cada estado de socks5
 /////////////////////////////////////////////////////////////////////////
 enum socks_state {
+  HELLO_READ,
   // creo un nuevo socket y espero conecion
   CONNECTING,
   // copi los datos
@@ -131,7 +132,7 @@ typedef struct socks5 {
 
   // Final Server
   struct sockaddr_storage final_server_addr;
-  socklen_t final_serverr_len;
+  socklen_t final_server_len;
   int final_server_fd;
 
   // Estado del Socket:
@@ -152,10 +153,10 @@ typedef struct socks5 {
   } server_data;
 
   // buffer de escritura
-  uint8_t raw_buff_a[BUFFER_SIZE], raw_buff_b[BUFFE_SIZE];
+  uint8_t raw_buff_a[BUFFER_SIZE], raw_buff_b[BUFFER_SIZE];
   buffer read_buffer, write_buffer;
 
-  int error 0;
+  int error;
 
   // bool disectors_enabled; para mi no hace falta
   // int ss_final_serv; //en caso que usemos dos selects

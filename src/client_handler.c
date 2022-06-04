@@ -14,7 +14,7 @@ void client_passive_accept(struct selector_key *key) {
   if (client == -1) {
     goto fail;
   }
-  log(INFO, "acepto al conecion(1)\n");
+  log_print(INFO, "acepto al conecion(1)\n");
 
   // clntSock is connected to a client!
   if (selector_fd_set_nio(client) == -1) {
@@ -27,7 +27,7 @@ void client_passive_accept(struct selector_key *key) {
 
   if (SELECTOR_SUCCESS !=
       selector_register(key->s, client, &socks5_handler, OP_READ, state)) {
-    log(LOG_ERROR, "no se registro en el select");
+    log_print(LOG_ERROR, "no se registro en el select");
     goto fail;
   }
 
@@ -48,7 +48,7 @@ void socks5_read(struct selector_key *key) {
 
   if (ERROR == st || DONE == st) {
     socks5_done(key);
-    log(INFO, "client_read fallo");
+    log_print(INFO, "client_read fallo");
     // TODO: hacer un close de socks5
   }
 }

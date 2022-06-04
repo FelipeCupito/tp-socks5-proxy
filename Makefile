@@ -18,7 +18,7 @@ all:$(OFILES)
 
 
 clean:	
-	rm -rf $(OFILES)
+	rm -rf $(OFILES) server
 
 
 
