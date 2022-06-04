@@ -10,7 +10,7 @@
     buffer_init(&(b), N(data), (data)); \
     buffer_write_adv(&(b), N(data))
 
-static void on_hello_method(void *data, const uint8_t method)
+static void on_hello_method(struct hello_parser *data, const uint8_t method)
 {
     uint8_t *selected = data;
     if (method == METHOD_NO_AUTH_REQUIRED || method >= 0xFA)
@@ -24,7 +24,7 @@ START_TEST(test_hello_normal)
     uint8_t method = METHOD_NO_ACCEPTABLE_METHODS;
     struct hello_parser parser = {
         .data = &method,
-        .on_authentication_method = on_hello_method,
+        .on_auth_method = on_hello_method,
     };
     hello_parser_init(&parser);
     uint8_t data[] = {

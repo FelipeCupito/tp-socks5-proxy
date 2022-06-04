@@ -165,7 +165,7 @@ enum auth_state auth_consume(buffer *buff, struct auth_parser *p, bool *errored)
   return state;
 }
 
-extern int hello_marshall(buffer *b, const uint8_t status) {
+extern int auth_marshall(buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 
