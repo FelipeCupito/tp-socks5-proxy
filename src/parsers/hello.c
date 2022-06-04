@@ -40,6 +40,7 @@ extern enum hello_state hello_parser_feed(struct hello_parser *p, const uint8_t 
   case hello_nmethods:
     if (b <= 0)
     {
+      log(DEBUG, "b: %d.\n", b);
       p->state = hello_done;
     }
     p->remaining = b;
