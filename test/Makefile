@@ -1,4 +1,4 @@
-CC=-D gcc
+CC=gcc
 
 TESTFLAGS = -lcheck -lrt -lm -lsubunit -D_POSIX_C_SOURCE=200112L -std=c11 -pthread
 
@@ -13,8 +13,8 @@ ALL_OBJECTS= $(OBJECTS_PARSERS)
 
 all: parser_tests
 
-parser_tests: hello_test
-	$(CC) hello_test.c hello_test.o ../src/parsers/hello.c ../src/buffer.c -o hello_test.out $(TESTFLAGS)
+parser_tests: parser_tests/hello_test.o
+	$(CC) parser_tests/hello_test.c ../src/parsers/hello.c ../src/buffer.c -o hello_test $(TESTFLAGS)
 
 clean: 
 	rm -rf *.o *.out parser_tests/*.o parser_tests/*.out
