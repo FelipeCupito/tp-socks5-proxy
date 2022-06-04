@@ -70,7 +70,7 @@ extern enum hello_state hello_parser_feed(struct hello_parser *p, const uint8_t 
 
 extern bool hello_is_done(const enum hello_state state, bool *errored)
 {
-  bool res;
+  bool done;
   switch (state)
   {
   case hello_error_unsupported_version:
@@ -78,11 +78,13 @@ extern bool hello_is_done(const enum hello_state state, bool *errored)
     {
       *errored = true;
     }
+    done = true;
+    break;
   case hello_done:
-    res = true;
+    done = true;
     break;
   default:
-    res = false;
+    done = false;
     break;
   }
 

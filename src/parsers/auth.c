@@ -1,4 +1,6 @@
 #include "../../include/parsers/auth.h"
+#include "../../include/logger.h"
+#include "../../include/buffer.h"
 
 /* ESTADOS
 
@@ -114,5 +116,65 @@ enum auth_state auth_parser_feed(auth_parser *p, uint8_t b) {
 
       break;
     
+    default:
+      log(FATAL, "Invalid state %d.\n", p->state);
+      //abort();
+      break;
   }
+
+  return p -> state;
+}
+
+bool auth_is_done(const enum auth_state state, bool *errored)
+{
+  bool done;
+  switch (state)
+  {
+  case auth_error_unsupported_version:
+  case auth_error:
+  case auth_error_pass_len:
+  case auth_error_user_len:
+    if (errored != 0)
+    {
+      *errored = true;
+    }
+    done = true;
+  case auth_done:
+    done = true;
+    break;
+  default:
+    done = false;
+    break;
+  }
+
+  return done;
+}
+
+enum auth_state auth_consume(buffer *buff, struct auth_parser *p, bool *errored) {
+  enum auth_state state = p->state;
+
+  while (buffer_can_read(buff)) {
+    const uint8_t c = buffer_read(buff);
+    state = auth_parser_feed(p, c);
+    if (auth_is_done(state, errored)) {
+      break;
+    }
+  }
+
+  return state;
+}
+
+extern int hello_marshall(buffer *b, const uint8_t status) {
+  size_t n;
+  uint8_t *buff = buffer_write_ptr(b, &n);
+
+  if (n < 2)
+  {
+    return -1;
+  }
+
+  buff[0] = 0x01;
+  buff[1] = status;
+  buffer_write_adv(b, 2);
+  return 2;
 }
