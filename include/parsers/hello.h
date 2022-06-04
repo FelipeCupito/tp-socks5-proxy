@@ -27,8 +27,7 @@ enum hello_state {
 struct hello_parser {
   // invocado cada vez que se presenta un nuevo metodo
   // el usuario me pasa una funcion y a esa funcion le paso el parser y el metodo que lei
-  void (*on_auth_method)(struct hello_parser *parser, const uint8_t method);
-
+  void (*on_auth_method)(void *data, const uint8_t method);
   // permite al user del parser almacenar sus datos
   void *data;
 

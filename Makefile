@@ -23,6 +23,7 @@ all:$(OFILES)
 	$(CC) $(OFILES) $(CFLAGS) -o server
 
 test:$(OTFILES)
+	cd test; make all
 
 clean:
 	cd test; make clean	
