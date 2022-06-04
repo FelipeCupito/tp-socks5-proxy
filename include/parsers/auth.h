@@ -22,14 +22,12 @@
 */
 static const uint8_t AUTH_SUCCESS = 0X00;
 static const uint8_t AUTH_FAIL = 0X01;
-// static const uint8_t MAX_USER_PASS_SIZE = 0XFF;
-// static const uint8_t METHOD_AUTH_REQUIRED = 0x02;
-// static const uint8_t METHOD_NO_ACCEPTABLE_METHODS = 0XFF;
+static const uint8_t MAX_USR_PASS_SIZE = 0XFF;
 
-enum auth_type {
-  auth_socks,
-  auth_mng,
-}
+// enum auth_type {
+//   auth_socks,
+//   auth_mng,
+// }
 
 enum auth_state {
   auth_version,
@@ -38,13 +36,13 @@ enum auth_state {
   auth_passlen,
   auth_pass,
 
-  auth_success,
+  auth_done,
 
   auth_error_unsupported_version,
   auth_error,
-  // Pensar estos dos:
-  // auth_error_user,
-  // auth_error_pass,
+  // TODO Pensar estos dos:
+  auth_error_user_len,
+  auth_error_pass_len,
 };
 
 struct user {
@@ -69,7 +67,7 @@ typedef struct auth_parser {
   uint8_t version; // necesario?
 } auth_parser;
 
-void auth_parser_init(struct auth_parser *p,enum auth_type type);
+void auth_parser_init(struct auth_parser *p);
 
 enum auth_state auth_parser_feed(auth_parser *p, uint8_t b);
 
