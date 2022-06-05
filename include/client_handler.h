@@ -20,10 +20,10 @@
 
 void client_passive_accept(struct selector_key *key);
 
-void client_read(struct selector_key *key);
-void client_write(struct selector_key *key);
-void client_block(struct selector_key *key);
-void client_close(struct selector_key *key);
+void socks5_read(struct selector_key *key);
+void socks5_write(struct selector_key *key);
+void socks5_block(struct selector_key *key);
+void socks5_close(struct selector_key *key);
 
 
 

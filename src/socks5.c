@@ -55,13 +55,14 @@ struct socks5 *socks5_new(const int client) {
 
   // Intialize the client_fd and the server_fd
   sockState->client_fd = client;
-  sockState->final_server_fd = sockState->sel_origin_fd = -1;
+  sockState->final_server_fd = -1;
+//   sockState->final_server_fd = sockState->sel_origin_fd = -1;
 
   //   sockState->reply_type = -1;
   // 1 -> se puede borrar
   sockState->references = 1;
   //   sockState->username = NULL;
-  memset(&sockState->server_info, 0, sizeof(sockState->server_info));
+  memset(&(sockState->server_data), 0, sizeof(sockState->server_data));
 
   return sockState;
 }

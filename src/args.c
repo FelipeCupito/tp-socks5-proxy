@@ -52,7 +52,7 @@ static void usage(const char *progname) {
 
 int get_sockaddr(const char *src, union IPAddress *sockaddr) {
 
-  memset(sockaddr, 0, sizeof(sockaddr));
+  memset(sockaddr, 0, sizeof(*sockaddr));
 
   if (inet_pton(AF_INET, src, &sockaddr->v4.sin_addr)) {
     sockaddr->v4.sin_family = AF_INET;
@@ -90,8 +90,8 @@ void parse_args(const int argc, char **argv, serverConfig *config) {
   int nusers = 0;
   int flagIpMng = 0;
   int flagIpSocks = 0; 
-  unsigned int portSocks = -1;
-  unsigned int portMng = -1;
+  int portSocks = -1;
+  int portMng = -1;
 
   while ((c = getopt(argc, argv, "hl:L:Np:P:u:v")) != -1) {
 

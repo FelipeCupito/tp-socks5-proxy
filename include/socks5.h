@@ -137,6 +137,7 @@ typedef struct socks5 {
 
   // Estado del Socket:
   struct state_machine stm;
+
   // estado del socket cliente
   union client_data{
     // hello_st hello;
@@ -151,6 +152,10 @@ typedef struct socks5 {
     connecting_data connect;
     copy_data copy;
   } server_data;
+
+  // Nro de referencias a esta instancia de struct socks5
+  // Si la cantidad es 1, se puede borrar
+  unsigned int references;
 
   // buffer de escritura
   uint8_t raw_buff_a[BUFFER_SIZE], raw_buff_b[BUFFER_SIZE];
