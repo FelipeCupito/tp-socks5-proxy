@@ -56,7 +56,10 @@ void connecting_init(const unsigned state, struct selector_key *key) {
     // setsockopt(server, IPPROTO_IPV6, IPV6_V6ONLY, &(int){1}, sizeof(int));
     conn->ip_index = request->ipv6_size;
 
-  } else {/* ERROR */ }
+  } else {
+    log_print(LOG_ERROR, "Failed to create server socket in connect");
+    // TODO: Add something else for error
+  }
 
   if (conn->final_server_fd == -1) { /* ERROR en socket*/}
   if (conn->ip_index == -1) { /* ERROR nuestro*/ }
@@ -73,13 +76,15 @@ unsigned connecting_write(struct selector_key *key) {
 
   int conn_status = -1;
   unsigned ret = CONNECTING;
+  unsigned int connection_established = 0;
 
   request_data *request = &ATTACHMENT(key)->client_data.request;
   connecting_data *conn = &ATTACHMENT(key)->server_data.connect;
+  socks5 *socks5_info = ATTACHMENT(key);
   struct sockaddr_storage* sin =(struct sockaddr_storage*) &ATTACHMENT(key)->final_server_addr;
 
   //intento conectarme a todas las ip a la vez
-  while( conn_status < 0 && conn->ip_index >= 0){
+  while( conn_status < 0 && conn->ip_index >= 0 && !connection_established){
     
     //inicilizo sockaddr_storage
     if (request->addrType == IPv4) {
@@ -101,6 +106,7 @@ unsigned connecting_write(struct selector_key *key) {
     if(conn_status == -1){
         if (errno == EINPROGRESS) {
             //se esta conectando salgo del while
+            connection_established = 1;
             break;
         }else{
             conn->ip_index--;
@@ -116,20 +122,24 @@ unsigned connecting_write(struct selector_key *key) {
 
   if (conn_status == -1) {
     switch (errno) {
-    case EINPROGRESS:
-      ss = selector_register(key->s, conn->final_server_fd, &socks5_handler,
-                             OP_WRITE, ATTACHMENT(key));
-      ss = selector_set_interess(key->s, socks5->client_fd, OP_NOOP);
-      if (ss != SELECTOR_SUCCESS) {
-        // TODO:ERROR
-        return;
-      }
-      //
-      d->substate = CONN_SUB_CHECK_ORIGIN;
-      break;
-    default:
-      // si tengo otra ip para probar todo bien, sigo intentado
-      // si no hay mas ip error, no me puedo conectar
+      // EINPROGRESS -> cuando el socket es no bloqueante y ls conexion
+      // no puede ser completada inmediatamente
+      case EINPROGRESS:
+        ss = selector_register(key->s, conn->final_server_fd, &socks5_handler, OP_WRITE, ATTACHMENT(key));
+        socks5_info->references++;
+        ss = selector_set_interest(key->s, conn->client_fd, OP_NOOP);
+
+        if (ss != SELECTOR_SUCCESS) {
+          // TODO: ERROR
+          log_print(LOG_ERROR, "Error in register of final server fd in connect_write");
+          return;
+        }
+        //
+        d->substate = CONN_SUB_CHECK_ORIGIN;
+        break;
+      default:
+        // si tengo otra ip para probar todo bien, sigo intentado
+        // si no hay mas ip error, no me puedo conectar
     }
   }
   if (conn_status > 0) {

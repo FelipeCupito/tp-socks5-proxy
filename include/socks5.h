@@ -68,10 +68,11 @@ typedef enum connection_state {
 // Store de cada estado
 /////////////////////////////////////////////////////////////////////////
 typedef struct connecting_data {
+  // write buffer
   buffer *wb;
   unsigned int ip_index;
   int final_server_fd;
-  const int client_fd;
+  int client_fd;
 
 } connecting_data;
 

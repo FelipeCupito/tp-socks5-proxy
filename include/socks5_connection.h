@@ -16,6 +16,7 @@
 #include "selector.h"
 #include "logger.h"
 #include "socks5.h"
+#include "client_handler.h"
 
 #define SIN_ADDR(sin) (void *)&(((struct sockaddr_in *)sin)->sin_addr)
 #define SIN_PORT(sin) (void *)&(((struct sockaddr_in *)sin)->sin_port)
