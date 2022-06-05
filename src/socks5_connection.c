@@ -30,18 +30,18 @@
 void connecting_init(const unsigned state, struct selector_key *key) {
 
   // borrar: (esto va en el estado anterior) --->
-  request_data *request = ATTACHMENT(key)->client_data.request;
+  request_data *request = &ATTACHMENT(key)->client_data.request;
   request->ipv4_size = 0;
-  request->ipv4_addr[0][0] = "127.0.0.1";
+  request->ipv4_addrs[0][0] = "127.0.0.1";
   request->ipv6_size = -1; // no hay ip v6
   request->port[0] = 9090;
   request->addrType = 0x01;
   //<----
 
-  connecting_data *conn = ATTACHMENT(key)->server_data.conn;
-  conn->client_fd = ATTACHMENT(key)->client_fd;
-  conn->final_server_fd = ATTACHMENT(key)->final_server_fd;
-  conn->wb = ATTACHMENT(key)->write_buffer;
+  connecting_data *conn = &ATTACHMENT(key)->server_data.connect;
+  conn->client_fd = &ATTACHMENT(key)->client_fd;
+  conn->final_server_fd = &ATTACHMENT(key)->final_server_fd;
+  conn->wb = &ATTACHMENT(key)->write_buffer;
 
   // descomentar cuando se borre lo de arriba
   // request_data* request = ATTACHMENT(key)->client_data.request;
@@ -74,8 +74,8 @@ unsigned connecting_write(struct selector_key *key) {
   int conn_status = -1;
   unsigned ret = CONNECTING;
 
-  request_data *request = ATTACHMENT(key)->client_data.request;
-  connecting_data *conn = ATTACHMENT(key)->server_data.conn;
+  request_data *request = &ATTACHMENT(key)->client_data.request;
+  connecting_data *conn = &ATTACHMENT(key)->server_data.connect;
   struct sockaddr_storage* sin =(struct sockaddr_storage*) &ATTACHMENT(key)->final_server_addr;
 
   //intento conectarme a todas las ip a la vez
