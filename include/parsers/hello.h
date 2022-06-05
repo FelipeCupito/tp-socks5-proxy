@@ -31,31 +31,31 @@ struct hello_parser {
   // permite al user del parser almacenar sus datos
   void *data;
 
-  enum hello_state state;
+	enum hello_state state;
 
-  // metodos que faltan leer
-  uint8_t remaining;
+	// metodos que faltan leer
+	uint8_t remaining;
 };
 
 // Inicializa el parser
-void hello_parser_init(struct hello_parser *p);
+void hello_parser_init(struct hello_parser* p);
 
 // Le entrega un byte al parser, retorna true si llego al final
-enum hello_state hello_parser_feed(struct hello_parser *p, uint8_t b);
+enum hello_state hello_parser_feed(struct hello_parser* p, uint8_t b);
 
 // te doy el buffer, consumi todos los bytes que puedas
-enum hello_state hello_consume(buffer *buff, struct hello_parser *p, bool *errored);
+enum hello_state hello_consume(buffer* buff, struct hello_parser* p, bool* errored);
 
-bool hello_is_done(const enum hello_state state, bool *errored);
+bool hello_is_done(const enum hello_state state, bool* errored);
 
-extern const char *hello_error(const struct hello_parser *p);
+extern const char* hello_error(const struct hello_parser* p);
 
-void hello_parser_close(struct hello_parser *p);
+void hello_parser_close(struct hello_parser* p);
 
 // serializa en un buff la respuesta al hello
 // retorn la cantidad de bytes ocupados del buffer
 // o -1 si no habia espacio suficiente
 
-int hello_marshall(buffer *b, const uint8_t method);
+int hello_marshall(buffer* b, const uint8_t method);
 
 #endif
