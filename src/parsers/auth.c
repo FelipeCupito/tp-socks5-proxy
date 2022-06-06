@@ -64,14 +64,6 @@ enum auth_state auth_parser_feed(auth_parser *p, uint8_t b) {
       } else {
         remaining_set(p,b);
         p -> user.userlen = b;
-
-        // TODO es necesario esto?
-        // if(p->usr.uname == NULL)
-        // {
-        //     p->state = auth_error;
-        //     return p->state;
-        // }
-
         p -> state = auth_username;
       }
 
@@ -118,7 +110,6 @@ enum auth_state auth_parser_feed(auth_parser *p, uint8_t b) {
     
     default:
       log(FATAL, "Invalid state %d.\n", p->state);
-      //abort();
       break;
   }
 
