@@ -63,25 +63,46 @@ START_TEST(test_hello_no_methods)
 }
 END_TEST
 
+START_TEST(test_hello_unsupported_version)
+{
+    uint8_t method = METHOD_NO_ACCEPTABLE_METHODS;
+    struct hello_parser parser = {
+        .data = &method,
+        .on_auth_method = on_hello_method,
+    };
+    hello_parser_init(&parser);
+    uint8_t data[] = {
+        0x04, // socks version
+        0x00, // nmethods
+    };
+    buffer b;
+    FIXBUF(b, data);
+    bool errored = false;
+    enum hello_state st = hello_consume(&b, &parser, &errored);
+    ck_assert_uint_eq(true, errored);
+    ck_assert_uint_eq(METHOD_NO_ACCEPTABLE_METHODS, method);
+    ck_assert_uint_eq(hello_error_unsupported_version, st);
+}
+END_TEST
 
 Suite*
 suite(void) {
 	Suite* s = suite_create("hello");
 
 	// Normal usage test case
-	TCase* tc_normal = tcase_create("hello_normal");
-	tcase_add_test(tc_normal, test_hello_normal);
-	suite_add_tcase(s, tc_normal);
+	TCase* testcase_normal = tcase_create("hello_normal");
+	tcase_add_test(testcase_normal, test_hello_normal);
+	suite_add_tcase(s, testcase_normal);
 
 	// // No methods specified test case
-	TCase *tc_no_methods = tcase_create("hello_no_methods");
-	tcase_add_test(tc_no_methods, test_hello_no_methods);
-	suite_add_tcase(s, tc_no_methods);
+	TCase *testcase_no_methods = tcase_create("hello_no_methods");
+	tcase_add_test(testcase_no_methods, test_hello_no_methods);
+	suite_add_tcase(s, testcase_no_methods);
 
 	// // Unsupported socks version test case
-	// TCase *tc_unsupported_version = tcase_create("hello_unsupported_version");
-	// tcase_add_test(tc_unsupported_version, test_hello_unsupported_socks_version);
-	// suite_add_tcase(s, tc_unsupported_version);
+	TCase *testcase_unsupported_version = tcase_create("hello_unsupported_version");
+	tcase_add_test(testcase_unsupported_version, test_hello_unsupported_version);
+	suite_add_tcase(s, testcase_unsupported_version);
 
 	// // Multiple requests test case
 	// TCase *tc_multiple_requests = tcase_create("hello_multiple_requests");
