@@ -10,13 +10,13 @@
     buffer_init(&(b), N(data), (data)); \
     buffer_write_adv(&(b), N(data))
 
-static void on_hello_method(void* data, const uint8_t method) {
+static void on_hello_method(void *data, const uint8_t method) {
 	uint8_t* selected = data;
 	if (method == METHOD_NO_AUTH_REQUIRED || method >= 0xFA) {
 		*selected = method;
 	}
 }
-
+	
 START_TEST(test_hello_normal)
 {
     uint8_t method = METHOD_NO_ACCEPTABLE_METHODS;
@@ -29,7 +29,7 @@ START_TEST(test_hello_normal)
         0x05, // socks version
         0x02, // nmethods
         0x00, // no authentication
-        // 0x01, // gssapi
+        //0x02, // auth
     };
     buffer b;
     FIXBUF(b, data);
