@@ -21,21 +21,21 @@ START_TEST(test_hello_normal) {
 	uint8_t method = METHOD_NO_ACCEPTABLE_METHODS;
 	struct hello_parser parser = {
 		.data = &method,
-		.on_authentication_method = on_hello_method,
+		.on_auth_method = on_hello_method,
 	};
 	hello_parser_init(&parser);
 	uint8_t data[] = {
 		0x05, // socks version
 		0x02, // nmethods
 		0x00, // no authentication
-		0x01, // gssapi
+		0x02, // gssapi
 	};
 	buffer b;
 	FIXBUF(b, data);
 	bool errored = false;
 	enum hello_state st = hello_consume(&b, &parser, &errored);
 	ck_assert_uint_eq(false, errored);
-	ck_assert_uint_eq(METHOD_NO_AUTH_REQUIRED, method);
+	ck_assert_uint_eq(METHOD_AUTH_REQUIRED, method);
 	ck_assert_uint_eq(hello_done, st);
 }
 END_TEST
