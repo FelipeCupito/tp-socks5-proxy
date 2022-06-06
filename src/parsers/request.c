@@ -133,7 +133,7 @@ void request_parser_init(struct request_parser* p) {
 //   }
 // }
 
-extern enum request_state reques_parser_feed(struct request_parser* p, const uint8_t c) {
+extern enum request_state request_parser_feed(struct request_parser* p, const uint8_t c) {
 	enum request_state next;
 
 	switch (p->state) {
@@ -168,6 +168,6 @@ extern enum request_state reques_parser_feed(struct request_parser* p, const uin
 			next = request_error;
 			break;
 	}
-
+	p -> state = next
 	return next;
 }
