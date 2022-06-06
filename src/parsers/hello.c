@@ -33,18 +33,19 @@ extern enum hello_state hello_parser_feed(struct hello_parser* p, const uint8_t 
 			break;
 
 		case hello_nmethods:
+			p->remaining = b;
 			if (b <= 0) {
 				p->state = hello_done;
+			} else {
+				p->state = hello_methods;
 			}
-			p->remaining = b;
-			p->state = hello_methods;
 			break;
 
 		case hello_methods:
 			if (NULL != p->on_auth_method) {
-				p->on_auth_method(p, b);
+				p -> on_auth_method(p -> data, b);
 			}
-			p->remaining--;
+			p -> remaining--;
 			if (p->remaining <= 0) {
 				p->state = hello_done;
 			}
