@@ -29,7 +29,7 @@ START_TEST(test_hello_normal)
         0x05, // socks version
         0x02, // nmethods
         0x00, // no authentication
-        //0x02, // auth
+        0x02, // auth
     };
     buffer b;
     FIXBUF(b, data);
