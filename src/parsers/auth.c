@@ -86,7 +86,7 @@ enum auth_state auth_parser_feed(auth_parser *p, uint8_t b) {
         *( (p->user.username) + p->read ) = '\0';
         p -> state = auth_passlen;
       } else {
-        p -> state = auth_userlen;
+        p -> state = auth_username;
       }
 
       break;

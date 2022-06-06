@@ -125,22 +125,18 @@ Suite*
 suite(void) {
 	Suite* s = suite_create("hello");
 
-	// Normal usage test case
 	TCase* testcase_normal = tcase_create("hello_normal");
 	tcase_add_test(testcase_normal, test_hello_normal);
 	suite_add_tcase(s, testcase_normal);
 
-	// // No methods specified test case
 	TCase *testcase_no_methods = tcase_create("hello_no_methods");
 	tcase_add_test(testcase_no_methods, test_hello_no_methods);
 	suite_add_tcase(s, testcase_no_methods);
 
-	// // Unsupported socks version test case
 	TCase *testcase_unsupported_version = tcase_create("hello_unsupported_version");
 	tcase_add_test(testcase_unsupported_version, test_hello_unsupported_version);
 	suite_add_tcase(s, testcase_unsupported_version);
 
-	// // Multiple requests test case
 	TCase *testcase_multiple_requests = tcase_create("hello_multiple_requests");
 	tcase_add_test(testcase_multiple_requests, test_hello_multiple_requests);
 	suite_add_tcase(s, testcase_multiple_requests);

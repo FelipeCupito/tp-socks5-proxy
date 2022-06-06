@@ -11,10 +11,13 @@ ALL_OBJECTS= $(OBJECTS_PARSERS)
 %.o: %.c
 	$(CC) $(TESTFLAGS) -I../include -c $< -o $@
 
-all: parser_tests
+all: hello_test auth_test
 
-parser_tests: parser_tests/hello_test.o
+hello_test: parser_tests/hello_test.o
 	$(CC) parser_tests/hello_test.c ../src/parsers/hello.c ../src/buffer.c -o hello_test $(TESTFLAGS)
+
+auth_test: parser_tests/auth_test.o
+	$(CC) parser_tests/auth_test.c ../src/parsers/auth.c ../src/buffer.c -o auth_test $(TESTFLAGS)
 
 clean: 
 	rm -rf *.o *.out parser_tests/*.o parser_tests/*.out
