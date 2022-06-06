@@ -123,16 +123,6 @@ void request_parser_init(struct request_parser* p) {
 	memset(p->request, 0, sizeof(*(p->request)));
 }
 
-// extern enum request_state request_state_feed(struct request_parser *p, const uint8_t c)
-// {
-//   enum request_state next;
-
-//   switch (p->state)
-//   {
-//   case request_version:
-//   }
-// }
-
 extern enum request_state request_parser_feed(struct request_parser* p, const uint8_t c) {
 	enum request_state next;
 
@@ -170,4 +160,19 @@ extern enum request_state request_parser_feed(struct request_parser* p, const ui
 	}
 	p -> state = next
 	return next;
+}
+
+enum request_state request_consume(buffer *b, request_parser *p, bool *error)
+{
+    enum request_state st = p->state;
+    while (buffer_can_read(b) && !finished)
+    {
+        uint8_t byte = buffer_read(b);
+        st = request_parser_feed(p, byte);
+        if (request_is_done(st, error))
+        {
+            break;
+        }
+    }
+    return st;
 }
