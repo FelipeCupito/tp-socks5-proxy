@@ -12,7 +12,7 @@
 
 static void on_hello_method(void *data, const uint8_t method) {
 	uint8_t* selected = data;
-	if (method == METHOD_NO_AUTH_REQUIRED || method >= 0xFA) {
+	if (method == METHOD_NO_AUTH_REQUIRED || method == METHOD_AUTH_REQUIRED || method >= 0xFA) {
 		*selected = method;
 	}
 }
@@ -36,7 +36,7 @@ START_TEST(test_hello_normal)
     bool errored = false;
     enum hello_state st = hello_consume(&b, &parser, &errored);
     ck_assert_uint_eq(false, errored);
-    ck_assert_uint_eq(METHOD_NO_AUTH_REQUIRED, method);
+    ck_assert_uint_eq(METHOD_AUTH_REQUIRED, method);
     ck_assert_uint_eq(hello_done, st);
 }
 END_TEST
@@ -85,6 +85,42 @@ START_TEST(test_hello_unsupported_version)
 }
 END_TEST
 
+START_TEST(test_hello_multiple_requests)
+{
+    uint8_t method = METHOD_NO_ACCEPTABLE_METHODS;
+    struct hello_parser parser = {
+        .data = &method,
+        .on_auth_method = on_hello_method,
+    };
+    hello_parser_init(&parser);
+    uint8_t data[] = {
+        0x05, // socks version
+        0x02, // nmethods
+        0x02,
+        0x02,
+        0x05, // socks version
+        0x01, // nmethods
+        0x00,
+    };
+    buffer b;
+    FIXBUF(b, data);
+    bool errored = false;
+    enum hello_state st = hello_consume(&b, &parser, &errored);
+    ck_assert_uint_eq(false, errored);
+    ck_assert_uint_eq(METHOD_AUTH_REQUIRED, method);
+    ck_assert_uint_eq(hello_done, st);
+
+    errored = false;
+    method = METHOD_NO_ACCEPTABLE_METHODS;
+    hello_parser_init(&parser);
+    st = hello_consume(&b, &parser, &errored);
+
+    ck_assert_uint_eq(false, errored);
+    ck_assert_uint_eq(METHOD_NO_AUTH_REQUIRED, method);
+    ck_assert_uint_eq(hello_done, st);
+}
+END_TEST
+
 Suite*
 suite(void) {
 	Suite* s = suite_create("hello");
@@ -105,9 +141,9 @@ suite(void) {
 	suite_add_tcase(s, testcase_unsupported_version);
 
 	// // Multiple requests test case
-	// TCase *tc_multiple_requests = tcase_create("hello_multiple_requests");
-	// tcase_add_test(tc_multiple_requests, test_hello_multiple_requests);
-	// suite_add_tcase(s, tc_multiple_requests);
+	TCase *testcase_multiple_requests = tcase_create("hello_multiple_requests");
+	tcase_add_test(testcase_multiple_requests, test_hello_multiple_requests);
+	suite_add_tcase(s, testcase_multiple_requests);
 
 	return s;
 }
