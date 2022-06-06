@@ -176,3 +176,50 @@ enum request_state request_consume(buffer *b, request_parser *p, bool *error)
     }
     return st;
 }
+
+int request_marshall( buffer *b, 
+										 const enum socks_reply_status status, 
+										 const enum socks_atyp atyp, 
+										 const union socks_addr addr, 
+										 const in_port_t dest_port ) 
+{
+    size_t n, len = 6;
+    uint8_t *buff = buffer_write_ptr(b, &n);
+    uint8_t *aux = NULL;
+    int addr_size = 0;
+    switch (atyp) {
+    case ipv4_type:
+        addr_size = 4;
+        len += addr_size;
+        aux = (uint8_t *)malloc(4 * sizeof(uint8_t));
+        memcpy(aux, &addr.ipv4.sin_addr, 4);
+        break;
+    case ipv6_type:
+        addr_size = 16;
+        len += addr_size;
+        aux = (uint8_t *)malloc(16 * sizeof(uint8_t));
+        memcpy(aux, &addr.ipv6.sin6_addr, 16);
+        break;
+    case domainname_type:
+        addr_size = strlen(addr.fqdn);
+        aux = (uint8_t *)malloc((addr_size + 1) * sizeof(uint8_t));
+        aux[0] = addr_size;
+        memcpy(aux + 1, addr.fqdn, addr_size);
+        addr_size++;
+        len += addr_size;
+        break;
+    }
+    if (n < len) {
+        free(aux);
+        return -1;
+    }
+    buff[0] = 0x05;
+    buff[1] = status;
+    buff[2] = 0x00;
+    buff[3] = atyp;
+    memcpy(&buff[4], aux, addr_size);
+    free(aux);
+    memcpy(&buff[4 + addr_size], &dest_port, 2);
+    buffer_write_adv(b, len);
+    return len;
+}
