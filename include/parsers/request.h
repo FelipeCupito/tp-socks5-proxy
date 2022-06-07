@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <errno.h>
 
 #include "../buffer.h"
 
@@ -68,6 +69,7 @@ enum request_state {
 	request_error,
 	request_error_unsupported_version,
 	request_error_unsupported_addresstype,
+	request_error_unsupported_cmd
 };
 
 struct request_parser {
@@ -103,7 +105,7 @@ void request_close(struct request_parser* p);
 
 extern int request_marshall(buffer* b, const enum socks_response_status status);
 
-enum socks_response_status errno_to_socks(int e);
+enum socks_response_status errno_to_socks(int err);
 
 enum socks_response_status cmd_resolve(struct request* request, struct sockaddr** originaddr, socklen_t* originlen, int* domain);
 
