@@ -66,7 +66,6 @@ static enum request_state dstaddr_fqdn(const uint8_t c, struct request_parser* p
 	// el byte nos dice cuanto nos queda por leer
 	remaining_set(p, c);
 	// TODO este puede llegar a ser bytes_read
-	// TODO no entendi que hace
 	p->request->dst_addr.fqdn[p->total_bytes_to_read - 1] = 0;
 
 	return request_dstaddr;
