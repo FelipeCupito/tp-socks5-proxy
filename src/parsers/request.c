@@ -272,3 +272,46 @@ enum socks_response_status errno_to_socks(int err) {
 
 	return reply;
 }
+
+enum socks_response_status cmd_resolve(
+	struct request* request, 
+	struct sockaddr** originaddr, 
+	socklen_t* originlen, 
+	int* domain) {
+		enum socks_reply_status status = status_succeeded;
+		//*domain = AF_INET;
+		struct sockaddr *address;
+		socklen_t len = 0;
+
+		if (request -> dst_addr_type == fqdn) {
+			struct hostent *host = gethostbyname(request -> dst_addr.fqdn);
+			if (host == 0) {
+				memset(&request -> dst_addr, 0x00, sizeof(request -> dst_addr));
+				return status_host_unreachable;
+			} 
+			else {
+				request -> dst_addr.ipv4.sin_family = host -> h_addrtype;
+				memcpy((char *)&request->dst_addr.ipv4.sin_addr, *hp->h_addr_list, hp->h_length);
+			}
+		}
+
+		if (request -> dst_addr_type == ipv4) {
+			*domain = AF_INET;
+			address = (struct sockaddr *)&(request -> dst_addr.ipv4);
+			len = sizeof(request -> dst_addr.ipv4);
+			request -> dst_addr.ipv4.sin_port = request -> dst_port;
+		} 
+		else if (request -> dst_addr_type == ipv6) {
+			*domain = AF_INET6;
+			address = (struct sockaddr *)&(request->dst_addr.ipv6);
+			len = sizeof(request->dst_addr.ipv6);
+			request->dst_addr.ipv6.sin6_port = request->dst_port;
+		} else {
+			return status_address_type_not_supported;
+		}
+
+		*originaddr = address;
+    *originlen = len;
+
+    return status;
+}
