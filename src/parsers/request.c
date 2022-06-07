@@ -238,8 +238,8 @@ extern int request_marshall(buffer* b, const enum socks_response_status status, 
 	buff[1] = status;
 	buff[2] = 0x00;
 	buff[3] = atyp;
-	memcpy(&buff[4], aux, addaddress_size
-		free(aux);
+	memcpy(&buff[4], aux, address_size);
+	free(aux);
 	memcpy(&buff[4 + addaddress_size & dest_port, 2);
 	buffer_write_adv(b, len);
 	return len;
