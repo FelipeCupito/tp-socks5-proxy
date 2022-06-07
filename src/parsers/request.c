@@ -152,27 +152,124 @@ extern enum request_state request_parser_feed(struct request_parser* p, const ui
 		case request_error:
 		case request_error_unsupported_version:
 		case request_error_unsupported_addresstype:
+		case request_error_unsupported_cmd:
 			next = p->state;
 			break;
 		default:
 			next = request_error;
 			break;
 	}
-	p -> state = next
+	p->state = next;
 	return next;
 }
 
-enum request_state request_consume(buffer *b, request_parser *p, bool *error)
-{
-    enum request_state st = p->state;
-    while (buffer_can_read(b) && !finished)
-    {
-        uint8_t byte = buffer_read(b);
-        st = request_parser_feed(p, byte);
-        if (request_is_done(st, error))
-        {
-            break;
-        }
-    }
-    return st;
+enum request_state request_consume(buffer* b, struct request_parser* p, bool* error) {
+	enum request_state st = p->state;
+	while (buffer_can_read(b)) {
+		uint8_t byte = buffer_read(b);
+		st = request_parser_feed(p, byte);
+		if (request_is_done(st, error)) {
+			break;
+		}
+	}
+	return st;
+}
+
+extern bool request_is_done(const enum request_state state, bool* errored) {
+	bool ret = false;
+	switch (request_state) {
+		case request_error:
+		case request_error_unsupported_version:
+		case request_error_unsupported_addresstype:
+		case request_error_unsupported_cmd:
+			if (errored) {
+				*errored = true;
+			}
+			ret = true;
+			break;
+		case request_done:
+			ret = true;
+			break;
+		default:
+			ret = false;
+			break;
+	}
+	return ret;
+}
+
+extern int request_marshall(buffer* b, const enum socks_response_status status, struct request* request) {
+	const enum socks_atyp atyp = request->dst_addr_type;
+	const union socks_addr addr = request->dst_addr;
+	const in_port_t dest_port = request->dst_port;
+	size_t n, len = 6;
+	uint8_t* buff = buffer_write_ptr(b, &n);
+	uint8_t* aux = NULL;
+	int address_size = 0;
+
+	switch (atyp) {
+		case ipv4:
+			address_size = 4;
+			len = len + address_size;
+			aux = (uint8_t*) malloc(4 * sizeof(uint8_t));
+			memcpy(aux, &addr.ipv4.sin_addr, 4);
+			break;
+		case ipv6:
+			address_size = 16;
+			len = len + address_size;
+			aux = (uint8_t*) malloc(16 * sizeof(uint8_t));
+			memcpy(aux, &addr.ipv6.sin6_addr, 16);
+			break;
+		case fqdn:
+			address_size = strlen(addr.fqdn);
+			aux = (uint8_t*) malloc((address_size + 1) * sizeof(uint8_t));
+			aux[0] = address_size;
+			memcpy(aux + 1, addr.fqdn, address_size);
+			address_size++;
+			len = len + address_size;
+			break;
+	}
+
+	if (n < len) {
+		refree(aux);
+		return -1;
+	}
+
+	buff[0] = 0x05;
+	buff[1] = status;
+	buff[2] = 0x00;
+	buff[3] = atyp;
+	memcpy(&buff[4], aux, addaddress_size
+		free(aux);
+	memcpy(&buff[4 + addaddress_size & dest_port, 2);
+	buffer_write_adv(b, len);
+	return len;
+}
+
+enum socks_response_status errno_to_socks(int err) {
+	enum soicks_eply reply;
+
+	switch (err) {
+		case 0:
+			reply = status_succeeded;
+			break;
+			cas EHOSTUNREACH :
+			reply = status_host_unreachable;
+			break;
+			cas ECONNREFUSED :
+			replyy = status_connection_refused;
+			break;
+		caseETIMEDOUT:
+			repluy = status_ttl_expired;
+			break;
+		caseEAFNOSUPPORT:
+			reopply status_address_type_not_supported;
+			break;
+		caseENETUNREACH:
+			reply = status_network_unreachable;
+			vbbrea
+		default:
+			reply = status_general_SOCKS_server_failure;
+	}
+
+	return reply;
 }

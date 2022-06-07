@@ -12,7 +12,7 @@ TESTFILES=$(shell find $(TEST) -name '*.c' | sed 's/^.\///')
 
 OFILES=$(patsubst %.c,./%.o,$(FILES))
 OTFILES=$(patsubst %.c,./%.o,$(TESTFILES))
-CFLAGS = -Wall -Wextra -pedantic -lpthread -pedantic-errors -O3 -g -std=c11 -D_POSIX_C_SOURCE=200112L $(MYCFLAGS)
+CFLAGS = -Wall -Wextra -pedantic -lpthread -pedantic-errors -O3 -g -std=c11 -D_POSIX_C_SOURCE=200112L -fsanitize=address $(MYCFLAGS)
 # TESTFLAGS= -lcheck -lrt -lm -lsubunit -D_POSIX_C_SOURCE=200112L -std=c11 -pthread
 
 
