@@ -47,7 +47,7 @@ START_TEST(test_request_connect_invalid_atyp) {
         0x05, // version
         0x01, // connect
         0x00, // reserved
-        0x0F, // atyp: ipv4
+        0x0F, // atyp: invalid
         0x7F, 0x00, 0x00, 0x01, // dst addr: 127.0.0.1
         0x23, 0x82, // dst port: 9090
     };
@@ -56,9 +56,6 @@ START_TEST(test_request_connect_invalid_atyp) {
     bool errored = false;
     enum request_state st = request_consume(&b, &parser, &errored);
     ck_assert_uint_eq(true, errored);
-    // ck_assert_uint_eq(socks_req_cmd_connect, req.cmd);
-    // ck_assert_uint_eq(socks_req_addrtype_ipv4, req.dst_addr_type);
-    // ck_assert_uint_eq(htons(9090), req.dst_port);
     ck_assert_uint_eq(request_error_unsupported_addresstype, st);
 }
 END_TEST
