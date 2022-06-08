@@ -48,8 +48,9 @@ START_TEST(test_request_connect_fqdn) {
         0x05, // version
         0x01, // connect
         0x00, // reserved
-        0x03, // atyp: ipv4
-        0x77, 0x77, 077, 0x2E,              // www.
+        0x03, // atyp: fqdn
+        0x0E, // len
+        0x77, 0x77, 0x77, 0x2E,              // www.
         0x67, 0x6F, 0x6F, 0x67, 0x6C, 0x65, // google
         0x2E, 0x63, 0x6F, 0x6D,             // .com
         0x23, 0x82, // dst port: 9090
@@ -98,10 +99,10 @@ START_TEST(test_request_connect_invalid_version) {
     };
     request_parser_init(&parser);
     uint8_t data[] = {
-        0x03, // version
-        0x01, // connect
-        0x00, // reserved
-        0x01, // atyp: invalid
+        0x03,                   // version
+        0x01,                   // connect
+        0x00,                   // reserved
+        0x01,                   // atyp: ipv4
         0x7F, 0x00, 0x00, 0x01, // dst addr: 127.0.0.1
         0x23, 0x82, // dst port: 9090
     };
