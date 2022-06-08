@@ -32,7 +32,7 @@ START_TEST(test_request_connect_ipv4) {
     ck_assert_uint_eq(socks_req_cmd_connect, req.cmd);
     ck_assert_uint_eq(socks_req_addrtype_ipv4, req.dst_addr_type);
     ck_assert_str_eq("127.0.0.1", inet_ntoa(req.dst_addr.ipv4.sin_addr));
-    ck_assert_uint_eq(htons(8080), req.dst_port);
+    ck_assert_uint_eq(htons(9090), req.dst_port);
     ck_assert_uint_eq(request_done, st);
 }
 END_TEST
