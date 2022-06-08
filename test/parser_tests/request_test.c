@@ -37,24 +37,24 @@ START_TEST(test_request_connect_ipv4) {
 }
 END_TEST
 
-START_TEST(test_request_connect_ipv6) {
-    struct request_parser parser;
-    request_parser_init(&parser);
-    uint8_t data[] = {
-        0x05, // version
-        0x01, // connect
-        0x00, // reserved
-        0x04, // atyp: ipv6
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // dst addr: ::1
-        0x23, 0x82, // dst port: 9090
-    };
-}
-END_TEST
+// START_TEST(test_request_connect_ipv6) {
+//     struct request_parser parser;
+//     request_parser_init(&parser);
+//     uint8_t data[] = {
+//         0x05, // version
+//         0x01, // connect
+//         0x00, // reserved
+//         0x04, // atyp: ipv6
+//         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // dst addr: ::1
+//         0x23, 0x82, // dst port: 9090
+//     };
+// }
+// END_TEST
 
-START_TEST(test_request_unsopported_version) {
-    struct request_parser parser;
-    request_parser_init(&parser);
-}
+// START_TEST(test_request_unsopported_version) {
+//     struct request_parser parser;
+//     request_parser_init(&parser);
+// }
 
 Suite*
 suite(void) {

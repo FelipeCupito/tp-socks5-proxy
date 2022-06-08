@@ -176,7 +176,7 @@ enum request_state request_consume(buffer* b, struct request_parser* p, bool* er
 
 extern bool request_is_done(const enum request_state state, bool* errored) {
 	bool ret = false;
-	switch (request_state) {
+	switch (state) {
 		case request_error:
 		case request_error_unsupported_version:
 		case request_error_unsupported_addresstype:
@@ -197,7 +197,7 @@ extern bool request_is_done(const enum request_state state, bool* errored) {
 }
 
 extern int request_marshall(buffer* b, const enum socks_response_status status, struct request* request) {
-	const enum socks_atyp atyp = request->dst_addr_type;
+	const enum socks_addr_type atyp = request->dst_addr_type;
 	const union socks_addr addr = request->dst_addr;
 	const in_port_t dest_port = request->dst_port;
 	size_t n, len = 6;
@@ -229,7 +229,7 @@ extern int request_marshall(buffer* b, const enum socks_response_status status, 
 	}
 
 	if (n < len) {
-		refree(aux);
+		free(aux);
 		return -1;
 	}
 
@@ -239,13 +239,13 @@ extern int request_marshall(buffer* b, const enum socks_response_status status, 
 	buff[3] = atyp;
 	memcpy(&buff[4], aux, address_size);
 	free(aux);
-	memcpy(&buff[4 + addaddress_size & dest_port, 2);
+	memcpy(&buff[4 + address_size], &dest_port, 2);
 	buffer_write_adv(b, len);
 	return len;
 }
 
 enum socks_response_status errno_to_socks(int err) {
-	enum socks_reply reply;
+	enum socks_response_status reply;
 
 	switch (err) {
 		case 0:
@@ -278,7 +278,7 @@ enum socks_response_status cmd_resolve(
 	struct sockaddr** originaddr, 
 	socklen_t* originlen, 
 	int* domain) {
-		enum socks_reply_status status = status_succeeded;
+		enum socks_response_status status = status_succeeded;
 		//*domain = AF_INET;
 		struct sockaddr *address;
 		socklen_t len = 0;
@@ -291,7 +291,7 @@ enum socks_response_status cmd_resolve(
 			} 
 			else {
 				request -> dst_addr.ipv4.sin_family = host -> h_addrtype;
-				memcpy((char *)&request->dst_addr.ipv4.sin_addr, *hp->h_addr_list, hp->h_length);
+				memcpy((char *)&request->dst_addr.ipv4.sin_addr, *host->h_addr_list, host->h_length);
 			}
 		}
 
