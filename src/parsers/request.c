@@ -23,8 +23,12 @@ static enum request_state version(const uint8_t c, struct request_parser* p) {
 }
 
 static enum request_state cmd(const uint8_t c, struct request_parser* p) {
-	p->request->cmd = c;
-	return request_rsv;
+	if (c == 0x01 || c == 0x03 || c == 0x04){
+		p -> request -> cmd = c;
+		return request_rsv;
+	}
+
+	return request_error_unsupported_cmd;
 }
 
 static enum request_state rsv(const uint8_t c, struct request_parser* p) {
