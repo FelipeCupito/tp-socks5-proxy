@@ -206,19 +206,19 @@ extern int request_marshall(buffer* b, const enum socks_response_status status, 
 	int address_size = 0;
 
 	switch (atyp) {
-		case ipv4:
+		case socks_req_addrtype_ipv4:
 			address_size = 4;
 			len = len + address_size;
 			aux = (uint8_t*) malloc(4 * sizeof(uint8_t));
 			memcpy(aux, &addr.ipv4.sin_addr, 4);
 			break;
-		case ipv6:
+		case socks_req_addrtype_ipv6:
 			address_size = 16;
 			len = len + address_size;
 			aux = (uint8_t*) malloc(16 * sizeof(uint8_t));
 			memcpy(aux, &addr.ipv6.sin6_addr, 16);
 			break;
-		case fqdn:
+		case socks_req_addrtype_domain:
 			address_size = strlen(addr.fqdn);
 			aux = (uint8_t*) malloc((address_size + 1) * sizeof(uint8_t));
 			aux[0] = address_size;
@@ -283,7 +283,7 @@ enum socks_response_status cmd_resolve(
 		struct sockaddr *address;
 		socklen_t len = 0;
 
-		if (request -> dst_addr_type == fqdn) {
+		if (request -> dst_addr_type == socks_req_addrtype_domain) {
 			struct hostent *host = gethostbyname(request -> dst_addr.fqdn);
 			if (host == 0) {
 				memset(&request -> dst_addr, 0x00, sizeof(request -> dst_addr));
@@ -295,17 +295,17 @@ enum socks_response_status cmd_resolve(
 			}
 		}
 
-		if (request -> dst_addr_type == ipv4) {
+		if (request -> dst_addr_type == socks_req_addrtype_ipv4) {
 			*domain = AF_INET;
 			address = (struct sockaddr *)&(request -> dst_addr.ipv4);
 			len = sizeof(request -> dst_addr.ipv4);
 			request -> dst_addr.ipv4.sin_port = request -> dst_port;
 		} 
-		else if (request -> dst_addr_type == ipv6) {
+		else if (request -> dst_addr_type == socks_req_addrtype_ipv6) {
 			*domain = AF_INET6;
 			address = (struct sockaddr *)&(request->dst_addr.ipv6);
 			len = sizeof(request->dst_addr.ipv6);
-			request->dst_addr.ipv6.sin6_port = request->dst_port;
+			request -> dst_addr.ipv6.sin6_port = request->dst_port;
 		} else {
 			return status_address_type_not_supported;
 		}

@@ -11,7 +11,10 @@
     buffer_write_adv(&(b), N(data))
 
 START_TEST(test_request_connect_ipv4) {
-    struct request_parser parser;
+    struct request req; 
+    struct request_parser parser = {
+        .request = &req
+    };
     request_parser_init(&parser);
     uint8_t data[] = {
         0x05, // version
@@ -26,10 +29,10 @@ START_TEST(test_request_connect_ipv4) {
     bool errored = false;
     enum request_state st = request_consume(&b, &parser, &errored);
     ck_assert_uint_eq(false, errored);
-    ck_assert_uint_eq(cmd_connect, request.cmd);
-    ck_assert_uint_eq(ipv4_type, request.dest_addr_type);
-    ck_assert_str_eq("127.0.0.1", inet_ntoa(request.dest_addr.ipv4.sin_addr));
-    ck_assert_uint_eq(htons(8080), request.dest_port);
+    ck_assert_uint_eq(socks_req_cmd_connect, req.cmd);
+    ck_assert_uint_eq(socks_req_addrtype_ipv4, req.dst_addr_type);
+    ck_assert_str_eq("127.0.0.1", inet_ntoa(req.dst_addr.ipv4.sin_addr));
+    ck_assert_uint_eq(htons(8080), req.dst_port);
     ck_assert_uint_eq(request_done, st);
 }
 END_TEST
@@ -37,14 +40,14 @@ END_TEST
 START_TEST(test_request_connect_ipv6) {
     struct request_parser parser;
     request_parser_init(&parser);
-    uint_8 data[] = {
+    uint8_t data[] = {
         0x05, // version
         0x01, // connect
         0x00, // reserved
         0x04, // atyp: ipv6
-        0x00,0x00, 0x00, 0x00, 0x00, 0x00 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // dst addr: ::1
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // dst addr: ::1
         0x23, 0x82, // dst port: 9090
-    }
+    };
 }
 END_TEST
 
