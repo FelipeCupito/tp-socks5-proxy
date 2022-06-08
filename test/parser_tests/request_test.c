@@ -37,6 +37,37 @@ START_TEST(test_request_connect_ipv4) {
 }
 END_TEST
 
+START_TEST(test_request_connect_fqdn) {
+    struct request req; 
+    struct request_parser parser = {
+        .request = &req
+    };
+    request_parser_init(&parser);
+
+    uint8_t data[] = {
+        0x05, // version
+        0x01, // connect
+        0x00, // reserved
+        0x03, // atyp: ipv4
+        0x77, 0x77, 077, 0x2E,              // www.
+        0x67, 0x6F, 0x6F, 0x67, 0x6C, 0x65, // google
+        0x2E, 0x63, 0x6F, 0x6D,             // .com
+        0x23, 0x82, // dst port: 9090
+    };
+
+    buffer b;
+    FIXBUF(b, data);
+    bool errored = false;
+    enum request_state st = request_consume(&b, &parser, &errored);
+    ck_assert_uint_eq(false, errored);
+    ck_assert_uint_eq(socks_req_cmd_connect, req.cmd);
+    ck_assert_uint_eq(socks_req_addrtype_domain, req.dst_addr_type);
+    ck_assert_str_eq("www.google.com", req.dst_addr.fqdn);
+    ck_assert_uint_eq(htons(9090), req.dst_port);
+    ck_assert_uint_eq(request_done, st);
+}
+END_TEST
+
 START_TEST(test_request_connect_invalid_atyp) {
     struct request req; 
     struct request_parser parser = {
@@ -112,11 +143,6 @@ START_TEST(test_request_connect_ipv6) {
 }
 END_TEST
 
-// START_TEST(test_request_unsopported_version) {
-//     struct request_parser parser;
-//     request_parser_init(&parser);
-// }
-
 Suite*
 suite(void) {
     Suite* s = suite_create("request");
@@ -136,6 +162,11 @@ suite(void) {
     TCase* testcase_request_connect_ipv6 = tcase_create("request_connect_ipv6");
     tcase_add_test(testcase_request_connect_ipv6, test_request_connect_ipv6);
     suite_add_tcase(s, testcase_request_connect_ipv6);
+
+    TCase* testcase_request_connect_fqdn = tcase_create("request_connect_fqdn");
+    tcase_add_test(testcase_request_connect_fqdn, test_request_connect_fqdn);
+    suite_add_tcase(s, testcase_request_connect_fqdn);
+
     return s;
 }
 
