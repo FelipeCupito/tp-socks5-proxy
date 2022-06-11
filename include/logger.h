@@ -15,11 +15,7 @@
 #include <sys/socket.h> // socket
 #include <sys/types.h>  // socket
 #include <stdarg.h> //para el parametro ...
-/* 
-*  Macros y funciones simples para log de errores.
-*  EL log se hace en forma simple
-*  Alternativa: usar syslog para un log mas completo. Ver sección 13.4 del libro de  Stevens
-*/
+
 
 typedef enum {DEBUG=0, INFO, LOG_ERROR, FATAL} LOG_LEVEL;
 
@@ -33,6 +29,7 @@ void setLogLevel(LOG_LEVEL newLevel);
 
 void log_print(LOG_LEVEL level, const char *fmt, ...);
 
+void setErrorFlag(int* err);
 
 // Debe ser una macro para poder obtener nombre y linea de archivo. 
 /*

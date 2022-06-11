@@ -8,6 +8,9 @@
         "parser.h": "c",
         "stdio.h": "c",
         "ipversion.h": "c",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "cmath": "c",
+        "stm.h": "c",
+        "socks5_copy.h": "c"
     }
 }
