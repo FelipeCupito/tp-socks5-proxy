@@ -42,6 +42,7 @@ static void sigterm_handler(const int signal);
 
 int main(const int argc, char **argv) {
 
+
   //obtenemos la config inicial y se guarda en cong
   config = malloc(sizeof(serverConfig));
   parse_args(argc, argv, config);

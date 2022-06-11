@@ -16,7 +16,9 @@
 #include "selector.h"
 #include "stm.h"
 
-#include "socks5_connection.h"
+#include "socks5_hello.h"
+#include "socks5_auth.h"
+#include "socks5_request.h"
 #include "socks5_copy.h"
 
 #define MAX_IPS 10
@@ -25,33 +27,144 @@
 #define PORT_SIZE 2
 #define BUFFER_SIZE 4096 // TODO: sacar
 
-#define ATTACHMENT(key) ((struct socks5 *)(key)->data)
+#define ATTACHMENT(key) ( (struct socks5 *)(key)->data)
 
 // funciones:
-struct socks5 *socks5_new(const int client);
+struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clntAddrLen);
 
 /////////////////////////////////////////////////////////////////////////
 // Estados posibles de cada estado de socks5
 /////////////////////////////////////////////////////////////////////////
 enum socks_state {
+
+  /*
+  * recibe el mensaje "hello" del cliente y lo procesa
+  *
+  * Intereses:
+  *    - OP_READ sobre client_fd
+  *
+  * Transiciones:
+  *    - HELLO_READ mietras el mesaje no este completo
+  *    - HELLO_WRITE cuando esta completo
+  *    - ERROR ante cualquier error
+  */
   HELLO_READ,
-  // creo un nuevo socket y espero conecion
-  CONNECTING,
-  // copi los datos
+
+  /*
+  * envia la respuesta del "hello" al cliente
+  *
+  * Intereses:
+  *    - OP_WRITE sobre client_fd
+  *
+  * Transiciones:
+  *    - HELLO_WRITE mietras queden bytes por enviar
+  *    - REQUEST_READ cuando se enviaron todos los bytes
+  *    - ERROR ante cualquier error
+  */
+  HELLO_WRITE,
+
+  /*
+  * state when receiving the user and password
+  * 
+  * Interests:
+  *  -OP_READ -> Read the info sent by the user
+  * 
+  * Transitions:
+  *  - USSERPASS_READ -> While there are bytes being read
+  *  - USSERPASS_WRITE -> When all the bytes have been read and processed
+  *  - ERROR -> In case of an error
+  */
+  AUTH_READ,
+
+  /*
+  * State when receiving the user and password
+  * 
+  * Interests:
+  *  -OP_WRITE -> Write if u+p is valid or not
+  * 
+  * Transitions:
+  *  - USSERPASS_READ -> While there are bytes being sent
+  *  - REQUEST_READ -> If u+p is valid
+  *  - ERROR -> In case of u+p invalid or other error
+  */
+  AUTH_WRITE,
+
+  /*
+  * recibe el mesaje "request" del cliente y inicia su procesamiento
+  *
+  * Intereses:
+  *    - OP_READ sobre client_fd
+  *
+  * Transiciones:
+  *    - REQUEST_READ mietras el mesaje no este completo
+  *    - REQUEST_RESOLV si me pasan un dominio
+  *    - REQUEST_CONNECTING iniciar coneccion
+  *    - ERROR ante cualquier error
+  */
+  REQUEST_READ,
+
+  /*
+  * espera la resolucion del DNS
+  *
+  * Intereses:
+  *    - OP_NOOP sobre client_fd
+  *
+  * Transiciones:
+  *    - REQUEST_CONNECTING si re resuelve el nombre y se puede iniciar la conexion
+  *    - REQUEST_WRITE en otro caso
+  */
+  REQUEST_RESOLV,
+
+  /*
+  * Espera que se establezca la conecxion al server final 
+  *
+  * Intereses:
+  *    - OP_WRITE sobre client_fd
+  *
+  * Transiciones:
+  *    - (algo) si hay mas ip paraconectar
+  *    - REQUEST_WRITE si no hay mas ip para probar
+  */
+  REQUEST_CONNECTING,
+  
+  /*
+  * Envia la repuesta del "request" al cliente
+  *
+  * Intereses:
+  *    - OP_WRITE sobre client_fd
+  *    - OP_NOOP sobre origin_fd
+  *
+  * Transiciones:
+  *    - REQUEST_WRITE mitras queben bytes por enviar
+  *    - COPY si el reques se envio y tenemos que copiar en otro caso
+  *    - ERROR
+  */
+ REQUEST_WRITE,
+
+  /*
+  * Copia bytes entre client_fd y origin_fd
+  * 
+  * Interests:
+  *  - OP_READ si hay espacio para escribir en el buffer de lectura
+  *   - OP_WRITE si hay bytes para leer en el buffer de ecritura 
+  * 
+  * Transitions:
+  *  - DONE 
+  **/
   COPY,
-  // cierro los sockets
+
   DONE,
-  // error
+
   ERROR,
 };
 /////////////////////////////////////////////////////////////////////////
 // Estados posibles de cada estado de socks5
 /////////////////////////////////////////////////////////////////////////
 
-typedef enum addr_type{
-    IPv4 = 0x01,
-    DOMAINNAME = 0x03,
-    IPv6 = 0x04,
+typedef enum addr_type {
+  IPv4 = 0x01,
+  DOMAINNAME = 0x03,
+  IPv6 = 0x04,
 } addr_type;
 
 /////////////////////////////////////////////////////////////////////////
@@ -67,23 +180,30 @@ typedef enum connection_state {
 /////////////////////////////////////////////////////////////////////////
 // Store de cada estado
 /////////////////////////////////////////////////////////////////////////
-typedef struct connecting_data {
-  // write buffer
-  buffer *wb;
-  unsigned int ip_index;
-  int final_server_fd;
-  int client_fd;
 
-} connecting_data;
+typedef struct hello_data {
+  int i;
+  //TODO;
+} hello_data;
 
-typedef struct request_data{
-  addr_type addrType; //guardo el tipo de conexion
-  
-  uint8_t ipv4_addrs[MAX_IPS][IP_V4_ADDR_SIZE];
+typedef struct auth_data {
+  int i;
+  //TODO;
+} auth_data;
+
+typedef struct request_data {
+  int i;
+//TODO;
+}request_data;
+
+typedef struct resolv_data {
+  addr_type addrType; // guardo el tipo de conexion
+
+  char ipv4_addrs[MAX_IPS][IP_V4_ADDR_SIZE];
   uint8_t ipv4_size; // cantidad de ipv4, -1 si no hay
 
-  uint8_t ipv6_addrs[MAX_IPS][IP_V6_ADDR_SIZE];
-  uint8_t ipv6_size; // cantidad de ipv6, 
+  char ipv6_addrs[MAX_IPS][IP_V6_ADDR_SIZE];
+  uint8_t ipv6_size; // cantidad de ipv6,
 
   // server port
   uint8_t port[PORT_SIZE];
@@ -92,19 +212,28 @@ typedef struct request_data{
   uint8_t *resolve_addr;
   uint8_t resolve_addr_len;
 
-}request_data;
+  // Buffers de escritura y lectura
+} resolv_data;
+
+typedef struct connecting_data {
+  // write buffer
+  buffer *wb;
+  int *final_server_fd;
+  int *client_fd;
+  //enum connection_state status;
+} connecting_data;
 
 typedef struct copy_data {
   /** File descriptor */
-  int fd;
+  int *fd;
 
   /** buffers para hacer la copia **/
   buffer *rb, *wb;
 
-  /** chequear para saber si cerrar la escritura o la lectura **/
-  fd_interest duplex;
+  //escritura o lect
+  fd_interest interest;
 
-  /** Pointer to the structure of the opposing copy state*/
+  //apunta al otro copy_data 
   struct copy_data *other_copy;
 
 } copy_data;
@@ -112,18 +241,6 @@ typedef struct copy_data {
 ////////////////////////////////////////////////////////////////////////
 // struc de cada socks5
 ////////////////////////////////////////////////////////////////////////
-/*
-typedef struct final_server {
-
-  struct sockaddr_storage addr;
-  socklen_t addr;
-  // socklen_t addr_len;//TODO al pedo guardar esto
-
-  
-
-} final_server;
-*/
-//////////////////////////////////////////////////////////
 typedef struct socks5 {
 
   // cliente:
@@ -140,10 +257,10 @@ typedef struct socks5 {
   struct state_machine stm;
 
   // estado del socket cliente
-  union client_data{
-    // hello_st hello;
-    // userpass_st userpass;
-    request_data request;
+  union client_data {
+    hello_data hello;
+    auth_data userpass;
+    resolv_data resolv;
     copy_data copy;
   } client_data;
 
