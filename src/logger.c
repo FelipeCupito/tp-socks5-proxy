@@ -2,6 +2,7 @@
 
 LOG_LEVEL current_level = DEBUG;
 
+bool error_flag = false;
 
 void setLogLevel(LOG_LEVEL newLevel) {
 	if ( newLevel >= DEBUG && newLevel <= FATAL )
@@ -16,7 +17,7 @@ char * levelDescription(LOG_LEVEL level) {
 }
 
 
-void log(int level, const char *fmt, ...){
+void log_print(LOG_LEVEL level, const char *fmt, ...){
     if(level >= current_level){
         fprintf (stderr, "%s: ", levelDescription(level)); 
         va_list arg; 
@@ -26,4 +27,5 @@ void log(int level, const char *fmt, ...){
         fprintf(stderr,"\n"); 
     }
 	if ( level==FATAL) exit(1);
+    if(level==LOG_ERROR) error_flag = true; 
 }

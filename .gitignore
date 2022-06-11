@@ -50,4 +50,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+#ejecutable
 server
+
+# History
+.bash-history
+
+# VSCode
+.vscode
