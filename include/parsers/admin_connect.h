@@ -10,7 +10,7 @@
 
 static const uint8_t STATUS_OK = 0X00;
 static const uint8_t STATUS_ERROR_IN_VERSION = 0x01;
-static const uint8_t STATUS_IN_PASSLEN = 0X02;
+static const uint8_t STATUS_ERROR_IN_PASSLEN = 0X02;
 
 #define MAX_PASS_SIZE 0XFF
 
@@ -19,8 +19,9 @@ enum admin_connect_state {
   admin_connect_passlen,
   admin_connect_passwd,
   admin_connect_done,
-  admin_connect_error_in_version,
-  admin_connect_error_in_passlen,
+  admin_connect_error,
+  admin_connect_error_version,
+  admin_connect_error_passlen,
 }
 
 struct password {
