@@ -3,7 +3,7 @@
 #include "../../include/buffer.h"
 
 void admin_connect_parser_init (struct admin_connect_parsrer *p) {
-  p -> state -> = admin_connect_version;
+  p -> state  = admin_connect_version;
   memset(&p -> pass, 0, sizeof(p -> pass));
 
   if (&p->pass == NULL) {
@@ -61,7 +61,7 @@ enum admin_connect_state admin_connect_parser_feed(admin_connect_parser *p, uint
   return p -> state;
 }
 
-bool admin_connect_is_done (const enum admin_connect_state, bool *errored) {
+bool admin_connect_is_done (const enum admin_connect_state state, bool *errored) {
   bool done;
 
   switch (state) {

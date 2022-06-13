@@ -10,6 +10,8 @@
 
 static const uint8_t STATUS_OK = 0X00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;
+static const uint8_t GET = 0X00;
+static const uint8_t SET = 0X01;
 
 enum admin_action_state {
   admin_action_reading,
@@ -30,6 +32,6 @@ enum admin_action_state admin_action_consume(buffer *b, admin_action_parser *p, 
 
 bool admin_action_is_done(const enum admin_action_state state, bool *error);
 
-int admin_action_marshal(buffer *b, const uint8_t status, uint8_t version);
+int admin_action_marshal(buffer *b, const uint8_t status, admin_action_parser *p);
 
 #endif

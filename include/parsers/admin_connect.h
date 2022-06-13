@@ -47,6 +47,6 @@ enum admin_connect_state admin_connect_consume(buffer *b, admin_connect_parser *
 
 bool admin_connect_is_done(const enum admin_connect_state state, bool *error);
 
-int admin_connect_marshal(buffer *b, const uint8_t status, uint8_t version);
+int admin_connect_marshal(buffer *b, const uint8_t status);
 
 #endif
