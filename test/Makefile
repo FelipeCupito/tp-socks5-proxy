@@ -9,7 +9,7 @@ ALL_OBJECTS= $(OBJECTS_PARSERS)
 %.o: %.c
 	$(CC) $(TESTFLAGS) -I../include -c $< -o $@
 
-all: hello_test auth_test req_test admin_connect_test
+all: hello_test auth_test req_test admin_connect_test admin_action_test
 
 hello_test: parser_tests/hello_test.o
 	$(CC) parser_tests/hello_test.c ../src/parsers/hello.c ../src/buffer.c ../src/logger.c -o hello_test $(TESTFLAGS)
@@ -22,6 +22,9 @@ req_test: parser_tests/request_test.o
 
 admin_connect_test: parser_tests/admin_connect_test.o
 	$(CC) parser_tests/admin_connect_test.c ../src/parsers/admin_connect.c ../src/buffer.c ../src/logger.c -o admin_connect_test $(TESTFLAGS)
+
+admin_action_test: parser_tests/admin_action_test.o
+	$(CC) parser_tests/admin_action_test.c ../src/parsers/admin_action.c ../src/buffer.c ../src/logger.c -o admin_action_test $(TESTFLAGS)
 
 clean: 
 	rm -rf *.o *.out parser_tests/*.o parser_tests/*.out auth_test hello_test req_test admin_connect_test
