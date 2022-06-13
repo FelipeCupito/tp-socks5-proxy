@@ -57,7 +57,7 @@ enum admin_get_state option(const uint8_t b, struct admin_get_parser* p) {
       }
       break;
     default:
-      next = admin_get_error;
+      next = admin_get_error_option;
       break;
   }
 

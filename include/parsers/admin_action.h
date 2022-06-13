@@ -15,7 +15,7 @@ static const uint8_t GET = 0X00;
 static const uint8_t SET = 0X01;
 
 enum admin_action_state {
-  admin_action_reading,
+  admin_action_reading = 0x00,
   admin_action_done,
   admin_action_error_invalid_action,
 };
