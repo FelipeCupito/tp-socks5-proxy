@@ -22,10 +22,6 @@ void copy_init(const unsigned state, struct selector_key *key) {
   copy->other_copy = &ATTACHMENT(key)->client_data.copy;
 }
 
-void copy_close(const unsigned state, struct selector_key *key) {
-  /*TODO. */
-}
-
 
 fd_interest copy_determine_interests(fd_selector s, copy_data *data) {
   
@@ -38,6 +34,8 @@ fd_interest copy_determine_interests(fd_selector s, copy_data *data) {
   if ((data->interest & OP_WRITE) && buffer_can_read(data->wb)) {
     ret |= OP_WRITE;
   }
+
+  //data->interest = ret;
 
   if (SELECTOR_SUCCESS != selector_set_interest(s, *data->fd, ret)) {
     log_print(LOG_ERROR,"Could not set interest of %d for %d\n", ret, data->fd);
@@ -74,7 +72,7 @@ unsigned int copy_read(struct selector_key *key) {
   uint8_t* ptr = buffer_write_ptr(buff, &size);  
   
   n = recv(key->fd, ptr, size, 0);
-  if (n > 0) {
+  if (n >= 0) {
 
     //TODO: metricas
     //TODO: si es cliente -> pop2
@@ -110,7 +108,7 @@ unsigned copy_write(struct selector_key *key) {
   uint8_t* ptr = buffer_read_ptr(buff, &size);  
   
   n = send(key->fd, ptr, size, MSG_NOSIGNAL);
-  if (n > 0) {
+  if (n >= 0) {
 
     //TODO: metricas
     //TODO: si es cliente -> pop2

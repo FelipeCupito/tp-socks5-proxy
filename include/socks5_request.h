@@ -23,7 +23,6 @@
 //////////////////////////////////////////
 void request_init(const unsigned state, struct selector_key *key);
 unsigned int request_read(struct selector_key *key);
-void request_read_close(const unsigned state, struct selector_key *key);
 
 ///////////////////////////////////////////
 //REQUEST_RESOLV

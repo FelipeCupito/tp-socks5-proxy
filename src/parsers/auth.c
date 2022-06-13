@@ -109,7 +109,7 @@ enum auth_state auth_parser_feed(auth_parser *p, uint8_t b) {
       break;
     
     default:
-      log(FATAL, "Invalid state %d.\n", p->state);
+      //log(FATAL, "Invalid state %d.\n", p->state);
       break;
   }
 

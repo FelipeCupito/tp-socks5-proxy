@@ -17,13 +17,13 @@
 #include "logger.h"
 #include "socks5.h"
 #include "client_handler.h"
+#include "parsers/hello.h"
 
 
 ///////////////////////////////////////////
 //HELLO_READ
 //////////////////////////////////////////
 void hello_read_init(const unsigned state, struct selector_key *key);
-void hello_read_close(const unsigned state, struct selector_key *key);
 unsigned int hello_read(struct selector_key *key);
 
 

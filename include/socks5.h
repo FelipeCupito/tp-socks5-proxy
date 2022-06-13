@@ -20,6 +20,10 @@
 #include "socks5_auth.h"
 #include "socks5_request.h"
 #include "socks5_copy.h"
+#include "parsers/hello.h"
+#include "parsers/auth.h"
+#include "parsers/request.h"
+
 
 #define MAX_IPS 10
 #define IP_V4_ADDR_SIZE 4
@@ -168,22 +172,15 @@ typedef enum addr_type {
 } addr_type;
 
 /////////////////////////////////////////////////////////////////////////
-// Estados posibles de cada estado de socks5
-/////////////////////////////////////////////////////////////////////////
-
-typedef enum connection_state {
-  CONN_INPROGRESS, // EINPROGRESS
-  CONN_FAILURE,
-  CONN_SUCCESS // EALREADY
-} connection_state;
-
-/////////////////////////////////////////////////////////////////////////
 // Store de cada estado
 /////////////////////////////////////////////////////////////////////////
 
 typedef struct hello_data {
-  int i;
-  //TODO;
+  
+  buffer *rb, *wb;
+  struct hello_parser parser;
+  uint8_t method;
+
 } hello_data;
 
 typedef struct auth_data {
@@ -192,8 +189,24 @@ typedef struct auth_data {
 } auth_data;
 
 typedef struct request_data {
-  int i;
-//TODO;
+
+    buffer *rb, *wb;
+    
+    //parser
+    struct request request;
+    struct request_parser parser;
+    // resumen de la respuesta a enviar 
+    enum socks_response_status status;
+
+    // a donde nos tenemos que conectar
+    struct sockaddr_storage *final_server_addr;
+    socklen_t *final_server_len;
+    int server_domain;
+    
+    //fd
+    const int *client_fd;
+    int *final_server_fd;
+
 }request_data;
 
 typedef struct resolv_data {
@@ -251,6 +264,7 @@ typedef struct socks5 {
   // Final Server
   struct sockaddr_storage final_server_addr;
   socklen_t final_server_len;
+  //int server_domain;
   int final_server_fd;
 
   // Estado del Socket:
@@ -259,7 +273,8 @@ typedef struct socks5 {
   // estado del socket cliente
   union client_data {
     hello_data hello;
-    auth_data userpass;
+    auth_data auth;
+    request_data request;
     resolv_data resolv;
     copy_data copy;
   } client_data;

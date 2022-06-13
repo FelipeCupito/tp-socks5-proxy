@@ -2,8 +2,8 @@ HEADERS=include
 SRC=src
 TEST=test/parser_tests
 
+
 # Hay que hacer que compile con Clang tambien
-CC=gcc
 
 HFILES=$(shell find $(HEADERS) -name '*.h' | sed 's/^.\///')
 FILES=$(shell find $(SRC) -name '*.c' | sed 's/^.\///')
@@ -26,9 +26,9 @@ test:$(OTFILES)
 	cd test; make all
 
 clean:
-	cd test; make clean	
-	rm -rf $(OFILES)
-    rm -rf $(OFILES) server
+	cd test; make clean; cd ..; rm -rf $(OFILES) server
 
+	
  #-Werror pasa los w a errores
+
 .PHONY: all clean

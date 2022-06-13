@@ -1,6 +1,4 @@
 #include "../../include/parsers/hello.h"
-#include "../../include/logger.h"
-#include "../../include/buffer.h"
 
 /*
 
@@ -43,7 +41,7 @@ extern enum hello_state hello_parser_feed(struct hello_parser* p, const uint8_t 
 
 		case hello_methods:
 			if (NULL != p->on_auth_method) {
-				p -> on_auth_method(p -> data, b);
+				p -> on_auth_method(p->data, b);
 			}
 			p -> remaining--;
 			if (p->remaining <= 0) {
@@ -55,14 +53,15 @@ extern enum hello_state hello_parser_feed(struct hello_parser* p, const uint8_t 
 		case hello_error_unsupported_version:
 			break;
 		default:
-			log(FATAL, "Invalid state %d.\n", p->state);
+			printf("");
+			//log(FATAL, "Invalid state %d.\n", p->state);
 	}
 
 	return p->state;
 }
 
 extern bool hello_is_done(const enum hello_state state, bool* errored) {
-	bool res;
+	bool res = false;
 	switch (state) {
 		case hello_error_unsupported_version:
 			if (errored != 0) {
@@ -121,6 +120,7 @@ extern int hello_marshall(buffer* b, const uint8_t method) {
 
 	buff[0] = 0x05;
 	buff[1] = method;
+
 	buffer_write_adv(b, 2);
 	return 2;
 }

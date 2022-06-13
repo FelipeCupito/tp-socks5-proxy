@@ -55,7 +55,7 @@ struct request {
 	in_port_t dst_port;
 };
 
-enum request_state {
+typedef enum request_state {
 	request_version,
 	request_cmd,
 	request_rsv,
@@ -70,7 +70,7 @@ enum request_state {
 	request_error_unsupported_version,
 	request_error_unsupported_addresstype,
 	request_error_unsupported_cmd
-};
+}request_state;
 
 struct request_parser {
 	struct request* request;

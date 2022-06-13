@@ -1,43 +1,114 @@
 #include "../include/socks5_request.h"
 
-#define SIN_ADDR(sin) (void *)&(((struct sockaddr_in *)sin)->sin_addr)
-#define SIN_PORT(sin) (void *)&(((struct sockaddr_in *)sin)->sin_port)
-
-#define SIN_ADDR6(sin) (void *)&(((struct sockaddr_in6 *)sin)->sin6_addr)
-#define SIN_PORT6(sin) (void *)&(((struct sockaddr_in6 *)sin)->sin6_port)
-
 // privadas:
 unsigned int request_connect(struct selector_key *key);
+unsigned request_process(struct selector_key *key, request_data *data);
+
 
 ///////////////////////////////////////////
 // REQUEST_READ
 //////////////////////////////////////////
 void request_init(const unsigned state, struct selector_key *key) {
-    //TODO:
+
+  request_data *data = &ATTACHMENT(key)->client_data.request;
+
+  //parser
+  data->rb = &ATTACHMENT(key)->read_buffer;
+  data->wb = &ATTACHMENT(key)->write_buffer;
+  data->parser.request = &data->request;
+  data->status = status_general_SOCKS_server_failure;
+  request_parser_init(&data->parser);
+  
+  //fd
+  data->client_fd = &ATTACHMENT(key)->client_fd;
+  data->final_server_fd = &ATTACHMENT(key)->final_server_fd;
+
+  //addr
+  data->final_server_addr = &ATTACHMENT(key)->final_server_addr;
+  data->final_server_len = &ATTACHMENT(key)->final_server_len;
+  //data->server_domain = &ATTACHMENT(key)->server_domain;
 }
 
 unsigned int request_read(struct selector_key *key) {
 
+  request_data *data = &ATTACHMENT(key)->client_data.request;
   unsigned int ret = REQUEST_READ;
-  unsigned int err = 0;
+  bool err = 0;
 
-  // TODO: Reemplazar los valores por los que realmente nos piden
-  struct sockaddr_in sin;
-  sin.sin_family = AF_INET;
-  sin.sin_addr.s_addr = inet_addr("0.0.0.0");
-  sin.sin_port = htons(9090);
-  
-  
-  //inicializo valores
-  socks5 *socks5= ATTACHMENT(key);
-  memcpy(&socks5->final_server_addr, &sin, sizeof(sin));
-  socks5->final_server_len = sizeof(struct sockaddr_storage);
-  socks5->final_server_fd = -1;
+  buffer *buff = data->rb;
+  size_t size;
+  ssize_t n;
 
-  //inicio nueva conexion
-  ret = request_connect(key);
-
+  uint8_t *ptr = buffer_write_ptr(buff, &size);
+  n = recv(key->fd, ptr, size, 0);
+  if(n < 0){
+    err = true;
+  }else{
+    buffer_write_adv(buff, n);
+    request_state st = request_consume(buff, &data->parser, &err);
+    if(request_is_done(st, 0)){
+      log_print(INFO, "inicio el proceso del request_read");
+      ret = request_process(key, data);
+    }
+  }
   return err ? ERROR : ret;
+}
+
+//Privadas:
+unsigned request_process(struct selector_key *key, request_data *data){
+  
+  socks5 *socks5= ATTACHMENT(key);
+  unsigned int ret = REQUEST_CONNECTING;
+  bool err = false;
+
+  struct sockaddr_in addr4;
+  struct sockaddr_in6 addr6;
+  ssize_t len;
+
+
+  if(data->request.cmd == socks_req_cmd_connect ){
+    switch (data->request.dst_addr_type){    
+    
+    case socks_req_addrtype_ipv4:
+      addr4 = data->request.dst_addr.ipv4;
+      addr4.sin_family = AF_INET;
+      addr4.sin_port = data->request.dst_port;
+
+      len = sizeof(data->request.dst_addr.ipv4);
+      socks5->final_server_len = len;
+      memcpy(&socks5->final_server_addr, &addr4, len);
+      
+      ret = request_connect(key);
+      break;
+
+    case socks_req_addrtype_ipv6:
+      addr6 = data->request.dst_addr.ipv6;
+      addr6.sin6_family = AF_INET6;
+      addr6.sin6_port = data->request.dst_port; 
+
+      len = sizeof(data->request.dst_addr.ipv6);
+      socks5->final_server_len = len;
+      memcpy(&socks5->final_server_addr, &addr6, len);
+      
+      ret = request_connect(key);
+      break;
+
+    case socks_req_addrtype_domain:
+      /*
+        TODO:
+      */
+      break;
+    
+    default:
+      data->status = request_error_unsupported_addresstype;
+      ret = REQUEST_WRITE;
+      break;
+    }
+  }else{
+    data->status = request_error_unsupported_cmd;
+    ret = REQUEST_WRITE;
+  }
+  return ret;
 }
 
 unsigned int request_connect(struct selector_key *key) {
@@ -72,31 +143,47 @@ unsigned int request_connect(struct selector_key *key) {
     goto finally;
   }
 
-//hago el connect
   struct sockaddr_storage *sin = (struct sockaddr_storage *)&socks5->final_server_addr;
   socklen_t addrlen = socks5->final_server_len;
 
   if (connect(*fd, (struct sockaddr *)sin, addrlen) == -1) {
 
     selector_status ss = SELECTOR_SUCCESS;
+    request_data *request = &socks5->client_data.request;
+    enum socks_response_status st;
+
     switch (errno) {
       case EINPROGRESS:
         ss = selector_register(key->s, *fd, &socks5_handler, OP_WRITE, ATTACHMENT(key));
+        log_print(INFO, "se creo el socket: %d se comunica son server_final", *fd);
         if (ss != SELECTOR_SUCCESS) {
           err = true;
-          goto finally;;
+          goto finally;
         }
         ss = selector_set_interest(key->s, socks5->client_fd , OP_NOOP);
         if (ss != SELECTOR_SUCCESS) {
           err = true;
-          goto finally;;
+          goto finally;
         }
         break;
       default:
+        //hubo un error:
         //TODO: paso a otra ip o error
-        printf("hola");
-        err = true;
-        goto finally;
+
+        //si no hay mas ip, comunico el error y TODO:cierro conecion
+        st = errno_to_socks(errno);
+        if(request_marshall(request->wb, st, &request->request) == -1){
+          ss =+ selector_set_interest(key->s, socks5->client_fd, OP_WRITE);
+          ss =+ selector_register(key->s, *fd, &socks5_handler, OP_NOOP, ATTACHMENT(key));
+          if(ss != SELECTOR_SUCCESS){
+            err = true;
+          goto finally; 
+          }
+          ret = REQUEST_WRITE;
+        }else{
+          //fallo el request_marshall
+          err = true;
+        }
     }
   }
 
@@ -104,9 +191,6 @@ unsigned int request_connect(struct selector_key *key) {
 }
 
 
-void request_read_close(const unsigned state, struct selector_key *key) {
-  // TODO: close
-}
 
 //////////////////////////////////////////////////////////////////////////////////////
 // REQUEST_RESOLV
@@ -130,76 +214,74 @@ void request_connecting_init(const unsigned state, struct selector_key *key) {
 
 unsigned int request_connecting(struct selector_key *key) {
   
-  int error;
-  socklen_t len = sizeof(error);
-  connecting_data *conn = &ATTACHMENT(key)->server_data.connect;
+  unsigned int ret = REQUEST_WRITE;
+  int err = false;
+  socklen_t len = sizeof(err);
 
-  unsigned int ret = REQUEST_CONNECTING;
-  
-  if(getsockopt(key->fd, SOL_SOCKET, SO_ERROR, &error, &len) < 0){
+  connecting_data *conn = &ATTACHMENT(key)->server_data.connect;
+  request_data *request = &ATTACHMENT(key)->client_data.request;
+  enum socks_response_status response_st;
+
+  if(getsockopt(key->fd, SOL_SOCKET, SO_ERROR, &err, &len) < 0){
     //TODO: fallo getsockopt
-    //*conn->status = status_general_SOCKS_server_failure;
   }else{
-    if(error == 0){
+    if(err == 0){
       //se conecto
       //metrics
-      //*conn->status = status_succeeded;
+      log_print(INFO, "se conecto");
+      response_st = status_succeeded;
       *conn->final_server_fd = key->fd;
 
     }else{
-      //*conn->status = errno_to_socks(error);
-      //TODO: si hay mas ip pruebo con otra
-      //
+      //TODO: si hay mas ip pruebo con otra :
+
+      //Si no hay mas ip:
+      response_st = errno_to_socks(err);
     }
   }
 
-  //request_marshall()
+  if(request_marshall(request->wb, response_st, &request->request) == -1){
+        err = true;
+        goto finally;
+      }
 
   selector_status ss = 0;
-  ss |= selector_set_interest(key->s, *conn->client_fd, OP_WRITE);
-  ss |= selector_set_interest(key->s, key->fd , OP_NOOP);
+  ss += selector_set_interest(key->s, *conn->client_fd, OP_WRITE);
+  ss += selector_set_interest(key->s, key->fd , OP_NOOP);
 
+finally : return err ? ERROR : ret;
 
-  return SELECTOR_SUCCESS == 0 ? REQUEST_WRITE : ERROR;
 }
 
-/*
-enum socks_response_status errno_to_socks(const int e) {
-  enum socks_response_status ret = status_general_SOCKS_server_failure;
-  switch (e) {
-    case 0:
-      ret = status_succeeded;
-      break;
-    case ECONNREFUSED:
-      ret = status_connection_refused;
-      break;
-    case EHOSTUNREACH:
-      ret = status_host_unreachable;
-      break;
-    case ENETUNREACH:
-      ret = status_network_unreachable;
-      break;
-    case ETIMEDOUT:
-      ret = status_ttl_expired;
-      break;
-  }
-  return ret;
-}
-*/
 
 //////////////////////////////////////////////////////////////////////////////////////
 // REQUEST_READ
 /////////////////////////////////////////////////////////////////////////////////////
 unsigned int request_write(struct selector_key *key) { 
+  request_data *data = &ATTACHMENT(key)->client_data.request;
   
-  //TODO: por ahora
-  fd_interest ret = OP_READ | OP_WRITE;
-  connecting_data *conn = &ATTACHMENT(key)->server_data.connect;
-  if (SELECTOR_SUCCESS != selector_set_interest(key->s, *conn->final_server_fd, ret)) {
-    log_print(LOG_ERROR,"Could not set interest of %d for %d\n", ret, *conn->final_server_fd);
-  }
-  if (SELECTOR_SUCCESS != selector_set_interest(key->s, *conn->client_fd, ret)) {
-    log_print(LOG_ERROR,"Could not set interest of %d for %d\n", ret, *conn->client_fd);
+  unsigned int ret = REQUEST_READ;
+  unsigned int err = 0;
+
+  buffer *buff = data->wb;
+  size_t size;
+  ssize_t n;
+
+  uint8_t *ptr = buffer_read_ptr(buff, &size);
+  n = send(key->fd, ptr, size, MSG_NOSIGNAL);
+  log_print(INFO, "se envio la respuesta");
+  if(n < 0){
+    ret = ERROR;
+  }else{
+    buffer_read_adv(buff, n);
+    if(!buffer_can_read(buff)){
+      if(SELECTOR_SUCCESS == selector_set_interest_key(key, OP_READ)){
+        ret = COPY;
+      }else{ 
+        ret = ERROR;
+      } 
+    }
+    //metricas
   }
   return COPY;
 }

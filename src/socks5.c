@@ -20,11 +20,9 @@ const struct state_definition socks_state_definition[] = {
       .state = AUTH_WRITE,
       .on_write_ready = auth_write,
     },
-
     {
       .state = REQUEST_READ,
       .on_arrival = request_init,
-      .on_departure = request_read_close,
       .on_read_ready = request_read,
     },
     {
@@ -62,6 +60,7 @@ const struct state_definition socks_state_definition[] = {
 struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clntAddrLen) {
 
   struct socks5 *newSocks = malloc(sizeof(struct socks5));
+  
   if (newSocks == NULL) {
     log_print(LOG_ERROR, "Error: Initizalizing null Socks5\n");
   }
