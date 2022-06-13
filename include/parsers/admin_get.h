@@ -55,6 +55,6 @@ enum admin_get_state admin_get_consume(buffer *b, admin_get_parser *p, bool *err
 
 bool admin_get_is_done(const enum admin_get_state state, bool *error);
 
-int admin_get_marshal(buffer *b, const uint8_t status, admin_get_parser *p);
+int admin_get_marshal(buffer *b, const uint8_t status, admin_get_parser *p, uint8_t *res);
 
 #endif
