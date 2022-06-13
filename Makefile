@@ -25,10 +25,10 @@ all:$(OFILES)
 test:$(OTFILES)
 	cd test; make all
 
-clean:
-	cd test; make clean	
-	rm -rf $(OFILES)
-    rm -rf $(OFILES) server
+# clean:
+# 	cd test; make clean
+# 		rm -rf $(OFILES)
+#   rm -rf $(OFILES) server
 
  #-Werror pasa los w a errores
 .PHONY: all clean

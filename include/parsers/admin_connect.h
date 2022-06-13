@@ -31,7 +31,7 @@ struct password {
 
 typedef struct admin_connect_parser {
   enum admin_connect_state state;
-  struct pass password;
+  struct password password;
 
   uint8_t remaining;
   uint8_t read;

@@ -13,17 +13,17 @@ static const uint8_t STATUS_ERROR_INVALID_FIELD = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_OPTION = 0x02;
 
 enum field {
-  users,
+  users = 0x00,
   passwords,
   connections,
   bytes,
-  buffer,
+  buffsize,
   auth_status,
   spoofing_status,
 };
 
 enum option {
-  none,
+  none = 0x00,
   sent_bytes,
   received_bytes,
   historic_connections,
@@ -34,9 +34,9 @@ enum admin_get_state {
   admin_get_field,
   admin_get_option,
   admin_get_done,
-  admin_error,
-  admin_error_field,
-  admin_error_option,
+  admin_get_error,
+  admin_get_error_field,
+  admin_get_error_option,
 };
 
 typedef struct admin_get_parser {

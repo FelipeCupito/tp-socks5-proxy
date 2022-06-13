@@ -2,11 +2,11 @@
 #include "../../include/logger.h"
 #include "../../include/buffer.h"
 
-void admin_connect_parser_init (struct admin_connect_parsrer *p) {
+void admin_connect_parser_init (struct admin_connect_parser *p) {
   p -> state  = admin_connect_version;
-  memset(&p -> pass, 0, sizeof(p -> pass));
+  memset(&p -> password, 0, sizeof(p -> password));
 
-  if (&p->pass == NULL) {
+  if (&p->password == NULL) {
     p -> state = admin_connect_error;
     return;
   }
@@ -54,7 +54,7 @@ enum admin_connect_state admin_connect_parser_feed(admin_connect_parser *p, uint
       break;
 
     default:
-      log(FATAL, "Invalid state %d.\n", p->state);
+      log_print(FATAL, "Invalid state %d.\n", p->state);
       break;
   }
 
