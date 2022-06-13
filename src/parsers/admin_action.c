@@ -16,6 +16,9 @@ enum admin_action_state admin_action_parser_feed (admin_action_parser *p, uint8_
         p -> state = admin_action_error_invalid_action;
       }
       break;
+    case admin_action_done:
+    case admin_action_error_invalid_action:
+      break;
     default:
       log_print(FATAL, "Invalid state %d.\n", p->state);
       break;

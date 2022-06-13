@@ -52,6 +52,11 @@ enum admin_connect_state admin_connect_parser_feed(admin_connect_parser *p, uint
         p -> state = admin_connect_done;
       }
       break;
+    case admin_connect_done:
+    case admin_connect_error:
+    case admin_connect_error_version:
+    case admin_connect_error_passlen:
+      break;
 
     default:
       log_print(FATAL, "Invalid state %d.\n", p->state);
