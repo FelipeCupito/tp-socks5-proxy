@@ -22,12 +22,12 @@ enum admin_connect_state {
   admin_connect_error,
   admin_connect_error_version,
   admin_connect_error_passlen,
-}
+};
 
 struct password {
   uint8_t passlen;
   uint8_t passwd[MAX_PASS_SIZE];
-}
+};
 
 typedef struct admin_connect_parser {
   enum admin_connect_state state;
