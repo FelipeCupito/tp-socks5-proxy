@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <stdint.h>
 #include "../buffer.h"
+#include "../logger.h"
 
 static const uint8_t STATUS_OK = 0X00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;

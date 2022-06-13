@@ -1,5 +1,4 @@
 #include "../../include/parsers/admin_get.h"
-#include "../../include/logger.h"
 
 void admin_get_parser_init (struct admin_get_parser *p) {
   p -> state = admin_get_field;

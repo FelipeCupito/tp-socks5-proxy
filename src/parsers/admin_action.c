@@ -1,6 +1,4 @@
 #include "../../include/parsers/admin_action.h"
-#include "../../include/logger.h"
-#include "../../include/buffer.h"
 
 void admin_action_parser_init (struct admin_action_parser *p) {
   p -> state = admin_action_reading;

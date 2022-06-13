@@ -1,7 +1,4 @@
 #include "../../include/parsers/auth.h"
-#include "../../include/logger.h"
-#include "../../include/buffer.h"
-
 /* ESTADOS
 
   auth_version,
