@@ -1,0 +1,181 @@
+Metricas:
+	- Cantidad de usuarios
+	- Registro de conexiones
+		* fecha
+		* nombre usuario
+		* ip origen
+		* puerto origen
+		* ip destino
+		* puerto destino
+		* status code de socksv5
+	- Registro de passwords spoofeadas
+		* fecha
+		* nombre usuario
+		* password
+	- Conexiones por usuario ?
+		* NO hace falta
+	- Spoofing activado o no
+	- Auth activado o no
+	- Cantidad de bytes transferidos
+		* recibidos y enviados
+Acciones:
+	- list number of users
+	- add user?
+	- delete user?
+	- list connections
+		* historicas
+		* concurrentes
+	- list user connections
+		* NO es necesario
+	- list passwords spoofeadas
+	- set passwords?
+	- toggle auth required
+		* status de auth
+	- toggle spoofing
+		* status
+	- get bytes
+		* recibidos
+		* enviados
+	- get buffer size
+	- set buffer size
+	- get auth status
+	- get spoof status
+	
+CONNECTION
+
+<<
+	+--------+---------+----------+
+	|VERSION | PASSLEN |  PASSWD  |
+	+--------+---------+----------+
+	| 1      |  1      | 1 to 255 |
+	+--------+---------+----------+
+>> 
+	+--------+
+	|STATUS  |
+	+--------+
+	| 1      |
+	+--------+
+	STATUS:
+		OK: X'00'
+		ERROR_IN_VERSION: X'01'
+		ERROR_IN_PASSLEN: X'02'
+			
+REQUEST
+
+<<
+	+--------+
+	| ACTION |
+	+--------+
+	|  1     |
+	+--------+
+
+	ACTION:
+		o GET X'00'
+		o SET X'01'
+		o DELETE X'02' ?
+>>		
+	+--------+
+	| STATUS |
+	+--------+
+	|  1     |
+	+--------+
+	
+	STATUS:
+		o OK X'01'
+		o ERROR_INVALID_ACTION X'01'	
+		
+<<
+	Request for GET ACTION
+		+--------+--------+
+		| FIELD  | OPTION |
+		+--------+--------+
+		|  1     | 1      |  
+		+--------+--------+	
+		FIELD: 
+			o USERS X'00'
+			o PASSWORDS X'01'
+			o CONNECTIONS X'02'
+			o BYTES X'03'
+			o BUFFER X'04'
+			o AUTH STATUS X'05'
+			o SPOOFING STATUS X'06'
+			
+		OPTION:
+			o X'00' This is valid for USERS, PASSWORDS, BUFFER, AUTH STATUS and SPOOFING STATUS fields. It returns the requested data.
+			o X'01' SENT BYTES
+			o X'02' RECEIVED BYTES
+			o X'03' HISTORIC CONNECTIONS
+			o X'04' CURRENT CONNECTIONS
+>>
+      	Replie for GET ACTION
+
+		+---------+--------+-------+--------+----------+
+		| STATUS  | FIELD  |OPTION | RESLEN |  RES     |
+		+---------+--------+-------+--------+----------+
+		|  1      | 1      |  1    |   1    | VARIABLE |
+		+---------+--------+-------+--------+----------+
+		
+		STATUS:
+			o OK X'01'
+			o ERROR_INVALID_FIELD X'01'
+			o ERROR_INVALID_OPTION X'02'
+			
+<<
+	Request for SET ACTION
+		+--------+--------+-----------+----------+
+		| FIELD  | PARAM  | VALUELEN  | VALUE    |
+		+--------+--------+-----------+----------+
+		|  1     | 1      | 1         | VARIABLE |
+		+--------+--------+-----------+----------+
+	
+		FIELD: 
+			o USERS X'00'
+			o PASSWORDS X'01'
+			o CONNECTIONS X'02'
+			o BYTES X'03'
+			o BUFFER X'04'
+			o AUTH STATUS X'05'
+			o SPOOFING STATUS X'06'
+		
+		PARAM:
+			o BUFFSIZE X'00'
+			o AUTH STATUS X'01'
+			o SPOOFING STATUS X'02'
+			
+		VALUELEN: The length of the value, 1 for AUTH STATUS and SPOOFING STATUS, variable for BUFFSIZE.
+		VALUE: 
+			for the status parameters
+				o OFF X'00'
+				o ON X'01'
+			for buffersize:
+				o Variable	
+>> 
+	Replie for SET ACTION
+		+---------+--------+-------+----------+----------+
+		| STATUS  | FIELD  |PARAM  | VALUELEN |  VALUE   |
+		+---------+--------+-------+----------+----------+
+		|  1      | 1      |  1    |   1      | VARIABLE |
+		+---------+--------+-------+----------+----------+
+		
+		STATUS:
+			o OK X'01'
+			o ERROR_INVALID_FIELD X'01'
+			o ERROR_INVALID_OPTION X'02'
+
+
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+
+
