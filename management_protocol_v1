@@ -41,13 +41,13 @@ Acciones:
 	- get auth status
 	- get spoof status
 	
-CONNECTION
+CONNECTION	
 
 <<
 	+--------+---------+----------+
 	|VERSION | PASSLEN |  PASSWD  |
 	+--------+---------+----------+
-	| 1      |  1      | 1 to 255 |
+	| X'00'  |  1      | 1 to 255 |
 	+--------+---------+----------+
 >> 
 	+--------+
@@ -62,109 +62,181 @@ CONNECTION
 			
 REQUEST
 
-<<
-	+--------+
-	| ACTION |
-	+--------+
-	|  1     |
-	+--------+
-
-	ACTION:
-		o GET X'00'
-		o SET X'01'
-		o DELETE X'02' ?
->>		
-	+--------+
-	| STATUS |
-	+--------+
-	|  1     |
-	+--------+
-	
-	STATUS:
-		o OK X'01'
-		o ERROR_INVALID_ACTION X'01'	
+	Actions:
+		- GET X'00'
+		- PUT X'01'
+		- EDIT X'02'
+		- CONFIGBUFFSIZE X'03'
+		- CONFIGSTATUS X'04'
+		- DELETE X'05'
 		
 <<
 	Request for GET ACTION
-		+--------+--------+
-		| FIELD  | OPTION |
-		+--------+--------+
-		|  1     | 1      |  
-		+--------+--------+	
-		FIELD: 
-			o USERS X'00'
-			o PASSWORDS X'01'
-			o CONNECTIONS X'02'
-			o BYTES X'03'
-			o BUFFER X'04'
-			o AUTH STATUS X'05'
-			o SPOOFING STATUS X'06'
-			
-		OPTION:
-			o X'00' This is valid for USERS, PASSWORDS, BUFFER, AUTH STATUS and SPOOFING STATUS fields. It returns the requested data.
-			o X'01' SENT BYTES
-			o X'02' RECEIVED BYTES
-			o X'03' HISTORIC CONNECTIONS
-			o X'04' CURRENT CONNECTIONS
+		+-------+--------+--------+
+		|ACTION | FIELD  | OPTION |
+		+-------+--------+--------+
+		| X'00' |  1     | 1      |  
+		+-------+--------+--------+	
+			FIELD: 
+				o USERS X'00'
+				o PASSWORDS X'01'
+				o CONNECTIONS X'02'
+				o BYTES X'03'
+				o BUFFERSIZE X'04'
+				o AUTH STATUS X'05'
+				o SPOOFING STATUS X'06'
+				
+			OPTION:
+				o X'00' NONE This is valid for USERS, PASSWORDS, BUFFERSIZE, AUTH STATUS and SPOOFING STATUS fields. It returns the requested data. O NULL?
+				o X'01' SENT BYTES
+				o X'02' RECEIVED BYTES
+				o X'03' HISTORIC CONNECTIONS
+				o X'04' CURRENT CONNECTIONS
 >>
       	Replie for GET ACTION
 
 		+---------+--------+-------+--------+----------+
 		| STATUS  | FIELD  |OPTION | RESLEN |  RES     |
 		+---------+--------+-------+--------+----------+
-		|  1      | 1      |  1    |   1    | VARIABLE |
+		|  1      | 1      |  1    |   1    | Variable |
 		+---------+--------+-------+--------+----------+
 		
 		STATUS:
-			o OK X'01'
-			o ERROR_INVALID_FIELD X'01'
-			o ERROR_INVALID_OPTION X'02'
+			o OK X'00'
+			o ERROR_INVALID_ACTION X'01'
+			o ERROR_INVALID_FIELD X'02'
+			o ERROR_INVALID_OPTION X'03'
 			
 <<
-	Request for SET ACTION
-		+--------+--------+-----------+----------+
-		| FIELD  | PARAM  | VALUELEN  | VALUE    |
-		+--------+--------+-----------+----------+
-		|  1     | 1      | 1         | VARIABLE |
-		+--------+--------+-----------+----------+
+	 Request for PUT ACTION
+		+---------+--------+-----------+----------+-----------+----------+
+		| ACTION  | FIELD  | NAMELEN   | NAME     | PASSLEN   | PASS     |
+		+---------+--------+-----------+----------+-----------+----------+
+		|  X'01'  | X'00'  | 1         | 1 to 255 |1	       | 1 to  255|
+		+---------+--------+-----------+----------+-----------+----------+
 	
-		FIELD: 
-			o USERS X'00'
-			o PASSWORDS X'01'
-			o CONNECTIONS X'02'
-			o BYTES X'03'
-			o BUFFER X'04'
-			o AUTH STATUS X'05'
-			o SPOOFING STATUS X'06'
+		ACTION: o PUT X'01'
+		FIELD:  o USERS X'00'
 		
-		PARAM:
-			o BUFFSIZE X'00'
-			o AUTH STATUS X'01'
-			o SPOOFING STATUS X'02'
-			
-		VALUELEN: The length of the value, 1 for AUTH STATUS and SPOOFING STATUS, variable for BUFFSIZE.
-		VALUE: 
-			for the status parameters
-				o OFF X'00'
-				o ON X'01'
-			for buffersize:
-				o Variable	
 >> 
-	Replie for SET ACTION
-		+---------+--------+-------+----------+----------+
-		| STATUS  | FIELD  |PARAM  | VALUELEN |  VALUE   |
-		+---------+--------+-------+----------+----------+
-		|  1      | 1      |  1    |   1      | VARIABLE |
-		+---------+--------+-------+----------+----------+
+	Replie for PUT ACTION
+		+---------+--------+---------+----------+
+		| STATUS  | FIELD  |NAMELEN  | NAME     |
+		+---------+--------+---------+----------+
+		|  1      | 1      |  1      | 1 to 255 | 
+		+---------+--------+---------+----------+
 		
 		STATUS:
-			o OK X'01'
-			o ERROR_INVALID_FIELD X'01'
-			o ERROR_INVALID_OPTION X'02'
+			o OK X'00'
+			o ERROR_INVALID_ACTION X'01'
+			o ERROR_INVALID_FIELD X'02'
+			o ERROR_INVALID_NAMELEN X'03'
+			o ERROR_INVALID_PASSLEN X'03'
 
-
-
+<<
+	 Request for EDIT ACTION
+		+---------+--------+-------------+-------------+-----------+
+		| ACTION  | FIELD  | ATTRIBUTE   | VALUELEN    | VALUE     |
+		+---------+--------+-------------+-------------+-----------+
+		|  X'02'  | X'00'  | 1           | 1           | 1 to   255|
+		+---------+--------+-------------+-------------+-----------+
+	
+		ACTION: o EDIT X'02'
+		FIELD:  o USERS X'00
+		ATRIBUTE:
+			o USERNAME X'00'
+			o PASSWORD X'01'
+>> 
+	Replie for EDIT ACTION
+		+---------+
+		| STATUS  |
+		+---------+
+		|  1      |
+		+---------+
 		
+		STATUS:
+			o OK X'00'
+			o ERROR_INVALID_ACTION X'01'
+			o ERROR_INVALID_FIELD X'02'
+			o ERROR_INVALID_ATTRIBUTE X'03'
+			o ERROR_INVALID_VALUELEN X'03'
+			
+<<
+	 Request for BUFFSIZE ACTION
+		+---------+--------+
+		| ACTION  | SIZE   | // asi o variable?
+		+---------+--------+
+		|  X'03'  | 1      |
+		+---------+--------+	
+	
+		ACTION: o BUFFSIZE X'03'
+		
+>> 	Replie for CONFIGBUFFSIZE ACTION
+
+		+---------+
+		| STATUS  |
+		+---------+
+		|  1      |
+		+---------+
+		
+		STATUS:
+			o OK X'00'
+			o ERROR_INVALID_ACTION X'01'
+			o ERROR_INVALID_SIZE X'02'
+
+<<
+	 Request for CONFIGSTATUS ACTION
+		+---------+--------+--------+
+		| ACTION  | FIELD  | STATUS |
+		+---------+--------+--------+
+		|  1      | 1      | 1      |
+		+---------+--------+--------+
+	
+		ACTION:	o CONFIG STATUS X'04'
+		FIELD:		o AUTH X'05'
+				o SPOOF X'06' 	
+		STATUS:
+			o ON X'00'
+			o OFF X'01'
+
+>>	Replie for CONFIGSTATUS ACTION
+
+		+---------+
+		| STATUS  |
+		+---------+
+		|  1      |
+		+---------+
+		
+		STATUS:
+			o OK X'00'	
+			o ERROR_INVALID_ACTION X'01'
+			o ERROR_INVALID_FIELD  X'02'
+			o ERROR_INVALID_STATUS X'03'
+			
+<<
+	 Request for DELETE ACTION
+		+---------+--------+---------+----------+
+		| ACTION  | FIELD  | KEYLEN  |  KEY     |
+		+---------+--------+---------+----------+
+		|  X'05'  | X'00'  | 1       | 1 to 255 |
+		+---------+--------+---------+----------+
+	
+		ACTION:  o DELETE X'05'
+		FIELD:	 o USERS X'00'
+
+>>	Replie for DELETE ACTION
+
+		+---------+
+		| STATUS  |
+		+---------+
+		|  1      |
+		+---------+
+		
+		STATUS:
+			o OK X'00'
+			
+			
+		PENDING....
 		
 		
 		
