@@ -10,8 +10,11 @@
 #include "../logger.h"
 
 static const uint8_t STATUS_OK = 0X00;
-static const uint8_t STATUS_ERROR_INVALID_FIELD = 0x01;
-static const uint8_t STATUS_ERROR_INVALID_OPTION = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;
+static const uint8_t STATUS_ERROR_INVALID_FIELD = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_OPTION = 0x03;
+
+static const uint8_t GET_ACTION = 0X00;
 
 enum field {
   users = 0x00,
@@ -32,10 +35,12 @@ enum option {
 };
 
 enum admin_get_state {
+  admin_get_action,
   admin_get_field,
   admin_get_option,
   admin_get_done,
   admin_get_error,
+  admin_get_error_action,
   admin_get_error_field,
   admin_get_error_option,
 };

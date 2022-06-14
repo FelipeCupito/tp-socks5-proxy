@@ -1,7 +1,7 @@
 #include "../../include/parsers/admin_get.h"
 
 void admin_get_parser_init (struct admin_get_parser *p) {
-  p -> state = admin_get_field;
+  p -> state = admin_get_action;
 }
 
 enum admin_get_state field(const uint8_t b, struct admin_get_parser* p) {
@@ -20,6 +20,20 @@ enum admin_get_state field(const uint8_t b, struct admin_get_parser* p) {
     default:
       next = admin_get_error_field;
     break;
+  }
+
+  return next;
+}
+
+enum admin_get_state action(const uint8_t b, struct admin_get_parser* p) {
+  enum admin_get_state next;
+  switch (b) {
+    case GET_ACTION:
+      next = admin_get_field;
+      break;
+    default:
+      next = admin_get_error_action;
+      break;
   }
 
   return next;
@@ -66,6 +80,9 @@ enum admin_get_state option(const uint8_t b, struct admin_get_parser* p) {
 
 enum admin_get_state admin_get_parser_feed (admin_get_parser *p, uint8_t b) {
   switch (p -> state) {
+    case admin_get_action:
+      p -> state = action(b,p);
+      break;
     case admin_get_field:
       p -> state = field(b,p);
       break;

@@ -1,16 +1,17 @@
 {
-    "makefile.extensionOutputFolder": "./.vscode",
-    "files.associations": {
-        "*.c": "c",
-        "selector.h": "c",
-        "client.h": "c",
-        "parser_utils.h": "c",
-        "parser.h": "c",
-        "stdio.h": "c",
-        "ipversion.h": "c",
-        "stdarg.h": "c",
-        "cmath": "c",
-        "stm.h": "c",
-        "socks5_copy.h": "c"
-    }
+  "makefile.extensionOutputFolder": "./.vscode",
+  "files.associations": {
+    "*.c": "c",
+    "selector.h": "c",
+    "client.h": "c",
+    "parser_utils.h": "c",
+    "parser.h": "c",
+    "stdio.h": "c",
+    "ipversion.h": "c",
+    "stdarg.h": "c",
+    "cmath": "c",
+    "stm.h": "c",
+    "socks5_copy.h": "c",
+    "stdint.h": "c"
+  }
 }
