@@ -38,7 +38,6 @@ fd_interest copy_determine_interests(fd_selector s, copy_data *data) {
   //data->interest = ret;
 
   if (SELECTOR_SUCCESS != selector_set_interest(s, *data->fd, ret)) {
-    log_print(LOG_ERROR,"Could not set interest of %d for %d\n", ret, data->fd);
     //TODO: exit
   }
   return ret;
@@ -50,12 +49,10 @@ copy_data* get_copy_data(struct selector_key *key){
   
   if(key->fd == *client_copy->fd){
     //es el cliente
-    int i = 1;//TODO: borrar
     return client_copy;
   }
 
-  //es el final_server 
-  int j = 0;//TODO: borrar
+  //es el final_server
   client_copy = client_copy->other_copy;
   return client_copy;
 }
@@ -63,7 +60,6 @@ copy_data* get_copy_data(struct selector_key *key){
 unsigned int copy_read(struct selector_key *key) {
   copy_data* data = get_copy_data(key);
   unsigned int ret = COPY;
-  unsigned int err = false;
 
   buffer *buff = data->rb;
   size_t size; 
@@ -72,7 +68,7 @@ unsigned int copy_read(struct selector_key *key) {
   uint8_t* ptr = buffer_write_ptr(buff, &size);  
   
   n = recv(key->fd, ptr, size, 0);
-  if (n >= 0) {
+  if (n > 0) {
 
     //TODO: metricas
     //TODO: si es cliente -> pop2
@@ -99,7 +95,6 @@ unsigned int copy_read(struct selector_key *key) {
 unsigned copy_write(struct selector_key *key) {
   copy_data *data = get_copy_data(key);
   unsigned int ret = COPY;
-  unsigned int err = false;
 
   buffer* buff = data->wb;
   size_t size; 

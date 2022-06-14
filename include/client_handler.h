@@ -17,15 +17,12 @@
 #include "stm.h"
 #include  "socks5.h"
 
-
 void client_passive_accept(struct selector_key *key);
 
 void socks5_read(struct selector_key *key);
 void socks5_write(struct selector_key *key);
 void socks5_block(struct selector_key *key);
 void socks5_close(struct selector_key *key);
-
-
 
 static const struct fd_handler socks5_handler = {
     .handle_read = socks5_read,

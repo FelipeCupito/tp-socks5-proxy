@@ -53,7 +53,7 @@ extern enum hello_state hello_parser_feed(struct hello_parser* p, const uint8_t 
 		case hello_error_unsupported_version:
 			break;
 		default:
-			printf("");
+			printf(""); //TODO: cambiar
 			//log(FATAL, "Invalid state %d.\n", p->state);
 	}
 

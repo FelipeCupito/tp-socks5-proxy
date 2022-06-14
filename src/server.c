@@ -28,7 +28,7 @@
 #include "../include/client_handler.h"
 #include "../include/selector.h"
 
-#define SOCKS_BACKLOG 20 // la longitud máxima de la cola de conexiones pendientes
+#define SOCKS_BACKLOG 100 // la longitud máxima de la cola de conexiones pendientes
 
 //variables
 static bool done = false;
@@ -158,7 +158,7 @@ int init_server_v4( const char *err_msg, struct sockaddr_in addr ){
     return -1;
   }
   
-  log_print(INFO,"Listening on TCP port %d\n", addr.sin_port);
+  log_print(INFO,"Listening on TCP port %d\n", ntohs(addr.sin_port));
 
   // man 7 ip. no importa reportar nada si falla.
   setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
@@ -184,7 +184,7 @@ int init_server_v6( const char *err_msg, struct sockaddr_in6 addr ){
     return -1;
   }
   
-  log_print(INFO,"Listening on TCP port %d\n", addr.sin6_port);
+  log_print(INFO,"Listening on TCP port %d\n", ntohs(addr.sin6_port));
 
   // man 7 ip. no importa reportar nada si falla.
   setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));

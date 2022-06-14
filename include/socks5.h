@@ -32,6 +32,7 @@
 #define BUFFER_SIZE 4096 // TODO: sacar
 
 #define ATTACHMENT(key) ( (struct socks5 *)(key)->data)
+#define N(x) (sizeof(x) / sizeof((x)[0]))
 
 // funciones:
 struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clntAddrLen);
@@ -286,19 +287,11 @@ typedef struct socks5 {
     copy_data copy;
   } server_data;
 
-  // Nro de referencias a esta instancia de struct socks5
-  // Si la cantidad es 1, se puede borrar
-  unsigned int references;
-
   // buffer de escritura
   uint8_t raw_buff_a[BUFFER_SIZE], raw_buff_b[BUFFER_SIZE];
   buffer read_buffer, write_buffer;
 
-  int error;
-
-  // bool disectors_enabled; para mi no hace falta
-  // int ss_final_serv; //en caso que usemos dos selects
-
+  int toFree;
 } socks5;
 
 #endif

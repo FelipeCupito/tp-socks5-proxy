@@ -18,12 +18,8 @@
 #include "socks5.h"
 
 
-
 void copy_init(const unsigned state, struct selector_key *key);
-void copy_close(const unsigned state, struct selector_key *key);
 unsigned copy_read(struct selector_key *key);
 unsigned copy_write(struct selector_key *key);
-
-
 
 #endif

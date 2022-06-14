@@ -22,10 +22,6 @@ void hello_read_init(const unsigned state, struct selector_key *key) {
   data->parser.on_auth_method = on_hello_method;
 }
 
-void hello_read_close(const unsigned state, struct selector_key *key) {
-  // TODO: close
-}
-
 unsigned int hello_read(struct selector_key *key) {
 
   hello_data *data = &ATTACHMENT(key)->client_data.hello;
@@ -44,8 +40,6 @@ unsigned int hello_read(struct selector_key *key) {
     
     const enum hello_state st = hello_consume(buff, &data->parser, &err);
     if (hello_is_done(st, &err)) {
-
-      log_print(INFO, "hello_read, fd_client: %d", ATTACHMENT(key)->client_fd);
       // termine de recibir ahora quiere envia la respuesta
       if (SELECTOR_SUCCESS == selector_set_interest_key(key, OP_WRITE)) {
         // serializa en un buff la respuesta al hello
@@ -85,14 +79,12 @@ unsigned int hello_write(struct selector_key *key) {
 
     buffer_read_adv(buff, n);
     if (!buffer_can_read(buff)) {
-      //mande todo el mensaje
+      //se mando el mensaje completo
       if (SELECTOR_SUCCESS == selector_set_interest(key->s,key->fd, OP_READ)) {
         if (data->method == METHOD_AUTH_REQUIRED) {
           ret = AUTH_READ;
-          log_print(INFO, "con autenticacion");
         } else {
           ret = REQUEST_READ;
-          log_print(INFO, "sin autenticacion");
         }
       } else {
         // error en selector_set

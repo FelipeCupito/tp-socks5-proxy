@@ -358,6 +358,8 @@ finally:
 selector_status selector_unregister_fd(fd_selector s, const int fd) {
   selector_status ret = SELECTOR_SUCCESS;
 
+  struct item *item3 = s->fds + 7;
+
   if (NULL == s || INVALID_FD(fd)) {
     ret = SELECTOR_IARGS;
     goto finally;
@@ -384,6 +386,8 @@ selector_status selector_unregister_fd(fd_selector s, const int fd) {
   memset(item, 0x00, sizeof(*item));
   item_init(item);
   s->max_fd = items_max_fd(s);
+
+  struct item *item6 = s->fds + 7;
 
 finally:
   return ret;

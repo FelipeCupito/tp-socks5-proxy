@@ -37,12 +37,10 @@ const struct state_definition socks_state_definition[] = {
     {
       .state = REQUEST_WRITE,
       .on_write_ready = request_write,
-
     },
     {
       .state = COPY,
       .on_arrival = copy_init,
-      .on_departure = copy_close,
       .on_read_ready = copy_read,
       .on_write_ready = copy_write,
     },
@@ -62,7 +60,7 @@ struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, s
   struct socks5 *newSocks = malloc(sizeof(struct socks5));
   
   if (newSocks == NULL) {
-    log_print(LOG_ERROR, "Error: Initizalizing null Socks5\n");
+    return NULL;
   }
 
   //smt:
@@ -73,23 +71,19 @@ struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, s
   stm_init(&(newSocks->stm));
 
   //init buffers
-  buffer_init(&(newSocks->write_buffer), BUFFER_SIZE + 1, malloc(BUFFER_SIZE + 1));
-  buffer_init(&(newSocks->read_buffer), BUFFER_SIZE + 1, malloc(BUFFER_SIZE + 1));
+  buffer_init(&(newSocks->write_buffer), BUFFER_SIZE + 1, newSocks->raw_buff_a);
+  buffer_init(&(newSocks->read_buffer), BUFFER_SIZE + 1, newSocks->raw_buff_b);
 
   // init fds
   newSocks->client_fd = client;
   newSocks->final_server_fd = -1;
 
-  //
+  //info del socket cliente
   memcpy(&newSocks->client_addr, clntAddr, clntAddrLen);
   newSocks->client_addr_len = clntAddrLen;
 
-
-  //   newSocks->reply_type = -1;
-  // 1 -> se puede borrar
-  newSocks->references = 1;
-  //   newSocks->username = NULL;
-  memset(&(newSocks->server_data), 0, sizeof(newSocks->server_data));
+  //si esta en 1 se puede liberar la memoria
+  newSocks->toFree = 0;
 
   return newSocks;
 }
