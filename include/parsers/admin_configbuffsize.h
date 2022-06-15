@@ -11,28 +11,22 @@
 
 static const uint8_t STATUS_OK                      = 0x00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
-static const uint8_t STATUS_ERROR_INVALID_SIZELEN   = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_SIZE      = 0x03;
+static const uint8_t STATUS_ERROR_INVALID_SIZE      = 0x02;
 
 static const uint8_t CONFIGBUFF_ACTION = 0x03;
 
-#define MAX_BUFF_SIZE 0XFF
-
 enum admin_configbuff_state {
   admin_configbuff_action,
-  admin_configbuff_sizelen,
   admin_configbuff_size,
   admin_configbuff_done,
   admin_configbuff_error,
   admin_configbuff_error_action,
-  admin_configbuff_error_sizelen,
   admin_configbuff_error_size,
 };
 
 typedef struct admin_configbuff_parser {
   enum admin_configbuff_state state;
-  uint8_t sizelen;
-  uint8_t size[MAX_BUFF_SIZE];
+  uint8_t size[4];
   uint8_t action;
   uint8_t remaining;
   uint8_t read;

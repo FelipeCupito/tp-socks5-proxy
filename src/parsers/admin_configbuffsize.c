@@ -2,12 +2,7 @@
 
 void admin_configbuff_parser_init (struct admin_configbuff_parser *p) {
   p -> state = admin_configbuff_action;
-  p -> remaining = 0;
-  p -> read = 0;
-}
-
-static void remaining_set(admin_configbuff_parser *p, const int n) {
-  p -> remaining = n;
+  p -> remaining = 4;
   p -> read = 0;
 }
 
@@ -16,51 +11,45 @@ static bool remaining_is_done(admin_configbuff_parser *p) {
 }
 
 enum admin_configbuff_state configbuff_action(admin_configbuff_parser *p, uint8_t b) {
-  enum admin_configbuff_state next = admin_configbuff_error_action;
-  
   if (b == CONFIGBUFF_ACTION) {
     p -> action = b;
-    next = admin_configbuff_sizelen;
+    p -> state = admin_configbuff_size;
+  } else {
+    p -> state = admin_configbuff_error_action;
   }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_configbuff_state size(admin_configbuff_parser *p, uint8_t b) {
-  enum admin_configbuff_state next = admin_configbuff_size;
-  *( (p->size) + p->read ) = b;
-    p -> read ++;
+  int i = p -> read;
+  log_print(INFO, "byte %d.\n", b);
+  p -> size[i] = b;
+  p -> read ++;
 
-    if (remaining_is_done(p)) {
-      *( (p->size) + p->read ) = '\0';
-      next = admin_configbuff_done;
+  if (remaining_is_done(p)) {
+    uint32_t aux_size = p -> size[3] | (p -> size[2] << 8) | (p -> size[1] << 16) | (p -> size[0] << 24);
+    if (aux_size <= 0) {
+      p -> state = admin_configbuff_error_size;
+    } else {
+      p -> state = admin_configbuff_done;
     }
+  }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_configbuff_state admin_configbuff_parser_feed(admin_configbuff_parser *p, uint8_t b) {
-  enum admin_configbuff_state next;
   switch (p -> state) {
   case admin_configbuff_action:
-    next = configbuff_action(p,b);
-    break;
-  case admin_configbuff_sizelen:
-    if (b <= 0) {
-      next = admin_configbuff_error_sizelen;
-    } else {
-      remaining_set(p,b);
-      p -> sizelen = b;
-      next = admin_configbuff_size;
-    }
+    p -> state = configbuff_action(p,b);
     break;
   case admin_configbuff_size:
-    next = size(p,b);
+    p -> state = size(p,b);
     break;
   case admin_configbuff_error:
   case admin_configbuff_error_action:
   case admin_configbuff_error_size:
-  case admin_configbuff_error_sizelen:
   case admin_configbuff_done:
     break;
   default:
@@ -68,7 +57,7 @@ enum admin_configbuff_state admin_configbuff_parser_feed(admin_configbuff_parser
     break;
   }
 
-  return next;
+  return p -> state;
 }
 
 bool admin_configbuff_is_done (const enum admin_configbuff_state state, bool *err) {
@@ -77,7 +66,6 @@ bool admin_configbuff_is_done (const enum admin_configbuff_state state, bool *er
   case admin_configbuff_error:
   case admin_configbuff_error_action:
   case admin_configbuff_error_size:
-  case admin_configbuff_error_sizelen:
     if (err != 0)
     {
       *err = true;

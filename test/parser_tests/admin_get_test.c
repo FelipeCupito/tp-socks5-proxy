@@ -242,6 +242,10 @@ suite(void) {
 	tcase_add_test(testcase_admin_get_connections_h, test_admin_get_connections_h);
 	suite_add_tcase(s, testcase_admin_get_connections_h);
 
+    TCase* testcase_admin_get_connections_c = tcase_create("admin_get_connections_c");
+	tcase_add_test(testcase_admin_get_connections_c, test_admin_get_connections_c);
+	suite_add_tcase(s, testcase_admin_get_connections_c);
+
     TCase* testcase_admin_get_invalid_action = tcase_create("admin_get_invalid_action");
 	tcase_add_test(testcase_admin_get_invalid_action, test_admin_get_invalid_action);
 	suite_add_tcase(s, testcase_admin_get_invalid_action);
