@@ -12,8 +12,9 @@
 static const uint8_t STATUS_OK                      = 0X00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_ATTRIBUTE = 0x03;
-static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x04;
+static const uint8_t STATUS_ERROR_INVALID_KEYLEN    = 0x03;
+static const uint8_t STATUS_ERROR_INVALID_ATTRIBUTE = 0x04;
+static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x05;
 
 static const uint8_t EDIT_ACTION = 0x02;
 static const uint8_t USERS_FIELD = 0x00;
@@ -28,6 +29,8 @@ enum attribute {
 enum admin_edit_state {
   admin_edit_action,
   admin_edit_field,
+  admin_edit_keylen,
+  admin_edit_key,
   admin_edit_attribute,
   admin_edit_valuelen,
   admin_edit_value,
@@ -39,14 +42,16 @@ enum admin_edit_state {
   admin_edit_error_valuelen,
 };
 
-typedef struct admin_ediot_parser {
+typedef struct admin_edit_parser {
   enum admin_edit_state state;
+  uint8_t keylen;
+  uint8_t key[MAX_VALUE_SIZE];
   uint8_t field;
   uint8_t action;
   enum attribute attr;
   uint8_t valuelen;
   uint8_t value[MAX_VALUE_SIZE];
-} admin_get_parser;
+} admin_edit_parser;
 
 void admin_edit_parser_init(struct admin_edit_parser *p);
 
@@ -56,6 +61,6 @@ enum admin_edit_state admin_edit_consume(buffer *b, admin_edit_parser *p, bool *
 
 bool admin_edit_is_done(const enum admin_edit_state state, bool *error);
 
-int admin_edit_marshal(buffer *b, const uint8_t status, admin_edit_parser *p, uint8_t *res);
+int admin_edit_marshal(buffer *b, const uint8_t status);
 
 #endif

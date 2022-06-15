@@ -4,21 +4,23 @@ void admin_get_parser_init (struct admin_get_parser *p) {
   p -> state = admin_get_action;
 }
 
-enum admin_get_state field(const uint8_t b, struct admin_get_parser* p) {
+enum admin_get_state option(const uint8_t b, struct admin_get_parser* p) {
   enum admin_get_state next;
   switch (b) {
     case users:
     case passwords:
-    case connections:
-    case bytes:
+    case historic_connections:
+    case current_connectios:
+    case sent_bytes:
+    case recv_bytes:
     case buffsize:
     case auth_status:
     case spoofing_status:
-      p -> field = b;
-      next = admin_get_option;
+      p -> option = b;
+      next = admin_get_done;
     break;
     default:
-      next = admin_get_error_field;
+      next = admin_get_error_option;
     break;
   }
 
@@ -29,49 +31,10 @@ enum admin_get_state action(const uint8_t b, struct admin_get_parser* p) {
   enum admin_get_state next;
   switch (b) {
     case GET_ACTION:
-      next = admin_get_field;
+      next = admin_get_option;
       break;
     default:
       next = admin_get_error_action;
-      break;
-  }
-
-  return next;
-}
-
-enum admin_get_state option(const uint8_t b, struct admin_get_parser* p) {
-  enum admin_get_state next;
-  uint8_t f = p -> field;
-
-  switch (b) {
-    case none:
-      if (f == users || f == passwords || f == buffsize || f == auth_status || f == spoofing_status) {
-        p -> option = b;
-        next = admin_get_done;
-      } else {
-        next = admin_get_error_option;
-      }
-      break;
-    case sent_bytes:
-    case received_bytes:
-      if (f == bytes) {
-        p -> option = b;
-        next = admin_get_done;
-      } else {
-        next = admin_get_error_option;
-      }
-      break;
-    case historic_connections:
-    case current_connections:
-      if (f == connections) {
-        p -> option = b;
-        next = admin_get_done;
-      } else {
-        next = admin_get_error_option;
-      }
-      break;
-    default:
-      next = admin_get_error_option;
       break;
   }
 
@@ -83,14 +46,11 @@ enum admin_get_state admin_get_parser_feed (admin_get_parser *p, uint8_t b) {
     case admin_get_action:
       p -> state = action(b,p);
       break;
-    case admin_get_field:
-      p -> state = field(b,p);
-      break;
     case admin_get_option:
       p -> state = option(b,p);
+      break;
     case admin_get_done:
     case admin_get_error:
-    case admin_get_error_field:
     case admin_get_error_option:
       break;
     default:
@@ -106,7 +66,6 @@ bool admin_get_is_done (const enum admin_get_state state, bool *error){
 
   switch (state) {
     case admin_get_error:
-    case admin_get_error_field:
     case admin_get_error_option:
       if (error != 0) {
         *error = true;
@@ -146,10 +105,8 @@ extern int admin_get_marshall(buffer *b, const uint8_t status, struct admin_get_
 
   size_t len = n + sizeof(res);
   buff[0] = status;
-  buff[1] = parser -> field;
-  buff[2] = parser -> option;
-  buff[3] = sizeof(res);
-  memcpy(&buff[4], res, sizeof(*res));
+  buff[1] = sizeof(res);
+  memcpy(&buff[2], res, sizeof(*res));
   buffer_write_adv(b, len);
   return len;
 }

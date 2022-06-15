@@ -24,7 +24,6 @@ static void remaining_set(admin_put_parser *p, const int n) {
   p -> read = 0;
 }
 
-// TODO o static int?
 static bool remaining_is_done(admin_put_parser *p) {
   return p -> read >= p -> remaining;
 }
@@ -140,29 +139,14 @@ enum admin_put_state admin_put_consume (buffer *buff, struct admin_put_parser *p
   return state;
 }
 
-/*
-
-+---------+--------+---------+----------+
-| STATUS  | FIELD  |NAMELEN  | NAME     |
-+---------+--------+---------+----------+
-|  1      | 1      |  1      | 1 to 255 | 
-+---------+--------+---------+----------+
-
-*/
-
-extern int admin_put_marshall (buffer *b, const uint8_t status, struct admin_put_parser *parser) {
+extern int admin_put_marshall (buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 
-  if (n < 4) {
+  if (n < 1) {
     return -1;
   }
-
-  size_t len = n + sizeof(parser -> user.userlen);
   buff[0] = status;
-  buff[1] = parser -> field;
-  buff[2] = parser -> user.userlen;
-  memcpy(&buff[3], parser -> user.username, sizeof(*parser -> user.username));
-  buffer_write_adv(b, len);
-  return len;
+  buffer_write_adv(b, n);
+  return 1;
 }

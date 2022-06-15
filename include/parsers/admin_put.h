@@ -63,6 +63,6 @@ enum admin_put_state admin_put_consume(buffer *b, admin_put_parser *p, bool *err
 
 bool admin_put_is_done(const enum admin_put_state state, bool *error);
 
-int admin_put_marshal(buffer *b, const uint8_t status, admin_put_parser *p, uint8_t *res);
+int admin_put_marshal(buffer *b, const uint8_t status);
 
 #endif
