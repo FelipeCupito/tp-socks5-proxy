@@ -32,6 +32,7 @@ enum admin_put_state {
   admin_put_error_field,
   admin_put_error_namelen,
   admin_put_error_passlen,
+  admin_put_done,
 };
 
 struct username {
@@ -48,8 +49,10 @@ typedef struct admin_put_parser {
   enum admin_put_state state;
   uint8_t field;
   uint8_t action;
-  username user;
-  pass pass;
+  struct username user;
+  struct pass pass;
+  uint8_t remaining;
+  uint8_t read;
 } admin_put_parser;
 
 void admin_put_parser_init(struct admin_put_parser *p);

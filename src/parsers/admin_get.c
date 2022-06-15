@@ -140,7 +140,7 @@ extern int admin_get_marshall(buffer *b, const uint8_t status, struct admin_get_
   size_t n;
 
   uint8_t *buff = buffer_write_ptr(b, &n);
-  if (res != NULL && n < 5) {
+  if (n < 5) {
     return -1;
   }
 

@@ -104,7 +104,12 @@ enum auth_state auth_parser_feed(auth_parser *p, uint8_t b) {
       }
 
       break;
-    
+    case auth_error:
+    case auth_error_pass_len:
+    case auth_error_unsupported_version:
+    case auth_error_user_len:
+    case auth_done:
+      break;
     default:
       log_print(FATAL, "Invalid state %d.\n", p->state);
       break;

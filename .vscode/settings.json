@@ -12,6 +12,7 @@
     "cmath": "c",
     "stm.h": "c",
     "socks5_copy.h": "c",
-    "stdint.h": "c"
+    "stdint.h": "c",
+    "admin_put.h": "c"
   }
 }
