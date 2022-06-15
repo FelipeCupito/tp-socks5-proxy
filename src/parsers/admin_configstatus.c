@@ -1,53 +1,52 @@
 #include "../../include/parsers/admin_configstatus.h"
 
-void admin_status_parser_init (struct admin_configstatus_parser *p) {
+void admin_configstatus_parser_init (struct admin_configstatus_parser *p) {
   p -> state = admin_configstatus_action;
 }
 
 enum admin_configstatus_state configstatus_action(admin_configstatus_parser *p, uint8_t b) {
-  enum admin_configstatus_state next = admin_configstatus_error_action;
-  
   if (b == CONFIGSTATUS_ACTION) {
     p -> action = b;
-    next = admin_configstatus_field;
+    p -> state = admin_configstatus_field;
+  } else {
+    p -> state = admin_configstatus_error_action;
   }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_configstatus_state configstatus_field(admin_configstatus_parser *p, uint8_t b) {
-  enum admin_configstatus_state next = admin_configstatus_error_field;
-  
   if (b == CONFIGSTATUS_AUTH_FIELD || b == CONFIGSTATUS_SPOOFING_FIELD) {
     p -> field = b;
-    next = admin_configstatus_status;
+    p -> state = admin_configstatus_status;
+  } else {
+    p -> state = admin_configstatus_error_field;
   }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_configstatus_state status(admin_configstatus_parser *p, uint8_t b) {
-  enum admin_configstatus_state next = admin_configstatus_error_status;
-  
   if (b == ON || b == OFF) {
     p -> status = b;
-    next = admin_configstatus_done;
+    p -> state = admin_configstatus_done;
+  } else {
+    p -> state = admin_configstatus_error_status;
   }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_configstatus_state admin_configstatus_parser_feed(admin_configstatus_parser *p, uint8_t b) {
-  enum admin_configstatus_state next;
   switch (p -> state) {
   case admin_configstatus_action:
-    next = configstatus_action(p,b);
+    p -> state = configstatus_action(p,b);
     break;
   case admin_configstatus_field:
-    next = configstatus_field(p,b);
+    p -> state = configstatus_field(p,b);
     break;
   case admin_configstatus_status:
-    next = status(p,b);
+    p -> state = status(p,b);
     break;
   case admin_configstatus_error:
   case admin_configstatus_error_action:
@@ -60,7 +59,7 @@ enum admin_configstatus_state admin_configstatus_parser_feed(admin_configstatus_
     break;
   }
 
-  return next;
+  return p -> state;
 }
 
 bool admin_configstatus_is_done (const enum admin_configstatus_state state, bool *err) {
