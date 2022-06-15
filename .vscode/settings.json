@@ -16,6 +16,7 @@
     "admin_put.h": "c",
     "admin_configbuffsize.h": "c",
     "admin_configstatus.h": "c",
-    "admin_edit.h": "c"
+    "admin_edit.h": "c",
+    "admin_delete.h": "c"
   }
 }

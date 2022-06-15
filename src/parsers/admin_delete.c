@@ -16,61 +16,60 @@ static bool remaining_is_done(admin_delete_parser *p) {
 }
 
 enum admin_delete_state delete_action(admin_delete_parser *p, uint8_t b) {
-  enum admin_delete_state next = admin_delete_error_action;
-  
   if (b == DELETE_ACTION) {
     p -> action = b;
-    next = admin_delete_field;
+    p -> state = admin_delete_field;
+  } else {
+    p -> state = admin_delete_error_action;
   }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_delete_state delete_field(admin_delete_parser *p, uint8_t b) {
-  enum admin_delete_state next = admin_delete_error_field;
-  
   if (b == USERS_FIELD) {
     p -> field = b;
-    next = admin_delete_keylen;
+    p -> state = admin_delete_keylen;
+  } else {
+    p -> state = admin_delete_error_field;
   }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_delete_state delete_key(admin_delete_parser *p, uint8_t b) {
-  enum admin_delete_state next = admin_delete_key;
   *( (p->key) + p->read ) = b;
     p -> read ++;
 
     if (remaining_is_done(p)) {
       *( (p->key) + p->read ) = '\0';
-      next = admin_delete_done;
+      p -> state = admin_delete_done;
+    } else {
+      p -> state = admin_delete_key;
     }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_delete_state admin_delete_parser_feed(admin_delete_parser *p, uint8_t b) {
-  enum admin_delete_state next;
-
   switch (p -> state) {
   case admin_delete_action:
-    next = delete_action(p,b);
+    p -> state = delete_action(p,b);
     break;
   case admin_delete_field:
-    next = delete_field(p,b);
+    p -> state = delete_field(p,b);
     break;
   case admin_delete_keylen:
     if (b <= 0) {
-      next = admin_delete_error_keylen;
+      p -> state = admin_delete_error_keylen;
     } else {
       remaining_set(p,b);
       p -> keylen = b;
-      next = admin_delete_key;
+      p -> state = admin_delete_key;
     }
     break;
   case admin_delete_key:
-    next = delete_key(p,b);
+    p -> state = delete_key(p,b);
     break;
   case admin_delete_done:
   case admin_delete_error:
@@ -82,7 +81,7 @@ enum admin_delete_state admin_delete_parser_feed(admin_delete_parser *p, uint8_t
     break;
   }
 
-  return next;
+  return p -> state;
 }
 
 bool admin_delete_is_done (const enum admin_delete_state state, bool *err) {
