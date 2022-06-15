@@ -41,6 +41,7 @@ Acciones:
 	- get auth status
 	- get spoof status
 	
+	
 CONNECTION	
 
 <<
@@ -72,34 +73,29 @@ REQUEST
 		
 <<
 	Request for GET ACTION
-		+-------+--------+--------+
-		|ACTION | FIELD  | OPTION |
-		+-------+--------+--------+
-		| X'00' |  1     | 1      |  
-		+-------+--------+--------+	
-			FIELD: 
+		+-------+---------+
+		|ACTION | OPTION  |
+		+-------+---------+
+		| X'00' |  1      |
+		+-------+---------+
+			OPTION: 
 				o USERS X'00'
 				o PASSWORDS X'01'
-				o CONNECTIONS X'02'
-				o BYTES X'03'
-				o BUFFERSIZE X'04'
-				o AUTH STATUS X'05'
-				o SPOOFING STATUS X'06'
-				
-			OPTION:
-				o X'00' NONE This is valid for USERS, PASSWORDS, BUFFERSIZE, AUTH STATUS and SPOOFING STATUS fields. It returns the requested data. O NULL?
-				o X'01' SENT BYTES
-				o X'02' RECEIVED BYTES
-				o X'03' HISTORIC CONNECTIONS
-				o X'04' CURRENT CONNECTIONS
+				o BUFFERSIZE X'02'
+				o AUTH STATUS X'03'
+				o SPOOFING STATUS X'04'
+				o SENT BYTES X'05'
+				o RECEIVED BYTES X'06'
+				o HISTORIC CONNECTIONS X'07'
+				o CURRENT CONNECTIONS X'08'
 >>
       	Replie for GET ACTION
 
-		+---------+--------+-------+--------+----------+
-		| STATUS  | FIELD  |OPTION | RESLEN |  RES     |
-		+---------+--------+-------+--------+----------+
-		|  1      | 1      |  1    |   1    | Variable |
-		+---------+--------+-------+--------+----------+
+		+---------+--------+----------+
+		| STATUS  | RESLEN |  RES     |
+		+---------+--------+----------+
+		|  1      |   1    | VARIABLE |
+		+---------+--------+----------+
 		
 		STATUS:
 			o OK X'00'
@@ -109,22 +105,22 @@ REQUEST
 			
 <<
 	 Request for PUT ACTION
-		+---------+--------+-----------+----------+-----------+----------+
-		| ACTION  | FIELD  | NAMELEN   | NAME     | PASSLEN   | PASS     |
-		+---------+--------+-----------+----------+-----------+----------+
-		|  X'01'  | X'00'  | 1         | 1 to 255 | 1	       | 1 to  255 |
-		+---------+--------+-----------+----------+-----------+----------+
+		+---------+--------+----------+----------+----------+----------+
+		| ACTION  | FIELD  | NAMELEN  | NAME 	  | PASSLEN  | PASS     |
+		+---------+--------+----------+----------+----------+----------+
+		|  X'01'  | X'00'  | 1        | VARIABLE | 1        | VARIABLE |
+		+---------+--------+----------+----------+----------+----------+
 	
 		ACTION: o PUT X'01'
 		FIELD:  o USERS X'00'
 		
 >> 
 	Replie for PUT ACTION
-		+---------+--------+---------+----------+
-		| STATUS  | FIELD  | NAMELEN |   NAME   | // todo esto o solo estado?
-		+---------+--------+---------+----------+ 
-		|  1      | 1      |  1      | 1 to 255 | 
-		+---------+--------+---------+----------+
+		+---------+
+		| STATUS  |
+		+---------+
+		|  1      |
+		+---------+
 		
 		STATUS:
 			o OK X'00'
@@ -134,16 +130,17 @@ REQUEST
 			o ERROR_INVALID_PASSLEN X'04'
 
 <<
-	 Request for EDIT ACTION
-		+---------+--------+-------------+-------------+-----------+
-		| ACTION  | FIELD  | ATTRIBUTE   | VALUELEN    | VALUE     |
-		+---------+--------+-------------+-------------+-----------+
-		|  X'02'  | X'00'  | 1           | 1           | 1 to  255 |
-		+---------+--------+-------------+-------------+-----------+
+	Request for EDIT ACTION
+		+---------+--------+--------+-------------+-------------+-----------+-----------+
+		| ACTION  | FIELD  | KEYLEN | KEY         | ATTRIBUTE   | VALUELEN  | VALUE     |
+		+---------+--------+--------+-------------+-------------+-----------+-----------+
+		|  X'02'  | X'00'  | 1      | VARIABLE    | 1           | 1         | VARIABLE  |
+		+---------+--------+--------+-------------+-------------+-----------+-----------+
 	
 		ACTION: 	o EDIT X'02'
-		FIELD:  	o USERS X'00
-		ATRIBUTE:	o USERNAME X'00'
+		FIELD:  	o USERS X'00'
+		ATRIBUTE:	
+				o USERNAME X'00'
 				o PASSWORD X'01'
 >> 
 	Replie for EDIT ACTION
@@ -157,16 +154,17 @@ REQUEST
 			o OK X'00'
 			o ERROR_INVALID_ACTION X'01'
 			o ERROR_INVALID_FIELD X'02'
-			o ERROR_INVALID_ATTRIBUTE X'03'
-			o ERROR_INVALID_VALUELEN X'04'
+			o ERROR_INVALID_KEYLEN X'03'
+			o ERROR_INVALID_ATTRIBUTE X'04'
+			o ERROR_INVALID_VALUELEN X'05'
 			
 <<
-	 Request for BUFFSIZE ACTION
-		+---------+--------+
-		| ACTION  | SIZE   | // asi o variable?
-		+---------+--------+
-		|  X'03'  | 1      |
-		+---------+--------+	
+	Request for CONFIGBUFFSIZE ACTION
+		+---------+---------+----------+
+		| ACTION  | SIZELEN |  SIZE    |
+		+---------+---------+----------+
+		|  X'03'  | 1       | VARIABLE |
+		+---------+---------+----------+
 	
 		ACTION: o BUFFSIZE X'03'
 		
@@ -181,19 +179,20 @@ REQUEST
 		STATUS:
 			o OK X'00'
 			o ERROR_INVALID_ACTION X'01'
-			o ERROR_INVALID_SIZE X'02'
+			o ERROR_INVALID_SIZELEN X'02'
+			o ERROR_INVALID_SIZE X'03'
 
 <<
 	 Request for CONFIGSTATUS ACTION
 		+---------+--------+--------+
 		| ACTION  | FIELD  | STATUS |
 		+---------+--------+--------+
-		|  1      | 1      | 1      |
+		|  X'04'  | 1      | 1      |
 		+---------+--------+--------+
 	
 		ACTION:	o CONFIG STATUS X'04'
-		FIELD:		o AUTH X'05'
-				o SPOOF X'06' 	
+		FIELD:		o AUTH X'03'
+				o SPOOF X'04' 	
 		STATUS:
 			o ON X'00'
 			o OFF X'01'
