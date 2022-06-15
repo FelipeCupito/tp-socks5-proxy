@@ -15,10 +15,10 @@ static bool remaining_is_done(admin_configbuff_parser *p) {
   return p -> read >= p -> remaining;
 }
 
-enum admin_configbuff_state action(admin_configbuff_parser *p, uint8_t b) {
+enum admin_configbuff_state configbuff_action(admin_configbuff_parser *p, uint8_t b) {
   enum admin_configbuff_state next = admin_configbuff_error_action;
   
-  if (b = CONFIGBUFF_ACTION) {
+  if (b == CONFIGBUFF_ACTION) {
     p -> action = b;
     next = admin_configbuff_sizelen;
   }
@@ -43,7 +43,7 @@ enum admin_configbuff_state admin_configbuff_parser_feed(admin_configbuff_parser
   enum admin_configbuff_state next;
   switch (p -> state) {
   case admin_configbuff_action:
-    next = action(p,b);
+    next = configbuff_action(p,b);
     break;
   case admin_configbuff_sizelen:
     if (b <= 0) {
@@ -67,6 +67,8 @@ enum admin_configbuff_state admin_configbuff_parser_feed(admin_configbuff_parser
     log_print(FATAL, "Invalid state %d.\n", p->state);
     break;
   }
+
+  return next;
 }
 
 bool admin_configbuff_is_done (const enum admin_configbuff_state state, bool *err) {

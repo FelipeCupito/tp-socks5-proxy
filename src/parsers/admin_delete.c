@@ -15,10 +15,10 @@ static bool remaining_is_done(admin_delete_parser *p) {
   return p -> read >= p -> remaining;
 }
 
-enum admin_delete_state action(admin_delete_parser *p, uint8_t b) {
+enum admin_delete_state delete_action(admin_delete_parser *p, uint8_t b) {
   enum admin_delete_state next = admin_delete_error_action;
   
-  if (b = DELETE_ACTION) {
+  if (b == DELETE_ACTION) {
     p -> action = b;
     next = admin_delete_field;
   }
@@ -26,10 +26,10 @@ enum admin_delete_state action(admin_delete_parser *p, uint8_t b) {
   return next;
 }
 
-enum admin_delete_state field(admin_delete_parser *p, uint8_t b) {
+enum admin_delete_state delete_field(admin_delete_parser *p, uint8_t b) {
   enum admin_delete_state next = admin_delete_error_field;
   
-  if (b = USERS_FIELD) {
+  if (b == USERS_FIELD) {
     p -> field = b;
     next = admin_delete_keylen;
   }
@@ -37,7 +37,7 @@ enum admin_delete_state field(admin_delete_parser *p, uint8_t b) {
   return next;
 }
 
-enum admin_delete_state key(admin_delete_parser *p, uint8_t b) {
+enum admin_delete_state delete_key(admin_delete_parser *p, uint8_t b) {
   enum admin_delete_state next = admin_delete_key;
   *( (p->key) + p->read ) = b;
     p -> read ++;
@@ -55,10 +55,10 @@ enum admin_delete_state admin_delete_parser_feed(admin_delete_parser *p, uint8_t
 
   switch (p -> state) {
   case admin_delete_action:
-    next = action(p,b);
+    next = delete_action(p,b);
     break;
   case admin_delete_field:
-    next = field(p,b);
+    next = delete_field(p,b);
     break;
   case admin_delete_keylen:
     if (b <= 0) {
@@ -70,7 +70,7 @@ enum admin_delete_state admin_delete_parser_feed(admin_delete_parser *p, uint8_t
     }
     break;
   case admin_delete_key:
-    next = key(p,b);
+    next = delete_key(p,b);
     break;
   case admin_delete_done:
   case admin_delete_error:
@@ -81,6 +81,8 @@ enum admin_delete_state admin_delete_parser_feed(admin_delete_parser *p, uint8_t
     log_print(FATAL, "Invalid state %d.\n", p->state);
     break;
   }
+
+  return next;
 }
 
 bool admin_delete_is_done (const enum admin_delete_state state, bool *err) {

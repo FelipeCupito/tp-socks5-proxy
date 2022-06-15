@@ -4,10 +4,10 @@ void admin_status_parser_init (struct admin_configstatus_parser *p) {
   p -> state = admin_configstatus_action;
 }
 
-enum admin_configstatus_state action(admin_configstatus_parser *p, uint8_t b) {
+enum admin_configstatus_state configstatus_action(admin_configstatus_parser *p, uint8_t b) {
   enum admin_configstatus_state next = admin_configstatus_error_action;
   
-  if (b = CONFIGSTATUS_ACTION) {
+  if (b == CONFIGSTATUS_ACTION) {
     p -> action = b;
     next = admin_configstatus_field;
   }
@@ -15,10 +15,10 @@ enum admin_configstatus_state action(admin_configstatus_parser *p, uint8_t b) {
   return next;
 }
 
-enum admin_configstatus_state field(admin_configstatus_parser *p, uint8_t b) {
+enum admin_configstatus_state configstatus_field(admin_configstatus_parser *p, uint8_t b) {
   enum admin_configstatus_state next = admin_configstatus_error_field;
   
-  if (b = CONFIGSTATUS_AUTH_FIELD || b == CONFIGSTATUS_SPOOFING_FIELD) {
+  if (b == CONFIGSTATUS_AUTH_FIELD || b == CONFIGSTATUS_SPOOFING_FIELD) {
     p -> field = b;
     next = admin_configstatus_status;
   }
@@ -29,7 +29,7 @@ enum admin_configstatus_state field(admin_configstatus_parser *p, uint8_t b) {
 enum admin_configstatus_state status(admin_configstatus_parser *p, uint8_t b) {
   enum admin_configstatus_state next = admin_configstatus_error_status;
   
-  if (b = ON || b == OFF) {
+  if (b == ON || b == OFF) {
     p -> status = b;
     next = admin_configstatus_done;
   }
@@ -41,10 +41,10 @@ enum admin_configstatus_state admin_configstatus_parser_feed(admin_configstatus_
   enum admin_configstatus_state next;
   switch (p -> state) {
   case admin_configstatus_action:
-    next = action(p,b);
+    next = configstatus_action(p,b);
     break;
   case admin_configstatus_field:
-    next = field(p,b);
+    next = configstatus_field(p,b);
     break;
   case admin_configstatus_status:
     next = status(p,b);
@@ -59,6 +59,8 @@ enum admin_configstatus_state admin_configstatus_parser_feed(admin_configstatus_
     log_print(FATAL, "Invalid state %d.\n", p->state);
     break;
   }
+
+  return next;
 }
 
 bool admin_configstatus_is_done (const enum admin_configstatus_state state, bool *err) {

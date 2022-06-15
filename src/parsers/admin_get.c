@@ -4,7 +4,7 @@ void admin_get_parser_init (struct admin_get_parser *p) {
   p -> state = admin_get_action;
 }
 
-enum admin_get_state option(const uint8_t b, struct admin_get_parser* p) {
+enum admin_get_state get_option(const uint8_t b, struct admin_get_parser* p) {
   enum admin_get_state next;
   switch (b) {
     case users:
@@ -27,15 +27,10 @@ enum admin_get_state option(const uint8_t b, struct admin_get_parser* p) {
   return next;
 }
 
-enum admin_get_state action(const uint8_t b, struct admin_get_parser* p) {
-  enum admin_get_state next;
-  switch (b) {
-    case GET_ACTION:
-      next = admin_get_option;
-      break;
-    default:
-      next = admin_get_error_action;
-      break;
+enum admin_get_state get_action(const uint8_t b, struct admin_get_parser* p) {
+  enum admin_get_state next = admin_get_error_option;
+  if (b == GET_ACTION) {
+    next = admin_get_option;
   }
 
   return next;
@@ -44,10 +39,10 @@ enum admin_get_state action(const uint8_t b, struct admin_get_parser* p) {
 enum admin_get_state admin_get_parser_feed (admin_get_parser *p, uint8_t b) {
   switch (p -> state) {
     case admin_get_action:
-      p -> state = action(b,p);
+      p -> state = get_action(b,p);
       break;
     case admin_get_option:
-      p -> state = option(b,p);
+      p -> state = get_option(b,p);
       break;
     case admin_get_done:
     case admin_get_error:

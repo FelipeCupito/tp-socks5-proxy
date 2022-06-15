@@ -15,10 +15,10 @@ static bool remaining_is_done(admin_edit_parser *p) {
   return p -> read >= p -> remaining;
 }
 
-enum admin_edit_state action(admin_edit_parser *p, uint8_t b) {
+enum admin_edit_state edit_action(admin_edit_parser *p, uint8_t b) {
   enum admin_edit_state next = admin_edit_error_action;
   
-  if (b = EDIT_ACTION) {
+  if (b == EDIT_ACTION) {
     p -> action = b;
     next = admin_edit_field;
   }
@@ -26,10 +26,10 @@ enum admin_edit_state action(admin_edit_parser *p, uint8_t b) {
   return next;
 }
 
-enum admin_edit_state field(admin_edit_parser *p, uint8_t b) {
+enum admin_edit_state edit_field(admin_edit_parser *p, uint8_t b) {
   enum admin_edit_state next = admin_edit_error_field;
   
-  if (b = USERS_FIELD) {
+  if (b == USERS_FIELD) {
     p -> field = b;
     next = admin_edit_keylen;
   }
@@ -37,7 +37,7 @@ enum admin_edit_state field(admin_edit_parser *p, uint8_t b) {
   return next;
 }
 
-enum admin_edit_state key(admin_edit_parser *p, uint8_t b) {
+enum admin_edit_state edit_key(admin_edit_parser *p, uint8_t b) {
   enum admin_edit_state next = admin_edit_key;
   *( (p->key) + p->read ) = b;
     p -> read ++;
@@ -60,7 +60,7 @@ enum admin_edit_state attribute(admin_edit_parser *p, uint8_t b) {
  return next;
 }
 
-enum admin_edit_state value(admin_edit_parser *p, uint8_t b) {
+enum admin_edit_state edit_value(admin_edit_parser *p, uint8_t b) {
   enum admin_edit_state next = admin_edit_value;
   *( (p->value) + p->read ) = b;
     p -> read ++;
@@ -78,10 +78,10 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
 
   switch (p -> state) {
   case admin_edit_action:
-    next = action(p,b);
+    next = edit_action(p,b);
     break;
   case admin_edit_field:
-    next = field(p,b);
+    next = edit_field(p,b);
     break;
   case admin_edit_keylen:
     if (b <= 0) {
@@ -93,7 +93,7 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
     }
     break;
   case admin_edit_key:
-    next = key(p,b);
+    next = edit_key(p,b);
     break;
   case admin_edit_attribute:
     next = attribute(p,b);
@@ -108,7 +108,7 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
     }
     break;
   case admin_edit_value:
-    next = value(p,b);
+    next = edit_value(p,b);
     break;
   case admin_edit_done:
   case admin_edit_error:
@@ -121,6 +121,8 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
     log_print(FATAL, "Invalid state %d.\n", p->state);
     break;
   }
+
+  return next;
 }
 
 bool admin_edit_is_done (const enum admin_edit_state state, bool *err) {
