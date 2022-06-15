@@ -121,8 +121,8 @@ REQUEST
 >> 
 	Replie for PUT ACTION
 		+---------+--------+---------+----------+
-		| STATUS  | FIELD  |NAMELEN  | NAME     |
-		+---------+--------+---------+----------+
+		| STATUS  | FIELD  | NAMELEN |   NAME   | // todo esto o solo estado?
+		+---------+--------+---------+----------+ 
 		|  1      | 1      |  1      | 1 to 255 | 
 		+---------+--------+---------+----------+
 		
@@ -141,11 +141,10 @@ REQUEST
 		|  X'02'  | X'00'  | 1           | 1           | 1 to  255 |
 		+---------+--------+-------------+-------------+-----------+
 	
-		ACTION: o EDIT X'02'
-		FIELD:  o USERS X'00
-		ATRIBUTE:
-			o USERNAME X'00'
-			o PASSWORD X'01'
+		ACTION: 	o EDIT X'02'
+		FIELD:  	o USERS X'00
+		ATRIBUTE:	o USERNAME X'00'
+				o PASSWORD X'01'
 >> 
 	Replie for EDIT ACTION
 		+---------+
@@ -159,7 +158,7 @@ REQUEST
 			o ERROR_INVALID_ACTION X'01'
 			o ERROR_INVALID_FIELD X'02'
 			o ERROR_INVALID_ATTRIBUTE X'03'
-			o ERROR_INVALID_VALUELEN X'03'
+			o ERROR_INVALID_VALUELEN X'04'
 			
 <<
 	 Request for BUFFSIZE ACTION
