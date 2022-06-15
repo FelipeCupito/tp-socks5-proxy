@@ -209,9 +209,6 @@ void socks5_done(struct selector_key *key) {
   for (int i = 0; i < 2; ++i) {
     if(fds[i] != -1){
       if(SELECTOR_SUCCESS != selector_unregister_fd(key->s, fds[i])){
-        log_print(INFO, "abort 1");
-        for (int j = 0; j < 1000; ++j) {
-        }
         abort();
       }
     }

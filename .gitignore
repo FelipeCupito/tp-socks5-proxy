@@ -54,6 +54,9 @@ dkms.conf
 #ejecutable
 server
 
+#txt
+*.txt
+
 # History
 .bash-history
 

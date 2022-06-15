@@ -29,8 +29,7 @@
 #include "../include/selector.h"
 #include "../include/socks5.h"
 
-#define SOCKS_BACKLOG                                                          \
-  100               // la longitud máxima de la cola de conexiones pendientes
+#define SOCKS_BACKLOG 100               // la longitud máxima de la cola de conexiones pendientes
 #define MAX_FD 1024 // cantidad maxima de fd de aceptados por el selector
 #define INET_ADDRSTRLEN 16
 #define INET6_ADDRSTRLEN 46

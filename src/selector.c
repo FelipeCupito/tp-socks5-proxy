@@ -470,8 +470,10 @@ static void handle_block_notifications(fd_selector s) {
       key.data = item->data;
       item->handler->handle_block(&key);
     }
-
-    free(j);
+    //TODO: lo cambie para que funcione el DNS
+    struct blocking_job * previous = j;
+    j=j->next;
+    free(previous);
   }
   s->resolution_jobs = 0;
   pthread_mutex_unlock(&s->resolution_mutex);
