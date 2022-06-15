@@ -25,9 +25,9 @@
 #include <unistd.h>
 
 #include "../include/args.h"
-//#include "../include/client_handler.h"
 #include "../include/selector.h"
 #include "../include/socks5.h"
+#include "../include/logger.h"
 
 #define SOCKS_BACKLOG 100               // la longitud máxima de la cola de conexiones pendientes
 #define MAX_FD 1024 // cantidad maxima de fd de aceptados por el selector
@@ -57,7 +57,7 @@ int main(const int argc, char **argv) {
   selector_status ss = SELECTOR_SUCCESS;  // status del selector
   fd_selector selector = NULL;            // selector
   args arguments;                         // argumentos del programa
-  
+
   //guardo los argumntos 
   parse_args(argc, argv, &arguments);
 
