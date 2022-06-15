@@ -1,6 +1,8 @@
 #ifndef MANAGEMENT_PROTOCOL_HANDLER_H
 #define MANAGEMENT_PROTOCOL_HANDLER_H
 
-void login(int fd);
+#include <string.h>
+
+void login(int fd, char* password);
 
 #endif

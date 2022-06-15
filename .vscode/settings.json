@@ -12,6 +12,7 @@
         "cmath": "c",
         "stm.h": "c",
         "socks5_copy.h": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "management_protocol_handler.h": "c"
     }
 }
