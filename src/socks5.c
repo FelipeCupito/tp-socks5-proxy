@@ -142,8 +142,6 @@ void socks5_passive_accept(struct selector_key *key) {
     goto finally;
   }
 
-  log_print(INFO, "Creando socks5: %d", client);
-
   // clntSock is connected to a client!
   if (selector_fd_set_nio(client) == -1) {
     err = 1;
@@ -213,8 +211,8 @@ void socks5_done(struct selector_key *key) {
       }
     }
   }
-  log_print(INFO, "se cerro el socket: %d \n", fds[0]);
-  //metricas de cantidad de conexiones
+  log_conn(ATTACHMENT(key), DISCONN);
+  //TODO: metricas de cantidad de conexiones
 }
 
 void socks5_close(struct selector_key *key) {

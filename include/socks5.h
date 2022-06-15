@@ -15,7 +15,6 @@
 #include "logger.h"
 #include "selector.h"
 #include "stm.h"
-
 #include "parsers/auth.h"
 #include "parsers/hello.h"
 #include "parsers/request.h"
@@ -23,6 +22,7 @@
 #include "socks5_copy.h"
 #include "socks5_hello.h"
 #include "socks5_request.h"
+
 
 #define MAX_IPS 10
 #define IP_V4_ADDR_SIZE 4
@@ -269,7 +269,7 @@ typedef struct socks5 {
   // Final Server
   struct sockaddr_storage final_server_addr;
   socklen_t final_server_len;
-  // int server_domain;
+  // int server_domain;   
   int final_server_fd;
 
   // Estado del Socket:
