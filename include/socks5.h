@@ -1,5 +1,5 @@
-#ifndef SOCKS5_H
-#define SOCKS5_H
+#ifndef SOCKS_5_H
+#define SOCKS_5_H
 
 #include <errno.h>
 #include <netinet/in.h>
@@ -16,14 +16,13 @@
 #include "selector.h"
 #include "stm.h"
 
-#include "socks5_hello.h"
-#include "socks5_auth.h"
-#include "socks5_request.h"
-#include "socks5_copy.h"
-#include "parsers/hello.h"
 #include "parsers/auth.h"
+#include "parsers/hello.h"
 #include "parsers/request.h"
-
+#include "socks5_auth.h"
+#include "socks5_copy.h"
+#include "socks5_hello.h"
+#include "socks5_request.h"
 
 #define MAX_IPS 10
 #define IP_V4_ADDR_SIZE 4
@@ -31,11 +30,15 @@
 #define PORT_SIZE 2
 #define BUFFER_SIZE 4096 // TODO: sacar
 
-#define ATTACHMENT(key) ( (struct socks5 *)(key)->data)
-#define N(x) (sizeof(x) / sizeof((x)[0]))
+#define ATTACHMENT(key) ((struct socks5 *)(key)->data)
 
-// funciones:
 struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clntAddrLen);
+
+/////////////////////////////////////////////////////////////////////////
+// FD HANDLER
+/////////////////////////////////////////////////////////////////////////
+const struct fd_handler socks5_passive_handler;
+const struct fd_handler socks5_handler;
 
 /////////////////////////////////////////////////////////////////////////
 // Estados posibles de cada estado de socks5
@@ -43,119 +46,120 @@ struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, s
 enum socks_state {
 
   /*
-  * recibe el mensaje "hello" del cliente y lo procesa
-  *
-  * Intereses:
-  *    - OP_READ sobre client_fd
-  *
-  * Transiciones:
-  *    - HELLO_READ mietras el mesaje no este completo
-  *    - HELLO_WRITE cuando esta completo
-  *    - ERROR ante cualquier error
-  */
+   * recibe el mensaje "hello" del cliente y lo procesa
+   *
+   * Intereses:
+   *    - OP_READ sobre client_fd
+   *
+   * Transiciones:
+   *    - HELLO_READ mietras el mesaje no este completo
+   *    - HELLO_WRITE cuando esta completo
+   *    - ERROR ante cualquier error
+   */
   HELLO_READ,
 
   /*
-  * envia la respuesta del "hello" al cliente
-  *
-  * Intereses:
-  *    - OP_WRITE sobre client_fd
-  *
-  * Transiciones:
-  *    - HELLO_WRITE mietras queden bytes por enviar
-  *    - REQUEST_READ cuando se enviaron todos los bytes
-  *    - ERROR ante cualquier error
-  */
+   * envia la respuesta del "hello" al cliente
+   *
+   * Intereses:
+   *    - OP_WRITE sobre client_fd
+   *
+   * Transiciones:
+   *    - HELLO_WRITE mietras queden bytes por enviar
+   *    - REQUEST_READ cuando se enviaron todos los bytes
+   *    - ERROR ante cualquier error
+   */
   HELLO_WRITE,
 
   /*
-  * state when receiving the user and password
-  * 
-  * Interests:
-  *  -OP_READ -> Read the info sent by the user
-  * 
-  * Transitions:
-  *  - USSERPASS_READ -> While there are bytes being read
-  *  - USSERPASS_WRITE -> When all the bytes have been read and processed
-  *  - ERROR -> In case of an error
-  */
+   * state when receiving the user and password
+   *
+   * Interests:
+   *  -OP_READ -> Read the info sent by the user
+   *
+   * Transitions:
+   *  - USSERPASS_READ -> While there are bytes being read
+   *  - USSERPASS_WRITE -> When all the bytes have been read and processed
+   *  - ERROR -> In case of an error
+   */
   AUTH_READ,
 
   /*
-  * State when receiving the user and password
-  * 
-  * Interests:
-  *  -OP_WRITE -> Write if u+p is valid or not
-  * 
-  * Transitions:
-  *  - USSERPASS_READ -> While there are bytes being sent
-  *  - REQUEST_READ -> If u+p is valid
-  *  - ERROR -> In case of u+p invalid or other error
-  */
+   * State when receiving the user and password
+   *
+   * Interests:
+   *  -OP_WRITE -> Write if u+p is valid or not
+   *
+   * Transitions:
+   *  - USSERPASS_READ -> While there are bytes being sent
+   *  - REQUEST_READ -> If u+p is valid
+   *  - ERROR -> In case of u+p invalid or other error
+   */
   AUTH_WRITE,
 
   /*
-  * recibe el mesaje "request" del cliente y inicia su procesamiento
-  *
-  * Intereses:
-  *    - OP_READ sobre client_fd
-  *
-  * Transiciones:
-  *    - REQUEST_READ mietras el mesaje no este completo
-  *    - REQUEST_RESOLV si me pasan un dominio
-  *    - REQUEST_CONNECTING iniciar coneccion
-  *    - ERROR ante cualquier error
-  */
+   * recibe el mesaje "request" del cliente y inicia su procesamiento
+   *
+   * Intereses:
+   *    - OP_READ sobre client_fd
+   *
+   * Transiciones:
+   *    - REQUEST_READ mietras el mesaje no este completo
+   *    - REQUEST_RESOLV si me pasan un dominio
+   *    - REQUEST_CONNECTING iniciar coneccion
+   *    - ERROR ante cualquier error
+   */
   REQUEST_READ,
 
   /*
-  * espera la resolucion del DNS
-  *
-  * Intereses:
-  *    - OP_NOOP sobre client_fd
-  *
-  * Transiciones:
-  *    - REQUEST_CONNECTING si re resuelve el nombre y se puede iniciar la conexion
-  *    - REQUEST_WRITE en otro caso
-  */
+   * espera la resolucion del DNS
+   *
+   * Intereses:
+   *    - OP_NOOP sobre client_fd
+   *
+   * Transiciones:
+   *    - REQUEST_CONNECTING si re resuelve el nombre y se puede iniciar la
+   * conexion
+   *    - REQUEST_WRITE en otro caso
+   */
   REQUEST_RESOLV,
 
   /*
-  * Espera que se establezca la conecxion al server final 
-  *
-  * Intereses:
-  *    - OP_WRITE sobre client_fd
-  *
-  * Transiciones:
-  *    - (algo) si hay mas ip paraconectar
-  *    - REQUEST_WRITE si no hay mas ip para probar
-  */
+   * Espera que se establezca la conecxion al server final
+   *
+   * Intereses:
+   *    - OP_WRITE sobre client_fd
+   *
+   * Transiciones:
+   *    - (algo) si hay mas ip paraconectar
+   *    - REQUEST_WRITE si no hay mas ip para probar
+   */
   REQUEST_CONNECTING,
-  
-  /*
-  * Envia la repuesta del "request" al cliente
-  *
-  * Intereses:
-  *    - OP_WRITE sobre client_fd
-  *    - OP_NOOP sobre origin_fd
-  *
-  * Transiciones:
-  *    - REQUEST_WRITE mitras queben bytes por enviar
-  *    - COPY si el reques se envio y tenemos que copiar en otro caso
-  *    - ERROR
-  */
- REQUEST_WRITE,
 
   /*
-  * Copia bytes entre client_fd y origin_fd
-  * 
-  * Interests:
-  *  - OP_READ si hay espacio para escribir en el buffer de lectura
-  *   - OP_WRITE si hay bytes para leer en el buffer de ecritura 
-  * 
-  * Transitions:
-  *  - DONE 
-  **/
+   * Envia la repuesta del "request" al cliente
+   *
+   * Intereses:
+   *    - OP_WRITE sobre client_fd
+   *    - OP_NOOP sobre origin_fd
+   *
+   * Transiciones:
+   *    - REQUEST_WRITE mitras queben bytes por enviar
+   *    - COPY si el reques se envio y tenemos que copiar en otro caso
+   *    - ERROR
+   */
+  REQUEST_WRITE,
+
+  /*
+   * Copia bytes entre client_fd y origin_fd
+   *
+   * Interests:
+   *  - OP_READ si hay espacio para escribir en el buffer de lectura
+   *   - OP_WRITE si hay bytes para leer en el buffer de ecritura
+   *
+   * Transitions:
+   *  - DONE
+   **/
   COPY,
 
   DONE,
@@ -177,7 +181,7 @@ typedef enum addr_type {
 /////////////////////////////////////////////////////////////////////////
 
 typedef struct hello_data {
-  
+
   buffer *rb, *wb;
   struct hello_parser parser;
   uint8_t method;
@@ -186,29 +190,29 @@ typedef struct hello_data {
 
 typedef struct auth_data {
   int i;
-  //TODO;
+  // TODO;
 } auth_data;
 
 typedef struct request_data {
 
-    buffer *rb, *wb;
-    
-    //parser
-    struct request request;
-    struct request_parser parser;
-    // resumen de la respuesta a enviar 
-    enum socks_response_status status;
+  buffer *rb, *wb;
 
-    // a donde nos tenemos que conectar
-    struct sockaddr_storage *final_server_addr;
-    socklen_t *final_server_len;
-    int server_domain;
-    
-    //fd
-    const int *client_fd;
-    int *final_server_fd;
+  // parser
+  struct request request;
+  struct request_parser parser;
+  // resumen de la respuesta a enviar
+  enum socks_response_status status;
 
-}request_data;
+  // a donde nos tenemos que conectar
+  struct sockaddr_storage *final_server_addr;
+  socklen_t *final_server_len;
+  int server_domain;
+
+  // fd
+  const int *client_fd;
+  int *final_server_fd;
+
+} request_data;
 
 typedef struct resolv_data {
   addr_type addrType; // guardo el tipo de conexion
@@ -234,7 +238,7 @@ typedef struct connecting_data {
   buffer *wb;
   int *final_server_fd;
   int *client_fd;
-  //enum connection_state status;
+  // enum connection_state status;
 } connecting_data;
 
 typedef struct copy_data {
@@ -244,10 +248,10 @@ typedef struct copy_data {
   /** buffers para hacer la copia **/
   buffer *rb, *wb;
 
-  //escritura o lect
+  // escritura o lect
   fd_interest interest;
 
-  //apunta al otro copy_data 
+  // apunta al otro copy_data
   struct copy_data *other_copy;
 
 } copy_data;
@@ -265,7 +269,7 @@ typedef struct socks5 {
   // Final Server
   struct sockaddr_storage final_server_addr;
   socklen_t final_server_len;
-  //int server_domain;
+  // int server_domain;
   int final_server_fd;
 
   // Estado del Socket:
