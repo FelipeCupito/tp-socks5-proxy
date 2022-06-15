@@ -45,7 +45,7 @@
 typedef struct fdselector *fd_selector;
 
 /** valores de retorno. */
-typedef enum {
+typedef enum selector_status{
   /** llamada exitosa */
   SELECTOR_SUCCESS = 0,
   /** no pudimos alocar memoria */
