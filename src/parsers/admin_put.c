@@ -29,30 +29,28 @@ static bool remaining_is_done(admin_put_parser *p) {
 }
 
 enum admin_put_state admin_put_parser_feed (admin_put_parser *p, uint8_t b){
-  enum admin_put_state next;
-  
   switch (p -> state) {
   case admin_put_action:
     if (b == PUT_ACTION) {
-      next = admin_put_field;
+      p -> state = admin_put_field;
     } else {
-      next = admin_put_error_action;
+      p -> state = admin_put_error_action;
     }
     break;
   case admin_put_field:
     if (b == USERS_FIELD) {
-      next = admin_put_namelen;
+      p -> state = admin_put_namelen;
     } else {
-      next = admin_put_error_field;
+      p -> state = admin_put_error_field;
     }
     break;
   case admin_put_namelen:
     if (b <= 0) {
-      next = admin_put_error_namelen;
+      p -> state = admin_put_error_namelen;
     } else {
       remaining_set(p,b);
       p -> user.userlen = b;
-      next = admin_put_name;
+      p -> state = admin_put_name;
     }
     break;
   case admin_put_name:
@@ -62,16 +60,18 @@ enum admin_put_state admin_put_parser_feed (admin_put_parser *p, uint8_t b){
     if (remaining_is_done(p)) {
       *( (p->user.username) + p->read ) = '\0';
       p -> state = admin_put_passlen;
+    } else {
+      p -> state = admin_put_name;
     }
 
     break;
   case admin_put_passlen:
     if (b <= 0) {
-      next = admin_put_error_passlen;
+      p -> state = admin_put_error_passlen;
     } else {
       remaining_set(p,b);
       p -> pass.passlen = b;
-      next = admin_put_pass;
+      p -> state = admin_put_pass;
     }
     break;
   case admin_put_pass:
@@ -81,8 +81,9 @@ enum admin_put_state admin_put_parser_feed (admin_put_parser *p, uint8_t b){
     if (remaining_is_done(p)) {
       *( (p->pass.passwd) + p->read ) = '\0';
       p -> state = admin_put_done;
+    } else {
+      p -> state = admin_put_pass;
     }
-
     break;
   case admin_put_done:
   case admin_put_error:
@@ -96,7 +97,7 @@ enum admin_put_state admin_put_parser_feed (admin_put_parser *p, uint8_t b){
     break;
   }
 
-  return next;
+  return p -> state;
 }
 
 bool admin_put_is_done (const enum admin_put_state state, bool *err) {
