@@ -28,7 +28,7 @@ enum admin_get_state get_option(const uint8_t b, struct admin_get_parser* p) {
 }
 
 enum admin_get_state get_action(const uint8_t b, struct admin_get_parser* p) {
-  enum admin_get_state next = admin_get_error_option;
+  enum admin_get_state next = admin_get_error_action;
   if (b == GET_ACTION) {
     next = admin_get_option;
   }
@@ -47,6 +47,7 @@ enum admin_get_state admin_get_parser_feed (admin_get_parser *p, uint8_t b) {
     case admin_get_done:
     case admin_get_error:
     case admin_get_error_option:
+    case admin_get_error_action:
       break;
     default:
       log_print(FATAL, "Invalid state %d.\n", p->state);
@@ -62,6 +63,7 @@ bool admin_get_is_done (const enum admin_get_state state, bool *error){
   switch (state) {
     case admin_get_error:
     case admin_get_error_option:
+    case admin_get_error_action:
       if (error != 0) {
         *error = true;
       }
