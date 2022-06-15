@@ -16,6 +16,12 @@ static const uint8_t STATUS_ERROR_INVALID_STAUS    = 0x03;
 
 static const uint8_t CONFIGSTATUS_ACTION = 0x04;
 
+static const uint8_t CONFIGSTATUS_AUTH_FIELD = 0x03;
+static const uint8_t CONFIGSTATUS_SPOOFING_FIELD = 0x04;\
+
+static const uint8_t ON = 0x00;
+static const uint8_t OFF = 0x01;
+
 enum admin_configstatus_state {
   admin_configstatus_action,
   admin_configstatus_field,
@@ -29,6 +35,7 @@ enum admin_configstatus_state {
 
 typedef struct admin_configstatus_parser {
   enum admin_configstatus_state state;
+  uint8_t action;
   uint8_t field;
   uint8_t status;
 } admin_configstatus_parser;

@@ -95,11 +95,11 @@ enum admin_get_state admin_get_consume(buffer *buff, struct admin_get_parser *p,
   return state;
 }
 
-extern int admin_get_marshall(buffer *b, const uint8_t status, struct admin_get_parser *parser, uint8_t *res) {
+extern int admin_get_marshall(buffer *b, const uint8_t status, uint8_t *res) {
   size_t n;
 
   uint8_t *buff = buffer_write_ptr(b, &n);
-  if (n < 5) {
+  if (n < 3) {
     return -1;
   }
 

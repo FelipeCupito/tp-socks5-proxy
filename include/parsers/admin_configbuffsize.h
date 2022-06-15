@@ -34,6 +34,8 @@ typedef struct admin_configbuff_parser {
   uint8_t sizelen;
   uint8_t size[MAX_BUFF_SIZE];
   uint8_t action;
+  uint8_t remaining;
+  uint8_t read;
 } admin_configbuff_parser;
 
 void admin_configbuff_parser_init(struct admin_configbuff_parser *p);

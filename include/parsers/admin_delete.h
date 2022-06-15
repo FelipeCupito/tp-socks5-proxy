@@ -37,6 +37,8 @@ typedef struct admin_delete_parser {
   uint8_t key[MAX_KEY_SIZE];
   uint8_t field;
   uint8_t action;
+  uint8_t read;
+  uint8_t remaining;
 } admin_delete_parser;
 
 void admin_delete_parser_init(struct admin_delete_parser *p);

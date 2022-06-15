@@ -19,6 +19,9 @@ static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x05;
 static const uint8_t EDIT_ACTION = 0x02;
 static const uint8_t USERS_FIELD = 0x00;
 
+static const uint8_t USERNAME_ATTRIBUTE = 0x00;
+static const uint8_t PASSWORD_ATTRIBUTE = 0x01;
+
 #define MAX_VALUE_SIZE 0XFF
 
 enum attribute {
@@ -38,6 +41,7 @@ enum admin_edit_state {
   admin_edit_error,
   admin_edit_error_action,
   admin_edit_error_field,
+  admin_edit_error_keylen,
   admin_edit_error_attribute,
   admin_edit_error_valuelen,
 };
@@ -51,6 +55,8 @@ typedef struct admin_edit_parser {
   enum attribute attr;
   uint8_t valuelen;
   uint8_t value[MAX_VALUE_SIZE];
+  uint8_t remaining;
+  uint8_t read;
 } admin_edit_parser;
 
 void admin_edit_parser_init(struct admin_edit_parser *p);
