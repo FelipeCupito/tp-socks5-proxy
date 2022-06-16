@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "makefile.extensionOutputFolder": "./.vscode",
     "files.associations": {
         "*.c": "c",
@@ -18,3 +19,26 @@
         "conn_logger.h": "c"
     }
 }
+=======
+  "makefile.extensionOutputFolder": "./.vscode",
+  "files.associations": {
+    "*.c": "c",
+    "selector.h": "c",
+    "client.h": "c",
+    "parser_utils.h": "c",
+    "parser.h": "c",
+    "stdio.h": "c",
+    "ipversion.h": "c",
+    "stdarg.h": "c",
+    "cmath": "c",
+    "stm.h": "c",
+    "socks5_copy.h": "c",
+    "stdint.h": "c",
+    "admin_put.h": "c",
+    "admin_configbuffsize.h": "c",
+    "admin_configstatus.h": "c",
+    "admin_edit.h": "c",
+    "admin_delete.h": "c"
+  }
+}
+>>>>>>> parser

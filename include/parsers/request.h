@@ -11,7 +11,7 @@
 #include <errno.h>
 
 #include "../buffer.h"
-
+#include "../logger.h"
 /*
 +----+-----+-------+------+----------+----------+
 |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |

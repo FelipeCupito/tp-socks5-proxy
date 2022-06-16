@@ -1,5 +1,4 @@
 #include "../../include/parsers/hello.h"
-
 /*
 
 enum hello_state {
