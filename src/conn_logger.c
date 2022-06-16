@@ -1,22 +1,35 @@
 #include "../include/conn_logger.h"
 
-
 #define DATE_SIZE 30
 #define DATE_FORMAT "%d/%m/%Y - %X"
 //#define DATE_FORMAT "%d/%m/%Y - %I:%M%p"
-#define INET_ADDRSTRLEN 16
+//#define INET_ADDRSTRLEN 16
 #define INET6_ADDRSTRLEN 46
 
-char* status_str[] = {"CONNECTED", "DISCONNECTED"};
+char *status_str[] = {"succeeded",
+                      "general SOCKS server failure",
+                      "connection not allowed by ruleset",
+                      "Network unreachable",
+                      "Host unreachable",
+                      "Connection refused",
+                      "TTL expired",
+                      "Command not supported",
+                      "Address type not supported",
+                      "close",
+                      "ERROR"};
 
+
+//funciones privadas
 void get_date(char *date, int date_size);
 void get_ip(struct sockaddr_storage addr, char *ip, int ip_size);
 int get_port(struct sockaddr_storage addr);
-char *get_status(STATUS status);
+char *get_status( enum socks_response_status status);
 
-void log_conn( void* data, STATUS status) {
+
+
+
+void log_conn( void* data, enum socks_response_status status) {
   // TODO: USUARIO/CONTRASEÑA
-
   struct socks5* socks = (struct socks5*) data;
 
   // guardo la fecha actual
@@ -33,13 +46,14 @@ void log_conn( void* data, STATUS status) {
   int port = get_port(socks->client_addr);
   int port_dest = get_port(socks->final_server_addr);
 
-  log_print(LOG, "[%s]\t%s:%d ---> %s:%d\t%s", date, ip, port, ip_dest,
+  log_print(LOG, "[%s]\t%s:%d ---> %s:%d %s", date, ip, port, ip_dest,
             port_dest, get_status(status));
 }
 
 
-
-/// funciones privadas
+////////////////////////////////////////////////////////////////////////////////////
+//                             funciones privadas                                //
+///////////////////////////////////////////////////////////////////////////////////
 void get_date(char *date, int date_size) {
   time_t timer = time(NULL);
   struct tm *tm = localtime(&timer);
@@ -65,4 +79,39 @@ int get_port(struct sockaddr_storage addr) {
   }
 }
 
-char *get_status(STATUS status) { return status_str[status]; }
+char *get_status( enum socks_response_status status) { 
+  switch (status) {
+		case 0x00:
+			return status_str[0];
+			break;
+		case 0x01 :
+			return status_str[1];
+			break;
+		case 0x02 :
+			return status_str[2];
+			break;
+		case 0x03:
+			return status_str[3];
+			break;
+		case 0x04:
+			return status_str[4];
+			break;
+		case 0x05:
+			return status_str[5];
+			break;
+    case 0x06:
+			return status_str[6];
+			break;
+    case 0x07:
+			return status_str[7];
+			break;
+    case 0x08:
+			return status_str[8];
+			break;
+    case 0x09:
+			return status_str[9];
+			break;
+		default:
+			return status_str[10];
+	}
+}

@@ -295,6 +295,8 @@ typedef struct socks5 {
   uint8_t raw_buff_a[BUFFER_SIZE], raw_buff_b[BUFFER_SIZE];
   buffer read_buffer, write_buffer;
 
+  enum socks_response_status status; //enum status
+
   int toFree;
 } socks5;
 

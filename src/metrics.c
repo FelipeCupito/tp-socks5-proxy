@@ -1,9 +1,9 @@
 #include "../include/metrics.h"
 
-uint64_t sent_byte = 0;
-uint64_t received_bytes = 0;
-int historic_connections = 0;
-int current_connections = 0;
+static uint64_t sent_byte = 0;
+static uint64_t received_bytes = 0;
+static int historic_connections = 0;
+static int current_connections = 0;
 
 
 //INIT

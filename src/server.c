@@ -58,8 +58,9 @@ int main(const int argc, char **argv) {
   selector_status ss = SELECTOR_SUCCESS;  // status del selector
   fd_selector selector = NULL;            // selector
   args arguments;                         // argumentos del programa
-  
 
+
+  inti_metrics();
 
   //guardo los argumntos 
   parse_args(argc, argv, &arguments);
@@ -147,7 +148,15 @@ int main(const int argc, char **argv) {
     }
   }
 
-  log_print(INFO, "END");
+//TODO: borrar
+  log_print(INFO, "Metrics:");
+  log_print(INFO, " |-> conexiones actuales: %d", get_current_conn());
+  log_print(INFO, " |-> conexiones historicas: %d", get_histori_conn());
+  log_print(INFO, " |-> bytes enviados: %d", get_sent_byte());
+  log_print(INFO, " |-> bytes recividos: %d", get_received_bytes());
+  log_print(INFO, " |-> bytes trasmitidos: %d", get_transfered_bytes());
+
+  log_print(INFO, "Proxy END");
   int ret = 0;
 
 finally:

@@ -30,36 +30,38 @@ fd_interest copy_determine_interests(fd_selector s, copy_data *data) {
   if ((data->interest & OP_READ) && buffer_can_write(data->rb)) {
     ret |= OP_READ;
   }
-
   if ((data->interest & OP_WRITE) && buffer_can_read(data->wb)) {
     ret |= OP_WRITE;
   }
-
   //data->interest = ret;
 
   if (SELECTOR_SUCCESS != selector_set_interest(s, *data->fd, ret)) {
-    //TODO: exit
+    return -1;
   }
   return ret;
 }
 
 //devuelve copy_data correcto
-copy_data* get_copy_data(struct selector_key *key){
+copy_data* get_copy_data(struct selector_key *key, int* is_client){
   copy_data *client_copy = &ATTACHMENT(key)->client_data.copy;
   
   if(key->fd == *client_copy->fd){
     //es el cliente
+    *is_client = true;
     return client_copy;
   }
 
   //es el final_server
+  *is_client = false;
   client_copy = client_copy->other_copy;
   return client_copy;
 }
 
 unsigned int copy_read(struct selector_key *key) {
-  copy_data* data = get_copy_data(key);
+  
   unsigned int ret = COPY;
+  int is_client;
+  copy_data* data = get_copy_data(key, &is_client);
 
   buffer *buff = data->rb;
   size_t size; 
@@ -69,12 +71,14 @@ unsigned int copy_read(struct selector_key *key) {
   
   n = recv(key->fd, ptr, size, 0);
   if (n > 0) {
-
-    //TODO: metricas
-    //TODO: si es cliente -> pop2
+    
     buffer_write_adv(buff, n);
+    if(is_client){
+      add_received_bytes(n);
+      //TODO: -> pop2
+    }
   } else {
-   
+    ATTACHMENT(key)->status = status_close;
     shutdown(*data->fd, SHUT_RD);
     data->interest &= ~OP_READ;
     if (*data->other_copy->fd != -1) {
@@ -83,6 +87,7 @@ unsigned int copy_read(struct selector_key *key) {
     }
   }
 
+  //TODO: si devulve -1 ->error, sino ver que hago con lo que devulvo
   copy_determine_interests(key->s, data);
   copy_determine_interests(key->s, data->other_copy);
 
@@ -93,8 +98,11 @@ unsigned int copy_read(struct selector_key *key) {
 }
 
 unsigned copy_write(struct selector_key *key) {
-  copy_data *data = get_copy_data(key);
+  
   unsigned int ret = COPY;
+  int is_client;
+  copy_data *data = get_copy_data(key, &is_client);
+  
 
   buffer* buff = data->wb;
   size_t size; 
@@ -104,12 +112,13 @@ unsigned copy_write(struct selector_key *key) {
   
   n = send(key->fd, ptr, size, MSG_NOSIGNAL);
   if (n >= 0) {
-
-    //TODO: metricas
-    //TODO: si es cliente -> pop2
     buffer_read_adv(buff, n);
+    if(is_client){
+      add_sent_byte(n);
+      //TODO: -> pop2
+    }
   } else {
-   
+    ATTACHMENT(key)->status = status_close;
     shutdown(*data->fd, SHUT_WR);
     data->interest &= ~OP_WRITE;
     if (*data->other_copy->fd != -1) {

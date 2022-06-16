@@ -9,17 +9,14 @@
 #include <string.h>     // memcpy
 #include <sys/socket.h> // socket
 #include <sys/types.h>  // socket
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 
-#include "socks5.h"
 #include "logger.h"
-
-typedef enum {CONNECTED, DISCONN } STATUS;
-//static char* status_str[] = {"[CONNECTED]", "[DISCONNECTED]"};
+#include "socks5.h"
 
 
-//data es si o si struct socks5, no se porque no me deja ponerlo 
-void log_conn( void* data, STATUS status);
+// data es si o si struct socks5, no se porque no me deja ponerlo
+void log_conn(void *data, enum socks_response_status status);
 
 #endif

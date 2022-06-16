@@ -91,6 +91,7 @@ enum socks_response_status {
 	status_ttl_expired = 0x06,
 	status_command_not_supported = 0x07,
 	status_address_type_not_supported = 0x08,
+	status_close = 0x09,
 };
 
 void request_parser_init(struct request_parser* p);

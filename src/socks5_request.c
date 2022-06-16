@@ -121,11 +121,10 @@ unsigned int request_connect(struct selector_key *key) {
     //no es la primera vez que intentamos conectarnos
     selector_unregister_fd(key->s, *fd);
     close(*fd);
-    
+    //TODO:
     // intentamos con otra IP
   }
 
-  ret = REQUEST_CONNECTING;
   //creo el socket  
   *fd = socket(socks5->final_server_addr.ss_family, SOCK_STREAM, IPPROTO_TCP);
   if (*fd == -1) {
@@ -167,10 +166,11 @@ unsigned int request_connect(struct selector_key *key) {
 
         //si no hay mas ip, comunico el error y TODO:cierro conecion
         st = errno_to_socks(errno);
-        if(request_marshall(request->wb, st, &request->request) != -1) {
-          //fallo el request_marshall
+        socks5->status = st;
+        if(request_marshall(request->wb, st, &request->request) == -1) {
           err = true;
         }
+
         ss =+ selector_set_interest(key->s, socks5->client_fd, OP_WRITE);
         ss =+ selector_register(key->s, *fd, &socks5_handler, OP_NOOP, ATTACHMENT(key));
         if(ss != SELECTOR_SUCCESS){
@@ -223,16 +223,18 @@ unsigned int request_connecting(struct selector_key *key) {
   }else{
     if(err == 0){
       //se conecto
-      //TODO: metrics
-      log_conn(ATTACHMENT(key), CONNECTED);
       response_st = status_succeeded;
+      ATTACHMENT(key)->status = response_st;
       *conn->final_server_fd = key->fd;
-
+      add_connection();
+      log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
     }else{
       //TODO: si hay mas ip, pruebo con otra :
 
       //Si no hay mas ip:
       response_st = errno_to_socks(err);
+      ATTACHMENT(key)->status = response_st;
+      log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
     }
   }
 
@@ -254,9 +256,10 @@ finally : return err ? ERROR : ret;
 // REQUEST_READ
 /////////////////////////////////////////////////////////////////////////////////////
 unsigned int request_write(struct selector_key *key) { 
+
   request_data *data = &ATTACHMENT(key)->client_data.request;
-  
-  unsigned int ret = REQUEST_READ;
+  //TODO BORRAR
+  socks5 *aux = ATTACHMENT(key);
   buffer *buff = data->wb;
   size_t size;
   ssize_t n;
@@ -264,19 +267,20 @@ unsigned int request_write(struct selector_key *key) {
   uint8_t *ptr = buffer_read_ptr(buff, &size);
   n = send(key->fd, ptr, size, MSG_NOSIGNAL);
   if(n < 0){
-    ret = ERROR;
+    return ERROR;
   }else{
     buffer_read_adv(buff, n);
     if(!buffer_can_read(buff)){
+      if(aux->status != status_succeeded){
+        return DONE;
+      }
       if(SELECTOR_SUCCESS == selector_set_interest_key(key, OP_READ)){
-        ret = COPY;
-      }else{ 
-        ret = ERROR;
+        return COPY;
+      }else{
+        return ERROR;
       } 
     }else{
-      ret = REQUEST_READ;
+      return REQUEST_READ;
     }
-    //metricas
   }
-  return ret;
 }
