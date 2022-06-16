@@ -17,6 +17,8 @@
     "admin_configbuffsize.h": "c",
     "admin_configstatus.h": "c",
     "admin_edit.h": "c",
-    "admin_delete.h": "c"
+    "admin_delete.h": "c",
+    "pop3_sniffer.h": "c",
+    "listageneric.h": "c"
   }
 }

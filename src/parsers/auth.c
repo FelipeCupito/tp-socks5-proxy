@@ -1,18 +1,4 @@
 #include "../../include/parsers/auth.h"
-/* ESTADOS
-
-  auth_version,
-  auth_userlen,
-  auth_username,
-  auth_passlen,
-  auth_pass,
-  auth_success,
-  auth_error_unsupported_version,
-  auth_error,
-  // auth_error_user_len,
-  // auth_error_pass_len,
-
-*/
 
 void auth_parser_init (struct auth_parser *p) {
   p -> state = auth_version;
