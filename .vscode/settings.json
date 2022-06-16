@@ -19,6 +19,7 @@
     "admin_edit.h": "c",
     "admin_delete.h": "c",
     "pop3_sniffer.h": "c",
-    "listageneric.h": "c"
+    "listageneric.h": "c",
+    "listgeneric.h": "c"
   }
 }

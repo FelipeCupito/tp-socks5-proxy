@@ -2,9 +2,13 @@
 #define LISTADT_H_
 
 #include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdint.h>
+
 #include "buffer.h"
 #include "logger.h"
 /*
@@ -24,7 +28,7 @@ static int compare(elemType elem1, elemType elem2 ){
 */
 
 
-listADT newList(int (*elemFree)(void*));
+listADT newList(void *(*elemFree)(void*));
 
 //devulve la el tamano de listCDT
 int getListStructSize();
@@ -57,9 +61,9 @@ int listHasNext(const listADT list);
 void* listNext(listADT list);
 
 
-void* freeElem(void * elem){
-	free(elem);
-}
+// void* freeElem(void * elem){
+// 	free(elem);
+// }
 
 /*
 int main(int argc, char const *argv[])

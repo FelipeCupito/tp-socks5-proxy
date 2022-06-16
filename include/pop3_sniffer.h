@@ -46,7 +46,7 @@ void pop3_sniffer_init(struct pop3_sniffer* s);
 
 enum pop3_sniffer_state pop3_sniffer_feed(struct pop3_sniffer* s, uint8_t b);
 
-enum pop3_sniffer_state pop3_consume(buffer *buff, struct pop3_sniffer *s);
+enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *s);
 
 bool pop3_is_done(struct pop3_sniffer *s);
 

@@ -18,7 +18,7 @@ typedef struct listCDT{
 node* listSearch(node** current, void* elem, int (*cmp)(void*, void*));
 int listContains(node* first, void* elem, int (*cmp)(void*, void*));
 
-listADT newList(int (*elemFree)(void*)){
+listADT newList(void * (*elemFree)(void*)){
 
     listADT list = malloc(sizeof(listCDT));
     if(list == NULL){
@@ -26,7 +26,7 @@ listADT newList(int (*elemFree)(void*)){
     }
 
     list->first = NULL;
-    list->elemFree = elemFree;
+    list->elemFree = (int(*)(void *)) elemFree;
     list->size = 0;
     list->iteradorNext = NULL;
     

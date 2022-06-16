@@ -1,11 +1,12 @@
-#include "include/pop3_sniffer.h"
+#include "../include/pop3_sniffer.h"
 #define SIZEOF(arr) strlen(arr) * sizeof(char *)
 
-void* freeElem(void * elem){
+void* freeElem(void * elem) {
   sniff_info *sniffinfo = (sniff_info*) elem;
   free(sniffinfo -> user);
   free(sniffinfo -> passwd);
 	free(sniffinfo);
+  return 0;
 }
 
 static void reset_read(struct pop3_sniffer* s, uint8_t remain){
@@ -20,13 +21,15 @@ void pop3_sniffer_init(struct pop3_sniffer* s){
 }
 
 static enum pop3_sniffer_state ok(struct pop3_sniffer* s,uint8_t b){
+  char a = toupper(b);
+  char x = toupper(*(OK + s -> read));
   if(toupper(b) == toupper(*(OK + s -> read))) {
-      s -> read++;
-      s -> remaining--;
-      if(s -> remaining == 0) {
-          s -> state = pop3_sniffer_user;
-          reset_read(s,strlen(USER));
-      }
+    s -> read++;
+    s -> remaining--;
+    if(s -> remaining == 0) {
+      s -> state = pop3_sniffer_user;
+      reset_read(s,strlen(USER));
+    }
   }
   else {
       s -> state = pop3_sniffer_stop;
@@ -35,6 +38,7 @@ static enum pop3_sniffer_state ok(struct pop3_sniffer* s,uint8_t b){
 }
 
 enum pop3_sniffer_state user(struct pop3_sniffer* s,uint8_t b){
+  char a = toupper(b);
   if(toupper(b) == toupper(*(USER + s -> read))) {
     s -> read++;
     s -> remaining--;
@@ -45,7 +49,7 @@ enum pop3_sniffer_state user(struct pop3_sniffer* s,uint8_t b){
   }
   else {
     if(s -> read != 0) {
-      reset_counters(s,strlen(USER));
+      reset_read(s,strlen(USER));
     }
   }
 
@@ -81,7 +85,7 @@ enum pop3_sniffer_state password(struct pop3_sniffer* s,uint8_t b){
   }
   else {
     if(s -> read != 0) {
-      reset_counters(s,strlen(PASS));
+      reset_read(s,strlen(PASS));
     }
   }
 
@@ -121,29 +125,29 @@ enum pop3_sniffer_state check(struct pop3_sniffer* s,uint8_t b){
 
 enum pop3_sniffer_state pop3_sniffer_parse(struct pop3_sniffer* s,uint8_t b){
   switch (s -> state) {
-  case pop3_sniffer_initial:
-    s -> state = ok(s,b);
-    break;
-  case pop3_sniffer_user:
-    s -> state = user(s,b);
-    break;
-  case pop3_sniffer_read_user:
-    s -> state = read_user(s,b);
-    break;
-  case pop3_sniffer_password:
-    s -> state = password(s,b);
-    break;
-  case pop3_sniffer_read_passsword:
-    s -> state = read_password(s,b);
-    break;
-  case pop3_sniffer_check:
-    s -> state = check(s,b);
-    break;    
-  case pop3_sniffer_ok:
-  case pop3_sniffer_stop:
-    break;    
-  default:
-    break;
+    case pop3_sniffer_initial:
+      s -> state = ok(s,b);
+      break;
+    case pop3_sniffer_user:
+      s -> state = user(s,b);
+      break;
+    case pop3_sniffer_read_user:
+      s -> state = read_user(s,b);
+      break;
+    case pop3_sniffer_password:
+      s -> state = password(s,b);
+      break;
+    case pop3_sniffer_read_passsword:
+      s -> state = read_password(s,b);
+      break;
+    case pop3_sniffer_check:
+      s -> state = check(s,b);
+      break;    
+    case pop3_sniffer_ok:
+    case pop3_sniffer_stop:
+      break;    
+    default:
+      break;
   }
   return s -> state;
 }
@@ -156,32 +160,33 @@ bool pop3_is_parsing(struct pop3_sniffer *s){
     return s -> state >= pop3_sniffer_initial && s -> state < pop3_sniffer_ok;
 }
 
-enum pop3_sniffer_state pop3_consume(buffer *buff, struct pop3_sniffer *s){
-
-    while(buffer_can_read(buff) && !pop3_is_done(s)){
-        uint8_t b = buffer_read(buff);
-        pop3_sniffer_parse(s,b);
+enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *s){
+  while(buffer_can_read(buff) && !pop3_is_done(s)) {
+    uint8_t b = buffer_read(buff);
+    pop3_sniffer_parse(s,b);
+  }
+  
+  if(s -> state == pop3_sniffer_ok){
+    struct sniff_info *sniffinfo = malloc (sizeof (struct sniff_info));
+    if (sniffinfo == NULL){
+      return pop3_sniffer_stop;
     }
-    if(s -> state == pop3_sniffer_ok){
-      struct sniff_info *sniffinfo = malloc (sizeof (struct sniff_info));
-      if (sniffinfo == NULL)
-          return NULL;
-      
-      sniffinfo -> user = malloc(SIZEOF(s -> username));
-      if (sniffinfo -> user == NULL) {
-        return NULL;
-      }
-      sniffinfo -> user = s -> username;
-
-      sniffinfo -> passwd = malloc(SIZEOF(s -> passwd));
-      if (sniffinfo -> passwd == NULL) {
-        return NULL;
-      }
-
-      sniffinfo -> passwd = s -> passwd;
-      insert(s -> list, sniffinfo);
+    
+    sniffinfo -> user = malloc(SIZEOF(s -> username));
+    if (sniffinfo -> user == NULL) {
+      return pop3_sniffer_stop;
     }
-    return s -> state;
+    sniffinfo -> user = s -> username;
+
+    sniffinfo -> passwd = malloc(SIZEOF(s -> passwd));
+    if (sniffinfo -> passwd == NULL) {
+      return pop3_sniffer_stop;
+    }
+
+    sniffinfo -> passwd = s -> passwd;
+    insert(s -> list, sniffinfo);
+  }
+  return s -> state;
 }
 
 // static void pop3sniff(struct pop3_sniffer *s, uint8_t *ptr, ssize_t size){
