@@ -15,6 +15,8 @@ int main(const int argc, char** argv) {
     struct manage_args args;
     parse_args(argc, argv, &args);
 
+    args.authorized = false;
+
     int fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     struct sockaddr_in socksaddr;
@@ -30,7 +32,9 @@ int main(const int argc, char** argv) {
     signal(SIGTERM, sigterm_handler);
     signal(SIGINT, sigterm_handler);
 
-    login(fd, args.try_password);
+    login(fd, &args);
+
+    executeCommands(fd, &args);
 
     close(fd);
     return 0;

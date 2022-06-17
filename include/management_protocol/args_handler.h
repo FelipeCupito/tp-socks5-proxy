@@ -13,6 +13,8 @@ struct parsers {
 } parsers;
 
 struct manage_args {
+    bool authorized;
+
     char* mng_addr;
     unsigned int mng_port;
     uint8_t version;
@@ -21,13 +23,19 @@ struct manage_args {
 
     char* try_password;
 
+    bool list_flag;
     unsigned int list_option;
 
+    bool get_flag;
     unsigned int get_option; 
 
+    bool add_flag;
     char* add_username;
     char* add_password;
 
+    bool delete_flag;
+
+    bool toggle_flag;
     char* toggle_option;
     char* toggle_status;
     

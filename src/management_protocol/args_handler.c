@@ -13,6 +13,12 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
     int c;
     char delimiter[] = ":";
 
+    mng_args->list_flag = false;
+    mng_args->get_flag = false;
+    mng_args->add_flag = false;
+    mng_args->toggle_flag = false;
+    mng_args->delete_flag = false;
+
     while (c = getopt(argc, argv, "hL:P:a:l:g:d:i:s:t:v") != -1) {
         switch (c) {
             case 'h':
@@ -29,16 +35,20 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
                 mng_args->try_password = optarg;
                 break;
             case 'l':
+                mng_args->list_flag = true;
                 mng_args->list_option = atoi(optarg);
                 break;
             case 'g':
+                mng_args->get_flag = true;
                 mng_args->get_option = atoi(optarg);
                 break;
             case 'd':
                 // delete user (TODO como distingo que usuario borro?)
+                mng_args->delete_flag = true;
                 break;
             case 'i':
                 // -i username:password
+                mng_args->add_flag = true;
                 mng_args->add_username = strtok(optarg, delimiter);
                 mng_args->add_password = strtok(NULL, delimiter);
                 // Chequear error desp
@@ -50,6 +60,7 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
                 // toggle
                 // -t auth:on/off
                 // -t spoof:on/off
+                mng_args->toggle_flag = true;
                 mng_args->toggle_option = strtok(optarg, delimiter);
                 mng_args->toggle_status = strtok(NULL, delimiter);
                 break;
