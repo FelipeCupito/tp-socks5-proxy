@@ -52,4 +52,8 @@ bool pop3_is_done(struct pop3_sniffer *s);
 
 bool pop3_is_parsing(struct pop3_sniffer *s);
 
+void pop3_sniffer_init_list(struct pop3_sniffer* s);
+
+void freeSniffer(struct pop3_sniffer* s);
+
 #endif

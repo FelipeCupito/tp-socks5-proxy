@@ -9,12 +9,18 @@ void* freeElem(void * elem) {
   return 0;
 }
 
+void freeSniffer(struct pop3_sniffer* s) {
+  freeList(s -> list);
+}
+
 static void reset_read(struct pop3_sniffer* s, uint8_t remain){
   s -> read = 0;
   s -> remaining = remain;
-  s -> list = newList(freeElem);
 }
 
+void pop3_sniffer_init_list(struct pop3_sniffer* s){
+  s -> list = newList(freeElem);
+}
 void pop3_sniffer_init(struct pop3_sniffer* s){
   s -> state = pop3_sniffer_initial;
   reset_read(s,strlen(OK));
@@ -165,25 +171,25 @@ enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *
     uint8_t b = buffer_read(buff);
     pop3_sniffer_parse(s,b);
   }
-  
+
   if(s -> state == pop3_sniffer_ok){
     struct sniff_info *sniffinfo = malloc (sizeof (struct sniff_info));
     if (sniffinfo == NULL){
       return pop3_sniffer_stop;
     }
-    
+
     sniffinfo -> user = malloc(SIZEOF(s -> username));
     if (sniffinfo -> user == NULL) {
       return pop3_sniffer_stop;
     }
-    sniffinfo -> user = s -> username;
+    memcpy(sniffinfo -> user, s -> username, SIZEOF(s -> username));
 
     sniffinfo -> passwd = malloc(SIZEOF(s -> passwd));
     if (sniffinfo -> passwd == NULL) {
       return pop3_sniffer_stop;
     }
+    memcpy(sniffinfo -> passwd, s -> passwd, SIZEOF(s -> passwd));
 
-    sniffinfo -> passwd = s -> passwd;
     insert(s -> list, sniffinfo);
   }
   return s -> state;

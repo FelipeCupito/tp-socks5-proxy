@@ -1,15 +1,13 @@
-#include "../include/listgeneric.h"
+#include "listaGeneric.h"
 
 typedef struct node {
-	void* value;
+	void* elem;
 	struct node* next;
-} node;
-
+}node;
 
 typedef struct listCDT{
 	node* first;
     node* iteradorNext; 
-    int (*elemFree) (void*); //funcion que borra los elemntos
     unsigned int size;
 }listCDT;
 
@@ -18,7 +16,7 @@ typedef struct listCDT{
 node* listSearch(node** current, void* elem, int (*cmp)(void*, void*));
 int listContains(node* first, void* elem, int (*cmp)(void*, void*));
 
-listADT newList(void * (*elemFree)(void*)){
+listADT newList(){
 
     listADT list = malloc(sizeof(listCDT));
     if(list == NULL){
@@ -26,7 +24,6 @@ listADT newList(void * (*elemFree)(void*)){
     }
 
     list->first = NULL;
-    list->elemFree = (int(*)(void *)) elemFree;
     list->size = 0;
     list->iteradorNext = NULL;
     
@@ -39,7 +36,7 @@ int getListStructSize(){
 
 //inserta los elemos al principio de la lista
 //se tiene que crear con malloc el elem
-int insert(listADT list, void* elem){
+int insert(listADT list, void* elem, size_t elemSize){
 
     //creo el nuevo node
     node* newNode = malloc(sizeof(node));
@@ -48,7 +45,9 @@ int insert(listADT list, void* elem){
 
     newNode->next = list->first;
 
-    newNode->value = elem;
+
+    newNode->elem = malloc(elemSize);
+    memcpy(newNode->elem, elem, elemSize);
 
     //lo inserto en la lista
     list->first = newNode;
@@ -59,25 +58,25 @@ int insert(listADT list, void* elem){
 
 //retorna 1 si lo elimino y 0 si no lo encontro 
 //se compara el elm2 con elem1, cmp devulve 0 si eson iguales, 1 sino (como strcmp)
-// int delete(listADT list, void* elem2, int (*cmp)(void* elem1, void* elem2)){
+int delete(listADT list, void* elem2, int (*cmp)(void* elem1, void* elem2)){
     
-//     node* current = list->first;
-//     node* last = listSearch(&current, elem2, cmp);
-//     if(current == NULL)
-//         return 0;
+    node* current = list->first;
+    node* last = listSearch(&current, elem2, cmp);
+    if(current == NULL)
+        return 0;
 
-//     if(last == NULL){
-//         //se elimina el primero
-//         list->first = current->next;
-//     }else{
-//         last->next = current->next;
-//     }
+    if(last == NULL){
+        //se elimina el primero
+        list->first = current->next;
+    }else{
+        last->next = current->next;
+    }
 
-//     list->size --;
-//     list->elemFree(current->value);
-//     free(current);
-//     return 1;
-// }
+    list->size --;
+    free(current->elem);
+    free(current);
+    return 1;
+}
 
 int listIsEmpty(listADT list){
 	return list->size == 0;
@@ -92,7 +91,7 @@ void freeList(listADT list){
     node* aux;
 	while (current != NULL) {
 		aux = current->next;
-		list->elemFree(current->value);
+        free(current->elem);
         free(current);
 		current = aux;
 	}
@@ -113,21 +112,21 @@ int listHasNext(const listADT list) {
 }
 
 void* listNext(listADT list) {
-	if (!listHasNext(list))
-		return NULL;
-	void* result = list->iteradorNext->value;
+	if (listHasNext(list))
+		listToBegin(list);
+	void* result = list->iteradorNext->elem;
 	list->iteradorNext = list->iteradorNext->next;
 
 	return result;
 }
 
 //devuelve el elem, si es nulo no lo encontro
-void* getElem(listADT list, void* value, int(*cmp)(void*, void*)){
+void* getElem(listADT list, void* elem, int(*cmp)(void*, void*)){
     node* current = list->first;
-    listSearch(&current, value, cmp);
+    listSearch(&current, elem, cmp);
     if(current == NULL)
         return NULL;
-    return current->value;
+    return current->elem;
 }
 
 //private:
@@ -137,7 +136,7 @@ node* listSearch(node** current, void* elem, int (*cmp)(void*, void*)) {
 	node* last = NULL;
     node* auxCurrent = *current;
     while (auxCurrent != NULL){
-        if(cmp(auxCurrent->value, elem) == 0){
+        if(cmp(auxCurrent->elem, elem) == 0){
             return last;
         }
         last = auxCurrent;
