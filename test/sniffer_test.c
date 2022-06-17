@@ -11,20 +11,12 @@ int main(int argc, char const *argv[]) {
   struct pop3_sniffer sniffer;
   pop3_sniffer_init(&sniffer);
   pop3_sniffer_init_list(&sniffer);
+
   buffer b;
   char data[] = "+OK\nUSER fm\nPASS password\n+OK";
   FIXBUF(b, data);
   log_print(INFO, "SIZE %d.\n", N(data));
   enum pop3_sniffer_state st = pop3_sniffer_consume(&b, &sniffer);
-  log_print(INFO, "ST %d.\n", st);
-  log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
-
-  buffer c;
-  pop3_sniffer_init(&sniffer);
-  char second_data[] = "+OK\nUSER fmaggioni\nPASS passworddddd\n+OK";
-  FIXBUF(c, second_data);
-  st = pop3_sniffer_consume(&c, &sniffer);
-  log_print(INFO, "SIZE %d.\n", N(second_data));
   log_print(INFO, "ST %d.\n", st);
   log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
 
@@ -37,6 +29,24 @@ int main(int argc, char const *argv[]) {
   log_print(INFO, "ST %d.\n", st);
   log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
 
+  buffer c;
+  pop3_sniffer_init(&sniffer);
+  char second_data[] = "+OK\nUSER fmaggioni\nPASS passworddddd\n+OK";
+  FIXBUF(c, second_data);
+  st = pop3_sniffer_consume(&c, &sniffer);
+  log_print(INFO, "SIZE %d.\n", N(second_data));
+  log_print(INFO, "ST %d.\n", st);
+  log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
+
+  buffer x;
+  pop3_sniffer_init(&sniffer);
+  char four_data[] = "+OK\nUSER Ginobili\nPASS SCOLa\n+OK";
+  FIXBUF(x, four_data);
+  st = pop3_sniffer_consume(&x, &sniffer);
+  log_print(INFO, "SIZE %d.\n", N(four_data));
+  log_print(INFO, "ST %d.\n", st);
+  log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
+
   listToBegin(sniffer.list);
 	while(listHasNext(sniffer.list)){
 		struct sniff_info* sniffinfo = ((sniff_info*) listNext(sniffer.list));
@@ -45,5 +55,4 @@ int main(int argc, char const *argv[]) {
 	}
 
   freeSniffer(&sniffer);
-
 }
