@@ -20,29 +20,26 @@ int main(int argc, char const *argv[]) {
   log_print(INFO, "ST %d.\n", st);
   log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
 
-  buffer d;
   pop3_sniffer_init(&sniffer);
   char third_data[] = "+O\nUSERPACXO\nPASS JUANPEREX\n-ERR";
-  FIXBUF(d, third_data);
-  st = pop3_sniffer_consume(&d, &sniffer);
+  FIXBUF(b, third_data);
+  st = pop3_sniffer_consume(&b, &sniffer);
   log_print(INFO, "SIZE %d.\n", N(third_data));
   log_print(INFO, "ST %d.\n", st);
   log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
 
-  buffer c;
   pop3_sniffer_init(&sniffer);
   char second_data[] = "+OK\nUSER fmaggioni\nPASS passworddddd\n+OK";
-  FIXBUF(c, second_data);
-  st = pop3_sniffer_consume(&c, &sniffer);
+  FIXBUF(b, second_data);
+  st = pop3_sniffer_consume(&b, &sniffer);
   log_print(INFO, "SIZE %d.\n", N(second_data));
   log_print(INFO, "ST %d.\n", st);
   log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
 
-  buffer x;
   pop3_sniffer_init(&sniffer);
   char four_data[] = "+OK\nUSER Ginobili\nPASS SCOLa\n+OK";
-  FIXBUF(x, four_data);
-  st = pop3_sniffer_consume(&x, &sniffer);  
+  FIXBUF(b, four_data);
+  st = pop3_sniffer_consume(&b, &sniffer);  
   log_print(INFO, "SIZE %d.\n", N(four_data));
   log_print(INFO, "ST %d.\n", st);
   log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
