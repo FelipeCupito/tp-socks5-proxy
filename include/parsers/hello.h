@@ -8,7 +8,6 @@
 #include <stdint.h>
 #include "../buffer.h"
 #include "../logger.h"
-
 /* METHOD VALUES:
  */
 static const uint8_t METHOD_NO_AUTH_REQUIRED = 0X00;
