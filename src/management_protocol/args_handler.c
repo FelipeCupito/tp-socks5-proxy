@@ -1,41 +1,57 @@
 #include "../../include/management_protocol/args_handler.h"
 
-struct manage_args {
-    char* manage_addr_v4;
-    // char* manage_addr_v6;
-    // bool isIpV6;
-    unsigned int port;
-    uint8_t version;
-
-    char* try_password;
-} manage_args;
-
 // Private functions
-static void mng_usage();
+static void mng_usage(char *command);
 static unsigned short port(const char* s);
 
-void parse_args(const int argc, char** argv, manage_args* mng_args) {
+void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
     memset(mng_args, 0, sizeof(struct manage_args));
 
     // Set default socks for our protocol
-    mng_args->manage_addr_v4 = DEFAULT_MNG_ADDR_V4;
-    mng_args->port = DEFAULT_MNG_PORT;
+    mng_args->mng_addr = DEFAULT_MNG_ADDR_V4;
+    mng_args->mng_port = DEFAULT_MNG_PORT;
     int c;
+    char delimiter[] = ":";
 
-    while (c = getopt(argc, argv, "hL:P:a:v") != -1) {
+    while (c = getopt(argc, argv, "hL:P:a:l:g:d:i:s:t:v") != -1) {
         switch (c) {
             case 'h':
                 // Help
-                mng_usage();
+                mng_usage(argv[0]);
                 break;
             case 'L':
-                mng_args->manage_addr_v4 = optarg;
+                mng_args->mng_addr = optarg;
                 break;
             case 'P':
-                mng_args->port = port(optarg);
+                mng_args->mng_port = port(optarg);
                 break;
             case 'a':
-                mng_args->password = optarg;
+                mng_args->try_password = optarg;
+                break;
+            case 'l':
+                mng_args->list_option = atoi(optarg);
+                break;
+            case 'g':
+                mng_args->get_option = atoi(optarg);
+                break;
+            case 'd':
+                // delete user (TODO como distingo que usuario borro?)
+                break;
+            case 'i':
+                // -i username:password
+                mng_args->add_username = strtok(optarg, delimiter);
+                mng_args->add_password = strtok(NULL, delimiter);
+                // Chequear error desp
+                break;
+            case 's':
+                // set (TODO como distingo que usuario edito?)
+                break;
+            case 't':
+                // toggle
+                // -t auth:on/off
+                // -t spoof:on/off
+                mng_args->toggle_option = strtok(optarg, delimiter);
+                mng_args->toggle_status = strtok(NULL, delimiter);
                 break;
             case 'v':
                 // mensaje de la version
@@ -50,8 +66,18 @@ void parse_args(const int argc, char** argv, manage_args* mng_args) {
 
 }
 
-static void mng_usage() {
-
+static void mng_usage(char *command) {
+    fprintf(stderr,
+    "Usage: %s [OPTION]...\n"
+    "\n"
+    "   -h                  Imprime la ayuda y termina.\n"
+    "   -L <GRUPO6 addr>    \n"
+    "   -P <GRUPO6 port>    \n"
+    "   -a <token>          \n"
+    "   -l <OPTION>         Imprime la lista de la opción indicada.\n"
+    "   -v                  Imprime información sobre la versión y termina.\n"
+    "   ",
+    command);
 }
 
 static unsigned short port(const char* s) {
