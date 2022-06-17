@@ -6,11 +6,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdint.h>
+
 #include "../buffer.h"
 #include "../logger.h"
-
-/* METHOD VALUES:
- */
+/**/
 static const uint8_t METHOD_NO_AUTH_REQUIRED = 0X00;
 static const uint8_t METHOD_AUTH_REQUIRED = 0x02;
 static const uint8_t METHOD_NO_ACCEPTABLE_METHODS = 0XFF;

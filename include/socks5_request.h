@@ -16,7 +16,7 @@
 #include "selector.h"
 #include "logger.h"
 #include "socks5.h"
-#include "client_handler.h"
+#include "conn_logger.h"
 
 ///////////////////////////////////////////
 //REQUEST_READ

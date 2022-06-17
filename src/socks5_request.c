@@ -223,8 +223,8 @@ unsigned int request_connecting(struct selector_key *key) {
   }else{
     if(err == 0){
       //se conecto
-      //metrics
-      log_print(INFO, "se conecto al server final con el socket: %d \n", *conn->final_server_fd );
+      //TODO: metrics
+      log_conn(ATTACHMENT(key), CONNECTED);
       response_st = status_succeeded;
       *conn->final_server_fd = key->fd;
 

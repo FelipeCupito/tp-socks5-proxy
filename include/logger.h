@@ -17,30 +17,19 @@
 #include <stdarg.h> //para el parametro ...
 
 
-typedef enum {DEBUG=0, INFO, LOG_ERROR, FATAL} LOG_LEVEL;
+typedef enum {DEBUG=0, INFO, LOG, SPOOFING, LOG_ERROR, FATAL} LOG_LEVEL;
+//static char * description[] = {"[DEBUG]", "[INFO]", "[CONNECTION]", "[SPOOFING]",  "[ERROR]", "[FATAL]"};
 
 extern LOG_LEVEL current_level;
 extern bool error_flag;
 
-/**
-*  Minimo nivel de log a registrar. Cualquier llamada a log con un nivel mayor a newLevel sera ignorada
-**/
+
+// Minimo nivel de log a registrar. Cualquier llamada a log con un nivel mayor a newLevel sera ignorada
 void setLogLevel(LOG_LEVEL newLevel);
 
 void log_print(LOG_LEVEL level, const char *fmt, ...);
 
 void setErrorFlag(int* err);
-
-// Debe ser una macro para poder obtener nombre y linea de archivo. 
-/*
-char * levelDescription(LOG_LEVEL level);
-
-#define log_print(level, fmt, ...)   {if(level >= current_level) {\
-	fprintf (stderr, "%s: %s:%d, ", levelDescription(level), __FILE__, __LINE__); \
-	fprintf(stderr, fmt, ##__VA_ARGS__); \
-	fprintf(stderr,"\n"); }\
-	if ( level==FATAL) exit(1);}
-*/
 
 #endif
 
