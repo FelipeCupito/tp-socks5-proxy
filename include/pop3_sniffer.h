@@ -21,9 +21,9 @@ enum pop3_sniffer_state {
   pop3_sniffer_read_user,
   pop3_sniffer_password,
   pop3_sniffer_read_passsword,
-  pop3_sniffer_check, // chequea la respuesta
+  pop3_sniffer_check_password, // chequea la respuesta
   pop3_sniffer_ok,
-  pop3_sniffer_stop,
+  pop3_sniffer_err,
 };
 
 typedef struct pop3_sniffer {

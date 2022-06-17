@@ -42,7 +42,7 @@ int main(int argc, char const *argv[]) {
   pop3_sniffer_init(&sniffer);
   char four_data[] = "+OK\nUSER Ginobili\nPASS SCOLa\n+OK";
   FIXBUF(x, four_data);
-  st = pop3_sniffer_consume(&x, &sniffer);
+  st = pop3_sniffer_consume(&x, &sniffer);  
   log_print(INFO, "SIZE %d.\n", N(four_data));
   log_print(INFO, "ST %d.\n", st);
   log_print(INFO, "LIST SIZE %d.\n", listSize(sniffer.list));
