@@ -19,7 +19,7 @@ struct manage_args {
     unsigned int mng_port;
     uint8_t version;
 
-    struct parsers *parserList;
+    struct parsers* parserList;
 
     char* try_password;
 
@@ -27,7 +27,7 @@ struct manage_args {
     unsigned int list_option;
 
     bool get_flag;
-    unsigned int get_option; 
+    unsigned int get_option;
 
     bool add_flag;
     char* add_username;
@@ -38,7 +38,8 @@ struct manage_args {
     bool toggle_flag;
     char* toggle_option;
     char* toggle_status;
-    
+    int new_buffsize;
+
 } manage_args;
 
 void parse_args(const int argc, char** argv, struct manage_args* mng_args);

@@ -1,7 +1,7 @@
 #include "../../include/management_protocol/args_handler.h"
 
 // Private functions
-static void mng_usage(char *command);
+static void mng_usage(char* command);
 static unsigned short port(const char* s);
 
 void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
@@ -19,7 +19,7 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
     mng_args->toggle_flag = false;
     mng_args->delete_flag = false;
 
-    while (c = getopt(argc, argv, "hL:P:a:l:g:d:i:s:t:v") != -1) {
+    while (c = getopt(argc, argv, "hL:P:a:l:g:d:i:s:t:b:v") != -1) {
         switch (c) {
             case 'h':
                 // Help
@@ -64,6 +64,10 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
                 mng_args->toggle_option = strtok(optarg, delimiter);
                 mng_args->toggle_status = strtok(NULL, delimiter);
                 break;
+            case 'b':
+                // -b buffsize:number
+                // add bufsize
+                break;
             case 'v':
                 // mensaje de la version
                 mng_args->version = atoi(optarg);
@@ -77,18 +81,18 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
 
 }
 
-static void mng_usage(char *command) {
+static void mng_usage(char* command) {
     fprintf(stderr,
-    "Usage: %s [OPTION]...\n"
-    "\n"
-    "   -h                  Imprime la ayuda y termina.\n"
-    "   -L <GRUPO6 addr>    \n"
-    "   -P <GRUPO6 port>    \n"
-    "   -a <token>          \n"
-    "   -l <OPTION>         Imprime la lista de la opción indicada.\n"
-    "   -v                  Imprime información sobre la versión y termina.\n"
-    "   ",
-    command);
+        "Usage: %s [OPTION]...\n"
+        "\n"
+        "   -h                  Imprime la ayuda y termina.\n"
+        "   -L <GRUPO6 addr>    \n"
+        "   -P <GRUPO6 port>    \n"
+        "   -a <token>          \n"
+        "   -l <OPTION>         Imprime la lista de la opción indicada.\n"
+        "   -v                  Imprime información sobre la versión y termina.\n"
+        "   ",
+        command);
 }
 
 static unsigned short port(const char* s) {
