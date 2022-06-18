@@ -2,7 +2,7 @@
 #include "../include/socks5.h"
 
 #define SIZEOF(arr) strlen(arr) * sizeof(char *)
-
+#define N(x) (sizeof(x)/sizeof((x)[0]))
 
 static const char * OK = "+OK";
 static const char * USER = "USER ";
@@ -42,6 +42,8 @@ void pop3_sniffer_init_list(){
 }
 void pop3_sniffer_init(struct pop3_sniffer* s){
   s -> state = pop3_sniffer_initial;
+  memset(s->raw_buff,0,MAX_BUFF_POP3_SIZE);
+  buffer_init(&s->buffer, N(s->raw_buff), s->raw_buff);
   reset_read(s,strlen(OK));
 }
 
@@ -182,9 +184,10 @@ bool pop3_is_parsing(struct pop3_sniffer *s){
     return s -> state >= pop3_sniffer_initial && s -> state < pop3_sniffer_ok;
 }
 
-enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *s, void *socks5){
-  while(buffer_can_read(buff) && !pop3_is_done(s)) {
-    uint8_t b = buffer_read(buff);
+enum pop3_sniffer_state pop3_sniffer_consume(struct pop3_sniffer *s, void *socks5){
+  
+  while(buffer_can_read(&s -> buffer) && !pop3_is_done(s)) {
+    uint8_t b = buffer_read(&s -> buffer);
     pop3_sniffer_parse(s,b);
   }
 
@@ -231,6 +234,6 @@ void pop3sniff(uint8_t *ptr, ssize_t size, void *socks5){
             memcpy(pop3_ptr,ptr,count);
             buffer_write_adv(&s -> buffer,count);
         }
-        pop3_sniffer_consume(&s -> buffer, s, socks5);
+        pop3_sniffer_consume(s, socks5);
     }
 }

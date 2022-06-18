@@ -56,7 +56,7 @@ void pop3_sniffer_init(struct pop3_sniffer* s);
 enum pop3_sniffer_state pop3_sniffer_feed(struct pop3_sniffer* s, uint8_t b);
 
 //socks5 de tipo struct socks5 si o si
-enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *s, void *socks5);
+enum pop3_sniffer_state pop3_sniffer_consume(struct pop3_sniffer *s, void *socks5);
 
 bool pop3_is_done(struct pop3_sniffer *s);
 
