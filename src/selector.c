@@ -462,7 +462,8 @@ static void handle_block_notifications(fd_selector s) {
       .s = s,
   };
   pthread_mutex_lock(&s->resolution_mutex);
-  for (struct blocking_job *j = s->resolution_jobs; j != NULL; j = j->next) {
+  struct blocking_job *j, *next;
+  for (j = s->resolution_jobs; j != NULL; j = next) {
 
     struct item *item = s->fds + j->fd;
     if (ITEM_USED(item)) {
@@ -471,9 +472,8 @@ static void handle_block_notifications(fd_selector s) {
       item->handler->handle_block(&key);
     }
     //TODO: lo cambie para que funcione el DNS
-    struct blocking_job * previous = j;
-    j=j->next;
-    free(previous);
+    next = j->next;
+    free(j);
   }
   s->resolution_jobs = 0;
   pthread_mutex_unlock(&s->resolution_mutex);
