@@ -122,7 +122,7 @@ struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, s
 /////////////////////////////////////////////////////////////////////////
 // funcione privada:
 void socks5_done(struct selector_key *key);
-void socks5_free(void* socks);
+void socks5_free(struct socks5 *socks5);
 //socks5 handler
 void socks5_read(struct selector_key *key);
 void socks5_write(struct selector_key *key);
@@ -134,6 +134,7 @@ void socks5_passive_accept(struct selector_key *key) {
   int err = 0;
   struct sockaddr_storage clntAddr;
   socklen_t clntAddrLen = sizeof(clntAddr);
+  socks5 *socks = NULL;
 
   // Wait for a client to connect
   const int client = accept(key->fd, (struct sockaddr *)&clntAddr, &clntAddrLen);
@@ -148,7 +149,7 @@ void socks5_passive_accept(struct selector_key *key) {
     goto finally;
   }
 
-  socks5 *socks = socks5_new(client, &clntAddr, clntAddrLen);
+  socks = socks5_new(client, &clntAddr, clntAddrLen);
   if(socks == NULL){
     err = 1;
     goto finally;
@@ -164,7 +165,7 @@ void socks5_passive_accept(struct selector_key *key) {
 finally:
   if(err == 1){
     close(client);
-    socks5_free(key);
+    free(socks);
   }
 }
 
@@ -200,9 +201,10 @@ void socks5_block(struct selector_key *key) {
 
 void socks5_done(struct selector_key *key) {
 
-  log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
-  if(ATTACHMENT(key)->status == status_close)
+  if (ATTACHMENT(key)->status == status_close){
+    log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
     end_connection();
+  }
 
   const int fds[] = {
           ATTACHMENT(key)->client_fd,
@@ -210,25 +212,29 @@ void socks5_done(struct selector_key *key) {
   };
 
   for (int i = 0; i < 2; ++i) {
-    if(fds[i] != -1){
-      if(SELECTOR_SUCCESS != selector_unregister_fd(key->s, fds[i])){
-        abort();
-      }
+    if (fds[i] != -1) {
+      selector_unregister_fd(key->s, fds[i]);
     }
+    close(fds[i]);
   }
-
 }
 
+
 void socks5_close(struct selector_key *key) {
-  close(key->fd);
   struct socks5 *socks = ATTACHMENT(key);
-  if(socks->toFree > 0){
+  if(socks->status != status_close ){
+    socks5_free(socks);
+  }else if(socks->toFree > 0){
     socks5_free(key->data);
   }else{
     socks->toFree ++;
   }
 }
 
-void socks5_free(void* socks){
-  free(socks);
+void socks5_free(struct socks5 *socks5){
+  if(socks5->server_resolution != NULL){
+    freeaddrinfo(socks5->server_resolution);
+  }
+  free(socks5);
 }
+

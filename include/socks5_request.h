@@ -10,6 +10,7 @@
 #include <sys/socket.h> // socket
 #include <sys/types.h>  // socket
 #include <unistd.h>
+#include <pthread.h>
 
 #include "buffer.h"
 #include "stm.h"

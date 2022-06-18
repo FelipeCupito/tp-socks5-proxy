@@ -169,13 +169,13 @@ enum socks_state {
 /////////////////////////////////////////////////////////////////////////
 // Estados posibles de cada estado de socks5
 /////////////////////////////////////////////////////////////////////////
-
+/*
 typedef enum addr_type {
   IPv4 = 0x01,
   DOMAINNAME = 0x03,
   IPv6 = 0x04,
 } addr_type;
-
+*/
 /////////////////////////////////////////////////////////////////////////
 // Store de cada estado
 /////////////////////////////////////////////////////////////////////////
@@ -200,38 +200,20 @@ typedef struct request_data {
   // parser
   struct request request;
   struct request_parser parser;
-  // resumen de la respuesta a enviar
-  enum socks_response_status status;
+
+  //resumen de la respuesta a enviar
+  enum socks_response_status* status;
 
   // a donde nos tenemos que conectar
   struct sockaddr_storage *final_server_addr;
   socklen_t *final_server_len;
-  int server_domain;
+  int* server_domain;
 
   // fd
   const int *client_fd;
   int *final_server_fd;
 
 } request_data;
-
-typedef struct resolv_data {
-  addr_type addrType; // guardo el tipo de conexion
-
-  char ipv4_addrs[MAX_IPS][IP_V4_ADDR_SIZE];
-  uint8_t ipv4_size; // cantidad de ipv4, -1 si no hay
-
-  char ipv6_addrs[MAX_IPS][IP_V6_ADDR_SIZE];
-  uint8_t ipv6_size; // cantidad de ipv6,
-
-  // server port
-  uint8_t port[PORT_SIZE];
-
-  // en caso que tengamos que resolver
-  uint8_t *resolve_addr;
-  uint8_t resolve_addr_len;
-
-  // Buffers de escritura y lectura
-} resolv_data;
 
 typedef struct connecting_data {
   // write buffer
@@ -242,10 +224,10 @@ typedef struct connecting_data {
 } connecting_data;
 
 typedef struct copy_data {
-  /** File descriptor */
+  // File descriptor
   int *fd;
 
-  /** buffers para hacer la copia **/
+  //buffers para hacer la copia
   buffer *rb, *wb;
 
   // escritura o lect
@@ -266,10 +248,14 @@ typedef struct socks5 {
   socklen_t client_addr_len;
   int client_fd; // fd del socket del cliente
 
+  //resolucione
+  struct addrinfo *server_resolution;
+  struct addrinfo *current_server_resolution;
+
   // Final Server
   struct sockaddr_storage final_server_addr;
   socklen_t final_server_len;
-  // int server_domain;   
+  int server_domain;
   int final_server_fd;
 
   // Estado del Socket:
@@ -280,13 +266,11 @@ typedef struct socks5 {
     hello_data hello;
     auth_data auth;
     request_data request;
-    resolv_data resolv;
     copy_data copy;
   } client_data;
 
   // estados del socket final server
   union server_data {
-    // resolve_st resolve;
     connecting_data connect;
     copy_data copy;
   } server_data;
@@ -298,6 +282,7 @@ typedef struct socks5 {
   enum socks_response_status status; //enum status
 
   int toFree;
+
 } socks5;
 
 #endif
