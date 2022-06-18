@@ -9,9 +9,10 @@
 #include "../buffer.h"
 #include "../logger.h"
 
-static const uint8_t STATUS_OK = 0X00;
+static const uint8_t STATUS_OK               = 0X00;
 static const uint8_t STATUS_ERROR_IN_VERSION = 0x01;
 static const uint8_t STATUS_ERROR_IN_PASSLEN = 0X02;
+static const uint8_t STATUS_AUTH_FAIL        = 0X03;
 
 #define MAX_PASS_SIZE 0XFF
 

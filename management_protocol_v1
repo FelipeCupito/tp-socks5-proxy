@@ -60,6 +60,7 @@ CONNECTION
 		OK: X'00'
 		ERROR_IN_VERSION: X'01'
 		ERROR_IN_PASSLEN: X'02'
+		AUTH_FAIL: X'03'
 			
 REQUEST
 
@@ -131,7 +132,7 @@ REQUEST
 <<
 	Request for EDIT ACTION
 		+---------+--------+--------+-------------+-------------+-----------+-----------+
-		| ACTION  | FIELD  | KEYLEN | KEY         | ATTRIBUTE   | VALUELEN  | VALUE     |
+		| ACTION  | FIELD  | ULEN   | UNAME       | ATTRIBUTE   | VALUELEN  | VALUE     |
 		+---------+--------+--------+-------------+-------------+-----------+-----------+
 		|  X'02'  | X'00'  | 1      | 1 to 255    | 1           | 1         | 1 to 255  |
 		+---------+--------+--------+-------------+-------------+-----------+-----------+
@@ -156,6 +157,7 @@ REQUEST
 			o ERROR_INVALID_KEYLEN X'03'
 			o ERROR_INVALID_ATTRIBUTE X'04'
 			o ERROR_INVALID_VALUELEN X'05'
+			o UNKOWN_USER_FAIL X'06'
 			
 <<
 	Request for CONFIGBUFFSIZE ACTION
@@ -234,7 +236,7 @@ REQUEST
 			o ERROR_INVALID_ACTION X'00'
 			o ERROR_INVALID_FIELD X'01'
 			o ERROR_INVALID_KEYLEN X'02'
-		
+			o UNKOWN_USER_FAIL X'03'
 		
 		
 		

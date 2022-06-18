@@ -29,7 +29,7 @@ enum admin_edit_state edit_action(admin_edit_parser *p, uint8_t b) {
 enum admin_edit_state edit_field(admin_edit_parser *p, uint8_t b) {
   if (b == USERS_FIELD) {
     p -> field = b;
-    p -> state = admin_edit_keylen;
+    p -> state = admin_edit_ulen;
   } else {
     p -> state = admin_edit_error_field;
   }
@@ -37,7 +37,7 @@ enum admin_edit_state edit_field(admin_edit_parser *p, uint8_t b) {
   return p -> state;
 }
 
-enum admin_edit_state edit_key(admin_edit_parser *p, uint8_t b) {
+enum admin_edit_state edit_username(admin_edit_parser *p, uint8_t b) {
   *( (p->key) + p->read ) = b;
     p -> read ++;
 
@@ -45,7 +45,7 @@ enum admin_edit_state edit_key(admin_edit_parser *p, uint8_t b) {
       *( (p->key) + p->read ) = '\0';
       p -> state = admin_edit_attribute;
     } else {
-      p -> state = admin_edit_key;
+      p -> state = admin_edit_username;
     }
 
   return p -> state;
@@ -84,17 +84,17 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
   case admin_edit_field:
     p -> state = edit_field(p,b);
     break;
-  case admin_edit_keylen:
+  case admin_edit_ulen:
     if (b <= 0) {
-      p -> state = admin_edit_error_keylen;
+      p -> state = admin_edit_error_ulen;
     } else {
       remaining_set(p,b);
-      p -> keylen = b;
-      p -> state = admin_edit_key;
+      p -> ulen = b;
+      p -> state = admin_edit_username;
     }
     break;
-  case admin_edit_key:
-    p -> state = edit_key(p,b);
+  case admin_edit_username:
+    p -> state = edit_username(p,b);
     break;
   case admin_edit_attribute:
     p -> state = attribute(p,b);
@@ -132,7 +132,7 @@ bool admin_edit_is_done (const enum admin_edit_state state, bool *err) {
   case admin_edit_error:
   case admin_edit_error_action:
   case admin_edit_error_field:
-  case admin_edit_error_keylen:
+  case admin_edit_error_ulen:
   case admin_edit_error_valuelen:
   case admin_edit_error_attribute:
     if (err != 0)

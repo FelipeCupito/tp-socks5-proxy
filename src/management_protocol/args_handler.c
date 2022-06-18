@@ -18,6 +18,7 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
     mng_args->add_flag = false;
     mng_args->toggle_flag = false;
     mng_args->delete_flag = false;
+    mng_args->set_flag = false;
 
     while (c = getopt(argc, argv, "hL:P:a:l:g:d:i:s:t:b:v") != -1) {
         switch (c) {
@@ -65,8 +66,9 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
                 mng_args->toggle_status = strtok(NULL, delimiter);
                 break;
             case 'b':
-                // -b buffsize:number
-                // add bufsize
+                // set buffsize
+                mng_args->set_flag = true;
+                mng_args->set_size = atoi(optarg);
                 break;
             case 'v':
                 // mensaje de la version
