@@ -179,12 +179,14 @@ static uint8_t receive_delete_reply(int fd) {
 static int send_get_request(int fd, uint8_t command) {
     int sent_bytes = 0;
     enum get_status status;
+    // Fijarse si hacer control aca
+    // El servidor podria mandar una respuesta con INVALID_LEN (o algo asi)
     if(command == NULL) {
         fprintf(stderr, "[ERROR] Missing GET argument\n");
         exit(0);    // cambiar esto para que sea como un goto finally
     }
 
-    uint8_t* request = malloc(2 * sizeof(uint8_t));
+    uint8_t request[2];
 
     request[0] = 0x00;      // Action GET
     request[1] = command;   // Command passed
@@ -196,10 +198,9 @@ static int send_get_request(int fd, uint8_t command) {
     return sent_bytes;
 }
 
-// TODO: Fijarse cual va a ser el tamaño máximo de los buffers
-static uint8_t** receive_get_request(int fd, enum get_status* status) {
+static uint8_t* receive_get_request(int fd, uint8_t* status) {
     int recv_bytes;
-    uint8_t* info[2];
+    uint8_t* info[2] = malloc(2);
 
     recv_bytes = recv(fd, info, 2, 0);
 
@@ -214,43 +215,81 @@ static uint8_t** receive_get_request(int fd, enum get_status* status) {
     }
 
     size_t rta_len = info[1];
-    uint8_t* rta = malloc(rta_len);
+    uint8_t* rta = malloc(rta_len + 1);
 
     // Chequear si hay espacio suficiente
     if(rta == NULL) {
         return NULL;
     }
 
-    
+    recv(fd, rta, rta_len + 1, 0);
+
+    rta[rta_len] = '\0';
 
     enum get_status status;
 
-    // uint8_t response[GET_RESPONSE_SIZE];
-    // int bytes_received = recv(fd, response, GET_RESPONSE_SIZE, 0);
-
-    // if(bytes_received < 0) {
-    //     status = GET_STATUS_SERVER_ERROR;
-    //     return NULL;
-    // }
-    // status = response[0];
-    // if(status != GET_STATUS_OK) {
-    //     return NULL;
-    // }
-    // se deberia chequear si es que se recibio todo (preguntar)
+    return rta;
 }
 
-static int send_set_request(int fd, unsigned int size) {
+static int send_put_request(int fd, char* username, char* password) {
     int sent_bytes = 0;
-    uint8_t request[3];
+    uint8_t *request = NULL;
+    size_t username_len = strlen(username);
+    size_t password_len = strlen(password);
+
+    realloc(request, 2 + 2*sizeof(int) + username_len + password_len + 1);
+    request[0] = 0x01;
+    request[1] = 0x00;
+    request[2] = username_len;
+    strcpy((char*) (request + 3), username);
+    request[3 + username_len] = password_len;
+    strcpy((char*) (request + 4 + username_len), password);
+
+    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
+
+    free(request);
+    return sent_bytes;
+}
+
+static uint8_t receive_put_reply(int fd) {
+    int rcv_bytes;
+    uint8_t reply[1];
+    rcv_bytes = recv(fd, reply, 1, 0);
+
+    return reply;
+}
+
+static int send_configbuffsize_request(int fd, unsigned int size) {
+    int sent_bytes = 0;
+    uint8_t request[2];
 
     request[0] = 0x03;
+    request[1] = size;
+
+    sent_bytes = send(fd, request, 2, MSG_NOSIGNAL);
+
+    free(request);
+    return sent_bytes;
 }
 
-static enum set_status receive_set_request(int fd) {
+static uint8_t receive_configbuffsize_reply(int fd) {
+    int rcv_bytes;
+    uint8_t reply[1];
+    rcv_bytes = recv(fd, reply, 1, 0);
 
+    return reply;
 }
 
-static int send_toggle_request(int fd, uint8_t field, uint8_t status) {
+static uint8_t receive_set_request(int fd) {
+    int rcv_bytes;
+    uint8_t reply[1];
+    rcv_bytes = recv(fd, reply, 1, 0);
+
+    return reply;
+}
+
+// TOGGLE
+static int send_configstatus_request(int fd, uint8_t field, uint8_t status) {
     int sent_bytes;
     uint8_t request[3];
 
@@ -267,7 +306,8 @@ static int send_toggle_request(int fd, uint8_t field, uint8_t status) {
     return sent_bytes;
 }
 
-static uint8_t receive_toggle_reply(int fd) {
+// TOGGLE
+static uint8_t receive_configstatus_reply(int fd) {
     int rcv_bytes;
     uint8_t reply;
     rcv_bytes = recv(fd, &reply, 1, 0);

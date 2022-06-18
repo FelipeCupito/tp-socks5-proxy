@@ -20,7 +20,7 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
     mng_args->delete_flag = false;
     mng_args->set_flag = false;
 
-    while (c = getopt(argc, argv, "hL:P:a:l:g:d:i:s:t:b:v") != -1) {
+    while (c = getopt(argc, argv, "hL:P:a:l:g:e:d:i:s:t:b:v") != -1) {
         switch (c) {
             case 'h':
                 // Help
@@ -42,6 +42,9 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
             case 'g':
                 mng_args->get_flag = true;
                 mng_args->get_option = atoi(optarg);
+                break;
+            case 'e':
+                // edit user
                 break;
             case 'd':
                 // delete user (TODO como distingo que usuario borro?)
