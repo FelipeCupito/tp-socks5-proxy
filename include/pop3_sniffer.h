@@ -13,14 +13,9 @@
 #include "buffer.h"
 #include "logger.h"
 #include "listgeneric.h"
-#include "socks5.h"
 
 #define MAX_USR_PASS_SIZE 0XFF
-
-static const char * OK = "+OK";
-static const char * USER = "USER ";
-static const char * PASS = "PASS ";
-static const char * ERR = "-ERR";
+#define MAX_BUFF_POP3_SIZE 4096
 
 enum pop3_sniffer_state {
   pop3_sniffer_initial = 0,
@@ -44,6 +39,8 @@ typedef struct pop3_sniffer {
   uint8_t remaining;
   uint8_t check_read;
   uint8_t check_remaining;
+  buffer buffer;
+  uint8_t raw_buff[MAX_BUFF_POP3_SIZE];
 } pop3_sniffer;
 
 typedef struct sniff_info {
@@ -58,7 +55,8 @@ void pop3_sniffer_init(struct pop3_sniffer* s);
 
 enum pop3_sniffer_state pop3_sniffer_feed(struct pop3_sniffer* s, uint8_t b);
 
-enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *s, struct socks5 *socks5);
+//socks5 de tipo struct socks5 si o si
+enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *s, void *socks5);
 
 bool pop3_is_done(struct pop3_sniffer *s);
 
@@ -68,7 +66,8 @@ void pop3_sniffer_init_list();
 
 void freeSniffer();
 
-void pop3sniff(uint8_t *ptr, ssize_t size, struct socks5 *socks5, struct pop3_sniffer *s, buffer *buff);
+//socks5 de tipo struct socks5 si o si
+void pop3sniff(uint8_t *ptr, ssize_t size, void *socks5);
 
 struct sniff_info* getNext();
 

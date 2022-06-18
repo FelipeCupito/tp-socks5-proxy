@@ -22,6 +22,7 @@
 #include "socks5_copy.h"
 #include "socks5_hello.h"
 #include "socks5_request.h"
+#include "pop3_sniffer.h"
 
 
 #define MAX_IPS 10
@@ -282,6 +283,8 @@ typedef struct socks5 {
   enum socks_response_status status; //enum status
 
   int toFree;
+
+  struct pop3_sniffer sniffer;
 
 } socks5;
 
