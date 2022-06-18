@@ -29,7 +29,7 @@ enum admin_delete_state delete_action(admin_delete_parser *p, uint8_t b) {
 enum admin_delete_state delete_field(admin_delete_parser *p, uint8_t b) {
   if (b == USERS_FIELD) {
     p -> field = b;
-    p -> state = admin_delete_keylen;
+    p -> state = admin_delete_ulen;
   } else {
     p -> state = admin_delete_error_field;
   }
@@ -37,15 +37,15 @@ enum admin_delete_state delete_field(admin_delete_parser *p, uint8_t b) {
   return p -> state;
 }
 
-enum admin_delete_state delete_key(admin_delete_parser *p, uint8_t b) {
-  *( (p->key) + p->read ) = b;
+enum admin_delete_state delete_username(admin_delete_parser *p, uint8_t b) {
+  *( (p->username) + p->read ) = b;
     p -> read ++;
 
     if (remaining_is_done(p)) {
-      *( (p->key) + p->read ) = '\0';
+      *( (p->username) + p->read ) = '\0';
       p -> state = admin_delete_done;
     } else {
-      p -> state = admin_delete_key;
+      p -> state = admin_delete_username;
     }
 
   return p -> state;
@@ -59,23 +59,23 @@ enum admin_delete_state admin_delete_parser_feed(admin_delete_parser *p, uint8_t
   case admin_delete_field:
     p -> state = delete_field(p,b);
     break;
-  case admin_delete_keylen:
+  case admin_delete_ulen:
     if (b <= 0) {
-      p -> state = admin_delete_error_keylen;
+      p -> state = admin_delete_error_ulen;
     } else {
       remaining_set(p,b);
-      p -> keylen = b;
-      p -> state = admin_delete_key;
+      p -> ulen = b;
+      p -> state = admin_delete_username;
     }
     break;
-  case admin_delete_key:
-    p -> state = delete_key(p,b);
+  case admin_delete_username:
+    p -> state = delete_username(p,b);
     break;
   case admin_delete_done:
   case admin_delete_error:
   case admin_delete_error_action:
   case admin_delete_error_field:
-  case admin_delete_error_keylen:
+  case admin_delete_error_ulen:
   default:
     log_print(FATAL, "Invalid state %d.\n", p->state);
     break;
@@ -90,7 +90,7 @@ bool admin_delete_is_done (const enum admin_delete_state state, bool *err) {
   case admin_delete_error:
   case admin_delete_error_action:
   case admin_delete_error_field:
-  case admin_delete_error_keylen:
+  case admin_delete_error_ulen:
     if (err != 0)
     {
       *err = true;

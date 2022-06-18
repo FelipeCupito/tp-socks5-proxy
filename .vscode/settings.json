@@ -18,6 +18,24 @@
         "logger.h": "c",
         "conn_logger.h": "c"
         "management_protocol_handler.h": "c"
+        "string.h": "c",
+        "args_handler.h": "c",
+        "socket.h": "c",
+        "stdlib.h": "c",
+        "__hash_table": "c",
+        "__split_buffer": "c",
+        "array": "c",
+        "bitset": "c",
+        "deque": "c",
+        "initializer_list": "c",
+        "iterator": "c",
+        "queue": "c",
+        "random": "c",
+        "string": "c",
+        "string_view": "c",
+        "unordered_map": "c",
+        "utility": "c",
+        "vector": "c"
     }
 }
 =======

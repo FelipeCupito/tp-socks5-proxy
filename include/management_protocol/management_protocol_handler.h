@@ -5,6 +5,8 @@
 #include <string.h>
 #include <sys/socket.h>
 #include "args_handler.h"
+#include "../parsers/admin_get.h"
+#include "../parsers/admin_configstatus.h"
 
 #define GET_RESPONSE_SIZE 256
 
@@ -24,17 +26,34 @@ enum get_status {
     GET_STATUS_SERVER_ERROR = 0x03
 } get_status;
 
-enum get_options {
+enum set_status {
+    SET_STATUS_OK = 0x00,
+    SET_STATUS_INVALID_ACTION = 0x01,
+    SET_STATUS_INVALID_SIZE_LEN = 0x02,
+    SET_STATUD_INVALID_SIZE = 0x03
+} set_status;
+
+enum toggle_status {
+    TOGGLE_STATUS_OK = 0x00,
+    TOGGLE_STATUS_INVALID_ACTION = 0x01,
+    TOGGLE_STATUS_INVALID_FIELD = 0x02,
+    TOGGLE_STATUS_INVALID_STATUS = 0x03,
+} toggle_status;
+
+enum list_options {
     USERS,
     PASSWORDS,
     BUFFERSIZE,
     AUTH_STATUS,
     SPOOFING_STATUS,
+} list_options;
+
+enum get_options {
     SENT_BYTES,
     RECEIVED_BYTES,
     HISTORIC_CONNECTIONS,
     CONCURRENT_CONNECTIONS,
-};
+} get_options;
 
 struct get_reply {
     int status;

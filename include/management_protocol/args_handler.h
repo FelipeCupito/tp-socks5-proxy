@@ -38,8 +38,10 @@ struct manage_args {
     bool toggle_flag;
     char* toggle_option;
     char* toggle_status;
-    int new_buffsize;
 
+    bool set_flag;
+    unsigned int set_size;
+    
 } manage_args;
 
 void parse_args(const int argc, char** argv, struct manage_args* mng_args);

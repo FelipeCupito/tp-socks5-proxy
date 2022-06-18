@@ -12,9 +12,10 @@
 static const uint8_t STATUS_OK                      = 0X00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_KEYLEN    = 0x03;
+static const uint8_t STATUS_ERROR_INVALID_ULEN      = 0x03;
 static const uint8_t STATUS_ERROR_INVALID_ATTRIBUTE = 0x04;
 static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x05;
+static const uint8_t STATUS_UNKOWN_USER_FAIL        = 0x06;
 
 static const uint8_t EDIT_ACTION = 0x02;
 static const uint8_t USERS_FIELD = 0x00;
@@ -32,8 +33,8 @@ enum attribute {
 enum admin_edit_state {
   admin_edit_action,
   admin_edit_field,
-  admin_edit_keylen,
-  admin_edit_key,
+  admin_edit_ulen,
+  admin_edit_username,
   admin_edit_attribute,
   admin_edit_valuelen,
   admin_edit_value,
@@ -41,15 +42,15 @@ enum admin_edit_state {
   admin_edit_error,
   admin_edit_error_action,
   admin_edit_error_field,
-  admin_edit_error_keylen,
+  admin_edit_error_ulen,
   admin_edit_error_attribute,
   admin_edit_error_valuelen,
 };
 
 typedef struct admin_edit_parser {
   enum admin_edit_state state;
-  uint8_t keylen;
-  uint8_t key[MAX_VALUE_SIZE];
+  uint8_t ulen;
+  uint8_t username[MAX_VALUE_SIZE];
   uint8_t field;
   uint8_t action;
   enum attribute attr;
