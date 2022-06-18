@@ -49,6 +49,7 @@ void parse_args(const int argc, char** argv, struct manage_args* mng_args) {
             case 'd':
                 // delete user (TODO como distingo que usuario borro?)
                 mng_args->delete_flag = true;
+                mng_args->delete_username = optarg;
                 break;
             case 'i':
                 // -i username:password

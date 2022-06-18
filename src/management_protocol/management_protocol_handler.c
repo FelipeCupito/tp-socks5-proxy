@@ -2,6 +2,7 @@
 
 // Funciones privadas
 static int send_get_request(int fd, uint8_t command);
+
 static uint8_t receive_toggle_reply(int fd);
 static void getUsers(int fd);
 static void getPasswords(int fd);
@@ -69,7 +70,7 @@ void executeCommands(int fd, struct manage_args* args) {
         switch (args->get_option)
         {
         case SENT_BYTES:
-            /* code */
+            getSentBytes(fd);
             break;
         case RECEIVED_BYTES: 
             break;
@@ -92,9 +93,16 @@ void executeCommands(int fd, struct manage_args* args) {
 static void getUsers(int fd) {
     int sent_bytes = send_get_request(fd, 0x00);
     
-    if(sent_bytes <= 0)
-        fprintf(stderr, "[ERROR] REQUEST NOT SENT\n");
-    
+    uint8_t status;
+    char* users_list = (char*) receive_get_request(fd, &status);
+
+    if(users_list == NULL) {
+        return;
+    }
+
+    printf("USER LIST\n\n");
+    printf("%s", users_list);
+
 }
 
 static void getPasswords(int fd) {
@@ -110,15 +118,42 @@ void getConcurrentConections(int fd) {
 }
 
 void getSentBytes(int fd) {
+    int sent_bytes = send_get_request(fd, 0x05);
+
+    uint8_t status;
+    uint8_t* reply = receive_get_request(fd, &status);
+
+    if(reply == NULL) {
+        if(status != STATUS_OK) {
+            // printf de error (personalizar mensajes)
+        } else {
+            // UNKNOWN ERROR
+        }
+    }
 
 }
 
 void getReceivedBytes(int fd) {
-    
+    int sent_bytes = send_get_request(fd, 0x06);
+
+    uint8_t status;
+    uint8_t* reply = receive_get_request(fd, &status);
+
+    if(reply == NULL) {
+        if(status != STATUS_OK) {
+            // printf de error (personalizar mensajes)
+        } else {
+            // UNKNOWN ERROR
+        }
+    }
 }
 
 static void addUser(int fd, char* username, char* password) {
+    int sent_bytes = send_put_request(fd, username, password);
 
+    if(sent_bytes <= 0) {
+        
+    }
 }
 
 static void deleteUser(int fd, char* username) {
@@ -143,26 +178,6 @@ static uint8_t send_delete_request(int fd, char* username) {
     strcpy((char*) (request + 3), username);
 
     sent_bytes = send(fd, request, strlen((char*) request), 0);
-
-    free(request);
-    return sent_bytes;
-}
-
-static int send_put_request(int fd, char* username, char* password) {
-    int sent_bytes = 0;
-    uint8_t *request = NULL;
-    size_t username_len = strlen(username);
-    size_t password_len = strlen(password);
-
-    realloc(request, 2 + 2*sizeof(int) + username_len + password_len + 1);
-    request[0] = 0x01;
-    request[1] = 0x00;
-    request[2] = username_len;
-    strcpy((char*) (request + 3), username);
-    request[3 + username_len] = password_len;
-    strcpy((char*) (request + 4 + username_len), password);
-
-    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
 
     free(request);
     return sent_bytes;
@@ -195,6 +210,10 @@ static int send_get_request(int fd, uint8_t command) {
     sent_bytes = send(fd, request, 2, 0);
 
     free(request);
+
+    if(sent_bytes <= 0)
+        fprintf(stderr, "[ERROR] GET REQUEST NOT SENT\n");
+
     return sent_bytes;
 }
 
@@ -248,6 +267,12 @@ static int send_put_request(int fd, char* username, char* password) {
     sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
 
     free(request);
+
+    // TODO: Chequear si terminamos el programa aca
+    if(sent_bytes <= 0) {
+        fprintf(stderr, "[ERRROR] PUT REQUEST NOT SENT");
+        exit(0);
+    }
     return sent_bytes;
 }
 
@@ -273,14 +298,6 @@ static int send_configbuffsize_request(int fd, unsigned int size) {
 }
 
 static uint8_t receive_configbuffsize_reply(int fd) {
-    int rcv_bytes;
-    uint8_t reply[1];
-    rcv_bytes = recv(fd, reply, 1, 0);
-
-    return reply;
-}
-
-static uint8_t receive_set_request(int fd) {
     int rcv_bytes;
     uint8_t reply[1];
     rcv_bytes = recv(fd, reply, 1, 0);

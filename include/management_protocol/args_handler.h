@@ -34,6 +34,7 @@ struct manage_args {
     char* add_password;
 
     bool delete_flag;
+    char* delete_username;
 
     bool toggle_flag;
     char* toggle_option;
