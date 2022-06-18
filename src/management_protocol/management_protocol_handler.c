@@ -130,18 +130,50 @@ static void setBufferSize(int fd, unsigned int size) {
 }
 
 // Requests y replies
-static uint8_t receive_delete_request(int fd, char* status) {
-
-}
-
-static int send_delete_response(int fd,  uint8_t status) {
+static uint8_t send_delete_request(int fd, char* username) {
+    // TODO preguntar
     int sent_bytes = 0;
-    uint8_t* request = malloc(1);
-    request[0] = status; // DELETE
-    sent_bytes = send(fd, request, 1, 0);
+    size_t username_len = strlen(username);
+    uint8_t *request = NULL;
+    // TODO por que 2 + ? y + 1?
+    realloc(request, 2 + 2 * sizeof(int) + username_len + 1);
+    request[0] = 0x05;
+    request[1] = 0x00;
+    request[2] = username_len;
+    strcpy((char*) (request + 3), username);
+
+    sent_bytes = send(fd, request, strlen((char*) request), 0);
 
     free(request);
     return sent_bytes;
+}
+
+static int send_put_request(int fd, char* username, char* password) {
+    int sent_bytes = 0;
+    uint8_t *request = NULL;
+    size_t username_len = strlen(username);
+    size_t password_len = strlen(password);
+
+    realloc(request, 2 + 2*sizeof(int) + username_len + password_len + 1);
+    request[0] = 0x01;
+    request[1] = 0x00;
+    request[2] = username_len;
+    strcpy((char*) (request + 3), username);
+    request[3 + username_len] = password_len;
+    strcpy((char*) (request + 4 + username_len), password);
+
+    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
+
+    free(request);
+    return sent_bytes;
+}
+
+static uint8_t receive_delete_reply(int fd) {
+    int rcv_bytes;
+    uint8_t reply;
+    rcv_bytes = recv(fd, &reply, 1, 0);
+
+    return reply;
 }
 
 static int send_get_request(int fd, uint8_t command) {
@@ -205,26 +237,6 @@ static uint8_t** receive_get_request(int fd, enum get_status* status) {
     //     return NULL;
     // }
     // se deberia chequear si es que se recibio todo (preguntar)
-}
-
-static int send_put_request(int fd, char* username, char* password) {
-    int sent_bytes = 0;
-    uint8_t *request = NULL;
-    size_t username_len = strlen(username);
-    size_t password_len = strlen(password);
-
-    realloc(request, 2 + 2*sizeof(int) + username_len + password_len + 1);
-    request[0] = 0x01;
-    request[1] = 0x00;
-    request[2] = username_len;
-    strcpy((char*) (request + 3), username);
-    request[3 + username_len] = password_len;
-    strcpy((char*) (request + 4 + username_len), password);
-
-    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
-
-    free(request);
-    return sent_bytes;
 }
 
 static int send_set_request(int fd, unsigned int size) {
