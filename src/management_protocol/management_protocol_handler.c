@@ -151,9 +151,7 @@ void getReceivedBytes(int fd) {
 static void addUser(int fd, char* username, char* password) {
     int sent_bytes = send_put_request(fd, username, password);
 
-    if(sent_bytes <= 0) {
-        
-    }
+    
 }
 
 static void deleteUser(int fd, char* username) {
@@ -191,15 +189,31 @@ static uint8_t receive_delete_reply(int fd) {
     return reply;
 }
 
+static uint8_t* send_receive_get(int fd, uint8_t command) {
+    int sent_bytes = send_get_request(fd, command);
+
+    if(sent_bytes <= 0) {
+        return NULL;
+    }
+    uint8_t status;
+    uint8_t* reply = receive_get_request(fd, &status);
+
+    if(reply == NULL) {
+        if(status != STATUS_OK) {
+            // TODO: completar los status 
+            printf("GET RESPONSE STATUS: ");
+        } else {
+            // Fijarse como responder a un status no conocido
+            fprintf(stderr, "UNKNOWN RESPONSE");
+        }
+    }
+
+    return reply;
+}
+
 static int send_get_request(int fd, uint8_t command) {
     int sent_bytes = 0;
     enum get_status status;
-    // Fijarse si hacer control aca
-    // El servidor podria mandar una respuesta con INVALID_LEN (o algo asi)
-    if(command == NULL) {
-        fprintf(stderr, "[ERROR] Missing GET argument\n");
-        exit(0);    // cambiar esto para que sea como un goto finally
-    }
 
     uint8_t request[2];
 
@@ -211,8 +225,10 @@ static int send_get_request(int fd, uint8_t command) {
 
     free(request);
 
-    if(sent_bytes <= 0)
+    if(sent_bytes <= 0) {
         fprintf(stderr, "[ERROR] GET REQUEST NOT SENT\n");
+        // goto: close(fd) ...
+    }
 
     return sent_bytes;
 }
@@ -224,7 +240,8 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
     recv_bytes = recv(fd, info, 2, 0);
 
     if(recv_bytes < 2) {
-        // *status = TODO: codigo de error
+        *status = SERVER_ERROR;
+        return NULL;
     }
 
     *status = info[0];
@@ -245,9 +262,28 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
 
     rta[rta_len] = '\0';
 
-    enum get_status status;
-
     return rta;
+}
+
+static void send_receive_put(int fd, char* username, char* password) {
+    int sent_bytes = send_put_request(fd, username, password);
+
+    // TODO: Chequear si terminamos el programa aca
+    if(sent_bytes <= 0) {
+        fprintf(stderr, "[ERROR] PUT REQUEST NOT SENT");
+        // exit(0);
+        // tendria que ser un goto
+    }
+
+    uint8_t status;
+    int rcv_bytes = receive_put_reply(fd, &status);
+
+    if(recv_bytes <= 0) {
+        fprintf(stderr, "[ERROR] PUT REPLY NOT RECEIVED");
+        // goto
+    } else {
+        printf("PUT RESPONSE STATUS: ");
+    }
 }
 
 static int send_put_request(int fd, char* username, char* password) {
@@ -268,20 +304,15 @@ static int send_put_request(int fd, char* username, char* password) {
 
     free(request);
 
-    // TODO: Chequear si terminamos el programa aca
-    if(sent_bytes <= 0) {
-        fprintf(stderr, "[ERRROR] PUT REQUEST NOT SENT");
-        exit(0);
-    }
     return sent_bytes;
 }
 
-static uint8_t receive_put_reply(int fd) {
+static int receive_put_reply(int fd, uint8_t* status) {
     int rcv_bytes;
     uint8_t reply[1];
     rcv_bytes = recv(fd, reply, 1, 0);
 
-    return reply;
+    return rcv_bytes;
 }
 
 static int send_configbuffsize_request(int fd, unsigned int size) {
@@ -303,6 +334,16 @@ static uint8_t receive_configbuffsize_reply(int fd) {
     rcv_bytes = recv(fd, reply, 1, 0);
 
     return reply;
+}
+
+// TOGGLE 
+static uint8_t send_and_receive_configstatus(int fd, uint8_t field, uint8_t status) {
+
+    if(send_and_receive_configstatus(fd, field, status) <= 0) {
+        // ERROR
+    }
+
+
 }
 
 // TOGGLE
