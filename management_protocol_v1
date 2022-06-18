@@ -106,7 +106,7 @@ REQUEST
 <<
 	 Request for PUT ACTION
 		+---------+--------+----------+----------+----------+----------+
-		| ACTION  | FIELD  | NAMELEN  | NAME 	  | PASSLEN  | PASS     |
+		| ACTION  | FIELD  | NAMELEN  | NAME 	   | PASSLEN  | PASS     |
 		+---------+--------+----------+----------+----------+----------+
 		|  X'01'  | X'00'  | 1        | 1 to 255 | 1        | 1 to 255 |
 		+---------+--------+----------+----------+----------+----------+
@@ -215,7 +215,7 @@ REQUEST
 <<
 	 Request for DELETE ACTION
 		+---------+--------+---------+----------+
-		| ACTION  | FIELD  | KEYLEN  |  KEY     |
+		| ACTION  | FIELD  | ULEN    | USERNAME |
 		+---------+--------+---------+----------+
 		|  X'05'  | X'00'  | 1       | 1 to 255 |
 		+---------+--------+---------+----------+
@@ -237,15 +237,3 @@ REQUEST
 			o ERROR_INVALID_FIELD X'01'
 			o ERROR_INVALID_KEYLEN X'02'
 			o UNKOWN_USER_FAIL X'03'
-		
-		
-		
-		
-		
-		
-		
-		
-		
-
-
-

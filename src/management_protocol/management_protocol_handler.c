@@ -121,11 +121,28 @@ static void addUser(int fd, char* username, char* password) {
 
 }
 
+static void deleteUser(int fd, char* username) {
+
+}
+
 static void setBufferSize(int fd, unsigned int size) {
     int sent_bytes = send_set_request(fd, size);
 }
 
 // Requests y replies
+static uint8_t receive_delete_request(int fd, char* status) {
+
+}
+
+static int send_delete_response(int fd,  uint8_t status) {
+    int sent_bytes = 0;
+    uint8_t* request = malloc(1);
+    request[0] = status; // DELETE
+    sent_bytes = send(fd, request, 1, 0);
+
+    free(request);
+    return sent_bytes;
+}
 
 static int send_get_request(int fd, uint8_t command) {
     int sent_bytes = 0;
