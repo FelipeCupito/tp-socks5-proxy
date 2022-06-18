@@ -76,7 +76,7 @@ unsigned int copy_read(struct selector_key *key) {
     if(is_client){
       add_received_bytes(n);
       //TODO: -> pop3
-      pop3_sniff(, ptr, n);
+      // pop3_sniff(, ptr, n);
     }
   } else {
     ATTACHMENT(key)->status = status_close;
@@ -96,26 +96,6 @@ unsigned int copy_read(struct selector_key *key) {
     ret = DONE;
   }
   return ret;
-}
-
-static void pop3_sniff(struct pop3_sniffer *s, uint8_t *ptr, ssize_t size){
-    if(!pop3_is_parsing(s)){
-        pop3_sniffer_init(s);
-    }
-    if(!pop3_is_done(s)){
-        size_t count;
-        uint8_t *pop3_ptr = buffer_write_ptr(&s -> buffer,&count);
-        // Pierdo info :/
-        if((unsigned) size <= count){
-            memcpy(pop3_ptr,ptr,size);
-            buffer_write_adv(&s -> buffer,size);
-        }
-        else{
-            memcpy(pop3_ptr,ptr,count);
-            buffer_write_adv(&s -> buffer,count);
-        }
-        pop3_consume(s,&ATTACHMENT(key) -> socks_info);
-    }
 }
 
 unsigned copy_write(struct selector_key *key) {

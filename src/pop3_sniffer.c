@@ -5,21 +5,35 @@ void* freeElem(void * elem) {
   sniff_info *sniffinfo = (sniff_info*) elem;
   free(sniffinfo -> user);
   free(sniffinfo -> passwd);
+  free(sniffinfo -> proxy_username);
+  free(sniffinfo -> server_len);
+  // TODO check
+  free(sniffinfo -> addr);
 	free(sniffinfo);
   return 0;
 }
 
-void freeSniffer(struct pop3_sniffer* s) {
-  freeList(s -> list);
+void freeSniffer() {
+  freeList(list);
 }
 
-static void reset_read(struct pop3_sniffer* s, uint8_t remain){
+/*static*/ void reset_read(struct pop3_sniffer* s, uint8_t remain){
   s -> read = 0;
   s -> remaining = remain;
 }
 
-void pop3_sniffer_init_list(struct pop3_sniffer* s){
-  s -> list = newList(freeElem);
+struct sniff_info* getNext() {
+  listToBegin(list);
+  if (listHasNext(list)){
+		struct sniff_info* sniffinfo = ((sniff_info*) listNext(list));
+    return sniffinfo;
+  } else {
+    return NULL;
+  }
+}
+
+void pop3_sniffer_init_list(){
+  list = newList(freeElem);
 }
 void pop3_sniffer_init(struct pop3_sniffer* s){
   s -> state = pop3_sniffer_initial;
@@ -166,7 +180,7 @@ bool pop3_is_parsing(struct pop3_sniffer *s){
     return s -> state >= pop3_sniffer_initial && s -> state < pop3_sniffer_ok;
 }
 
-enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *s){
+enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *s, struct socks5 *socks5){
   while(buffer_can_read(buff) && !pop3_is_done(s)) {
     uint8_t b = buffer_read(buff);
     pop3_sniffer_parse(s,b);
@@ -190,27 +204,36 @@ enum pop3_sniffer_state pop3_sniffer_consume(buffer *buff, struct pop3_sniffer *
     }
     memcpy(sniffinfo -> passwd, s -> passwd, SIZEOF(s -> passwd));
 
-    insert(s -> list, sniffinfo);
+    // TODO agregar username a socks5
+    // sniffinfo -> proxy_username = malloc(SIZEOF(socks5 -> username));
+    // if (sniffinfo -> proxy_username == NULL) {
+    //   return pop3_sniffer_err;
+    // }
+    // memcpy(sniffinfo -> proxy_username, socks5 -> username, SIZEOF(socks5 -> username));
+    
+    sniffinfo -> server_len = &socks5 -> final_server_len;
+    sniffinfo -> addr = &socks5 -> final_server_addr;
+
   }
   return s -> state;
 }
 
-// static void pop3sniff(struct pop3_sniffer *s, uint8_t *ptr, ssize_t size){
-//     if(!pop3_is_parsing(s)){
-//         pop3_sniffer_init(s);
-//     }
-//     if(!pop3_is_done(s)){
-//         size_t count;
-//         uint8_t *pop3_ptr = buffer_write_ptr(&s -> buffer,&count);
-//         // Pierdo info :/
-//         if((unsigned) size <= count){
-//             memcpy(pop3_ptr,ptr,size);
-//             buffer_write_adv(&s -> buffer,size);
-//         }
-//         else{
-//             memcpy(pop3_ptr,ptr,count);
-//             buffer_write_adv(&s -> buffer,count);
-//         }
-//         pop3_consume(s,&ATTACHMENT(key) -> socks_info);
-//     }
-// }
+void pop3sniff(uint8_t *ptr, ssize_t size, struct socks5 *socks5, struct pop3_sniffer *s, buffer *buff){
+    if (!pop3_is_parsing(s)){
+      pop3_sniffer_init(s);
+    }
+    if(!pop3_is_done(s)){ 
+        size_t count;
+        uint8_t *pop3_ptr = buffer_write_ptr(buff,&count);
+        // Pierdo info :
+        if((unsigned) size <= count){
+            memcpy(pop3_ptr,ptr,size);
+            buffer_write_adv(buff,size);
+        }
+        else{
+            memcpy(pop3_ptr,ptr,count);
+            buffer_write_adv(buff,count);
+        }
+        pop3_sniffer_consume(buff, s, socks5);
+    }
+}
