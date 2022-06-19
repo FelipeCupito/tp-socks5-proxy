@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdint.h>
+
 #include "../buffer.h"
 #include "../logger.h"
 /* METHOD VALUES:

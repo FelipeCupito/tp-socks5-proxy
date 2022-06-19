@@ -47,7 +47,7 @@ enum admin_delete_state delete_field(admin_delete_parser *p, uint8_t b) {
   return p -> state;
 }
 
-enum admin_delete_state delete_key(admin_delete_parser *p, uint8_t b) {
+enum admin_delete_state delete_username(admin_delete_parser *p, uint8_t b) {
   *( (p->username) + p->read ) = b;
     p -> read ++;
 
@@ -79,7 +79,7 @@ enum admin_delete_state admin_delete_parser_feed(admin_delete_parser *p, uint8_t
     }
     break;
   case admin_delete_username:
-    p -> state = delete_key(p,b);
+    p -> state = delete_username(p,b);
     break;
   case admin_delete_done:
     p -> status = STATUS_OK;

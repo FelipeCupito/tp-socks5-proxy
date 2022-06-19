@@ -21,8 +21,8 @@ enum attribute {
 enum admin_edit_state {
   admin_edit_action,
   admin_edit_field,
-  admin_edit_keylen,
-  admin_edit_key,
+  admin_edit_ulen,
+  admin_edit_username,
   admin_edit_attribute,
   admin_edit_valuelen,
   admin_edit_value,
@@ -30,15 +30,15 @@ enum admin_edit_state {
   admin_edit_error,
   admin_edit_error_action,
   admin_edit_error_field,
-  admin_edit_error_keylen,
+  admin_edit_error_ulen,
   admin_edit_error_attribute,
   admin_edit_error_valuelen,
 };
 
 typedef struct admin_edit_parser {
   enum admin_edit_state state;
-  uint8_t keylen;
-  uint8_t key[MAX_VALUE_SIZE];
+  uint8_t ulen;
+  uint8_t username[MAX_VALUE_SIZE];
   uint8_t field;
   uint8_t action;
   enum attribute attr;

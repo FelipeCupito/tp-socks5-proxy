@@ -60,6 +60,7 @@ server
 
 # History
 .bash-history
+.DS_Store
 
 # VSCode
 .vscode

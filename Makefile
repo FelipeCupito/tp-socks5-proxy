@@ -19,16 +19,19 @@ OTFILES=$(patsubst %.c,./%.o,$(TESTFILES))
 %.o: %.c $(HFILES)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all:$(OFILES)
+all:$(OFILES) 
 	$(CC) $(OFILES) $(CFLAGS) $(LDFLAG) -o server
+
+client:
+	cd management_protocol; make all;
 
 test:$(OTFILES)
 	cd test; make all
 
 clean:
-	cd test; make clean; cd ..; rm -rf $(OFILES) server
+	cd test; make clean; cd ..; cd management_protocol; make clean; cd ..; rm -rf $(OFILES) server
 
-	
+
  #-Werror pasa los w a errores
 
 .PHONY: all clean
