@@ -6,7 +6,8 @@ static int send_get_request(int fd, uint8_t command);
 static uint8_t receive_toggle_reply(int fd);
 static void getUsers(int fd);
 static void getPasswords(int fd);
-// char* token = "somos_grupo_6";
+
+bool return_main = false;
 
 void login(int fd, struct manage_args* args) {
     char * password = args->try_password;
@@ -149,9 +150,8 @@ void getReceivedBytes(int fd) {
 }
 
 static void addUser(int fd, char* username, char* password) {
-    int sent_bytes = send_put_request(fd, username, password);
-
-    
+    printf("ADD USER ACTION REQUESTED\n");
+    send_receive_put(fd, username, password);
 }
 
 static void deleteUser(int fd, char* username) {
@@ -193,6 +193,8 @@ static uint8_t* send_receive_get(int fd, uint8_t command) {
     int sent_bytes = send_get_request(fd, command);
 
     if(sent_bytes <= 0) {
+        perror(errno);
+        printf("[GET] Server error\n");
         return NULL;
     }
     uint8_t status;
@@ -200,11 +202,10 @@ static uint8_t* send_receive_get(int fd, uint8_t command) {
 
     if(reply == NULL) {
         if(status != STATUS_OK) {
-            // TODO: completar los status 
-            printf("GET RESPONSE STATUS: ");
+            print_get_response(status);
         } else {
-            // Fijarse como responder a un status no conocido
-            fprintf(stderr, "UNKNOWN RESPONSE");
+            perror(errno);
+            printf("[GET] Server error\n");
         }
     }
 
@@ -222,13 +223,6 @@ static int send_get_request(int fd, uint8_t command) {
 
     // Return number of sent bytes / -1 if error
     sent_bytes = send(fd, request, 2, 0);
-
-    free(request);
-
-    if(sent_bytes <= 0) {
-        fprintf(stderr, "[ERROR] GET REQUEST NOT SENT\n");
-        // goto: close(fd) ...
-    }
 
     return sent_bytes;
 }
@@ -255,6 +249,8 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
 
     // Chequear si hay espacio suficiente
     if(rta == NULL) {
+        perror(errno);
+        printf("[GET] Not enough space for buffer");
         return NULL;
     }
 
@@ -268,21 +264,20 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
 static void send_receive_put(int fd, char* username, char* password) {
     int sent_bytes = send_put_request(fd, username, password);
 
-    // TODO: Chequear si terminamos el programa aca
+    // TODO: Chequear manejo de errores
     if(sent_bytes <= 0) {
-        fprintf(stderr, "[ERROR] PUT REQUEST NOT SENT");
-        // exit(0);
-        // tendria que ser un goto
+        perror(errno);
+        printf("[PUT] Error in sending request\n");
     }
 
     uint8_t status;
     int rcv_bytes = receive_put_reply(fd, &status);
 
     if(recv_bytes <= 0) {
-        fprintf(stderr, "[ERROR] PUT REPLY NOT RECEIVED");
-        // goto
+        perror(errno);
+        printf("[PUT] Server error\n");
     } else {
-        printf("PUT RESPONSE STATUS: ");
+        print_put_response(status);
     }
 }
 
@@ -315,6 +310,27 @@ static int receive_put_reply(int fd, uint8_t* status) {
     return rcv_bytes;
 }
 
+static void send_receive_configbuffsize(int fd, unsigned int size) {
+    if(send_configbuffsize_request(fd, size) <= 0) {
+        printf("[CONFIGBUFFSIZE] Error in sending request\n");
+        perror(errno);
+    }
+
+    uint8_t status;
+    int recv_bytes = receive_configbuffsize_reply(fd, &status);
+
+    if(recv_bytes <= 0) {
+        if(recv_bytes < 0) {
+            // Negativo -> error
+            perror(errno);
+            
+        }
+        printf("[CONFIGBUFFSIZE] Server error\n");
+    } else {
+        print_configbuffsize_response(status);
+    }
+}
+
 static int send_configbuffsize_request(int fd, unsigned int size) {
     int sent_bytes = 0;
     uint8_t request[2];
@@ -328,22 +344,36 @@ static int send_configbuffsize_request(int fd, unsigned int size) {
     return sent_bytes;
 }
 
-static uint8_t receive_configbuffsize_reply(int fd) {
+static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status) {
     int rcv_bytes;
     uint8_t reply[1];
     rcv_bytes = recv(fd, reply, 1, 0);
 
-    return reply;
+    *status = reply;
+
+    return recv_bytes;
 }
 
 // TOGGLE 
-static uint8_t send_and_receive_configstatus(int fd, uint8_t field, uint8_t status) {
+static uint8_t send_receive_configstatus(int fd, uint8_t field, uint8_t status) {
 
-    if(send_and_receive_configstatus(fd, field, status) <= 0) {
-        // ERROR
+    if(send_configstatus_request(fd, field, status) <= 0) {
+        perror(errno);
     }
 
+    uint8_t reply_status;
+    int recv_bytes = receive_configstatus_reply(fd, &reply_status);
 
+    // Check if error
+    if(recv_bytes <= 0) {
+        if(recv_bytes < 0) {
+            // Negativo -> error
+            perror(errno);
+        }
+        printf("[CONFIGSTATUS] Server error\n");
+    } else {
+        print_configstatus_response(status);
+    }
 }
 
 // TOGGLE
@@ -365,10 +395,45 @@ static int send_configstatus_request(int fd, uint8_t field, uint8_t status) {
 }
 
 // TOGGLE
-static uint8_t receive_configstatus_reply(int fd) {
+static uint8_t receive_configstatus_reply(int fd, uint8_t* status) {
     int rcv_bytes;
     uint8_t reply;
     rcv_bytes = recv(fd, &reply, 1, 0);
 
-    return reply;
+    *status = reply;
+    return recv_bytes;
+}
+
+// Reply status message
+
+static void print_put_response(int status) {
+    if(status >= 0 && status < PUT_MSG_SIZE) {
+        printf("Response: [PUT] %s\n", put_msg[status]);
+    } else {
+        printf("[PUT] Unknown status\n");
+    }
+}
+
+static void print_configstatus_response(int status) {
+    if(status >= 0 && status < CONFIGSTATUS_MSG_SIZE) {
+        printf("Response: [CONFIGSTATUS] %s\n", configstatus_msg[status]);
+    } else {
+        printf("[CONFIGSTATUS] Unknown status\n");
+    }
+}
+
+static void print_configbuffsize_response(int status) {
+    if(status >= 0 && status < CONFIGBUFFSIZE_MGS_SIZE) {
+        printf("Response: [CONFIGBUFFSIZE] %s\n", configbuffsize_msg[status]);
+    } else {
+        printf("[CONFIGSTATUS] Unknown status\n");
+    }
+}
+
+static void print_get_response(int status) {
+    if(status >= 0 && status < GET_MSG_SIZE) {
+        printf("Response: [GET] %s\n", get_msg[status]);
+    } else {
+        printf("[GET] Unknown status\n");
+    }
 }

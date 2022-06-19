@@ -9,6 +9,17 @@
 #include "../parsers/admin_configstatus.h"
 
 #define GET_RESPONSE_SIZE 256
+#define SERVER_ERROR 0xFF
+
+#define GET_MSG_SIZE 3
+#define PUT_MSG_SIZE 4
+#define CONFIGSTATUS_MSG_SIZE 4
+#define CONFIGBUFFSIZE_MGS_SIZE 4
+
+char* get_msg[] = {"Success", "Invalid action", "Invalid option"};
+char* put_msg[] = {"Success", "Invalid action", "Invalid username length", "Invalid password length"};
+char* configstatus_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid status"};
+char* configbuffsize_msg[]= {"Success", "Invalid action", "Invalid buffer size length", "Invalid buffer size"};
 
 // Chequear desp cuando mergeemos branches
 // Agregar STATUS_ERROR_IN_PASS
@@ -26,20 +37,6 @@ enum get_status {
     GET_STATUS_SERVER_ERROR = 0x03
 } get_status;
 
-enum set_status {
-    SET_STATUS_OK = 0x00,
-    SET_STATUS_INVALID_ACTION = 0x01,
-    SET_STATUS_INVALID_SIZE_LEN = 0x02,
-    SET_STATUD_INVALID_SIZE = 0x03
-} set_status;
-
-enum toggle_status {
-    TOGGLE_STATUS_OK = 0x00,
-    TOGGLE_STATUS_INVALID_ACTION = 0x01,
-    TOGGLE_STATUS_INVALID_FIELD = 0x02,
-    TOGGLE_STATUS_INVALID_STATUS = 0x03,
-} toggle_status;
-
 enum list_options {
     USERS,
     PASSWORDS,
@@ -54,11 +51,6 @@ enum get_options {
     HISTORIC_CONNECTIONS,
     CONCURRENT_CONNECTIONS,
 } get_options;
-
-struct get_reply {
-    int status;
-    char* reply;
-} get_reply;
 
 void login(int fd, struct manage_args* args);
 void executeCommands(int fd, struct manage_args* args);
