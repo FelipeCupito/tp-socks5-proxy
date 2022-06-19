@@ -36,20 +36,46 @@ static void print_delete_response(int status);
 static void getUsers(int fd);
 static void getPasswords(int fd);
 
-bool return_main = false;
+char* get_msg[] = {"Success", "Invalid action", "Invalid option"};
+char* put_msg[] = {"Success", "Invalid action", "Invalid username length", "Invalid password length"};
+char* edit_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid username length", "Invalid attribute", "Invalid value length"};
+// TODO: Preguntar que es invalid field en delete
+char* delete_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid username length", "Unknown user fail"};
+char* configstatus_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid status"};
+char* configbuffsize_msg[]= {"Success", "Invalid action", "Invalid buffer size length", "Invalid buffer size"};
+
+enum list_options {
+    USERS,
+    PASSWORDS,
+    BUFFERSIZE,
+    AUTH_STATUS,
+    SPOOFING_STATUS,
+} list_options;
+
+enum get_options {
+    SENT_BYTES,
+    RECEIVED_BYTES,
+    HISTORIC_CONNECTIONS,
+    CONCURRENT_CONNECTIONS,
+} get_options;
 
 void login(int fd, struct manage_args* args) {
     char * password = args->try_password;
 
     // Creamos primer mensaje
     size_t password_len = strlen(password);
-    char* msg = malloc(password_len + 3);
+    uint8_t* msg = NULL;
+    msg = realloc(msg, 2 + password_len + 2);
     msg[0] = 0x00;
     msg[1] = password_len;
     strcpy((char *)(msg + 2), password);
     
+    printf("COde %u\n", msg[0]);
+    printf("pass len: %u\n", msg[1]);
+    printf("About to send auth with %s\n", (char*) (msg + 2));
     // using send due to connected state
-    send(fd, msg, strlen(msg), 0x80000);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
+    int bytes = send(fd, msg, strlen((char*)msg), MSG_NOSIGNAL);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
+    printf("bytes sent: %d\n", bytes);
 
     // recibir respuesta
     char res[1];
@@ -247,7 +273,7 @@ static uint8_t send_delete_request(int fd, char* username) {
     request[2] = username_len;
     strcpy((char*) (request + 3), username);
 
-    sent_bytes = send(fd, request, strlen((char*) request), 0x80000);
+    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
 
     free(request);
     return sent_bytes;
@@ -380,7 +406,7 @@ static int send_put_request(int fd, char* username, char* password) {
     request[3 + username_len] = password_len;
     strcpy((char*) (request + 4 + username_len), password);
 
-    sent_bytes = send(fd, request, strlen((char*) request), 0x80000);
+    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
 
     free(request);
 
@@ -432,7 +458,7 @@ static int send_edit_request(int fd, char* username, uint8_t attribute, char* va
     request[4 + username_len] = value_len;
     strcpy((char*) (request + 5 + username_len), value);
 
-    sent_bytes = send(fd, request, strlen((char*) request), 0x80000);
+    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
 
     // TODO: ver cuando hacer el free
     free(request);
@@ -482,7 +508,7 @@ static int send_configbuffsize_request(int fd, unsigned int size) {
     request[0] = 0x03;
     request[1] = size;
 
-    sent_bytes = send(fd, request, 2, 0x80000);
+    sent_bytes = send(fd, request, 2, MSG_NOSIGNAL);
 
     free(request);
     return sent_bytes;

@@ -14,7 +14,7 @@
 #define DEFAULT_MNG_ADDR_V4 "127.0.0.1"
 
 
-struct manage_args {
+typedef struct manage_args {
     bool authorized;
 
     char* mng_addr;

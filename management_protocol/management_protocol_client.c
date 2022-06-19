@@ -28,6 +28,11 @@ int main(const int argc, char** argv) {
     signal(SIGTERM, sigterm_handler);
     signal(SIGINT, sigterm_handler);
 
+    if(args.try_password == NULL) {
+      printf("INTRODUCE PASS\n");
+      close(fd);
+      exit(1);
+    }
     login(fd, &args);
 
     executeCommands(fd, &args);
