@@ -1,4 +1,4 @@
-#include "../../include/management_protocol/args_handler.h"
+#include "./include/args_handler.h"
 
 // Private functions
 static void mng_usage(char* command);

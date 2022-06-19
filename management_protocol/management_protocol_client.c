@@ -1,4 +1,4 @@
-#include "../../include/management_protocol/management_protocol_client.h"
+#include "./include/management_protocol_client.h"
 
 // funciones privadas
 static void sigterm_handler(const int signal);
