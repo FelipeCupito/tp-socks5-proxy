@@ -12,7 +12,9 @@
 static const uint8_t STATUS_OK                      = 0X00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_KEYLEN    = 0x03;
+static const uint8_t STATUS_ERROR_INVALID_ULEN      = 0x03;
+static const uint8_t STATUS_ERROR                   = 0x04;
+static const uint8_t STATUS_UNKNOWN_USER_FAIL       = 0x05;
 
 static const uint8_t DELETE_ACTION = 0x05;
 static const uint8_t USERS_FIELD = 0x00;
@@ -22,23 +24,24 @@ static const uint8_t USERS_FIELD = 0x00;
 enum admin_delete_state {
   admin_delete_action,
   admin_delete_field,
-  admin_delete_keylen,
-  admin_delete_key,
+  admin_delete_ulen,
+  admin_delete_username,
   admin_delete_done,
   admin_delete_error,
   admin_delete_error_action,
   admin_delete_error_field,
-  admin_delete_error_keylen,
+  admin_delete_error_ulen,
 };
 
 typedef struct admin_delete_parser {
   enum admin_delete_state state;
-  uint8_t keylen;
-  uint8_t key[MAX_KEY_SIZE];
+  uint8_t ulen;
+  uint8_t username[MAX_KEY_SIZE];
   uint8_t field;
   uint8_t action;
   uint8_t read;
   uint8_t remaining;
+  uint8_t status;
 } admin_delete_parser;
 
 void admin_delete_parser_init(struct admin_delete_parser *p);

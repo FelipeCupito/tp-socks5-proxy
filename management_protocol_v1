@@ -39,7 +39,8 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 		      o OK X'00', the client has connected
 		      o ERROR_IN_VERSION X'01', incorrect version number
 			o ERROR_IN_PASSLEN: X'02', passlen was zero or negative
-			o AUTH_FAIL: X'03', the password didn’t match
+			o ERROR: X'03', unkown error
+			o AUTH_FAIL: X'04', the password didn’t match
 			
 REQUEST
 
@@ -81,6 +82,7 @@ REQUEST
 			o OK X'00'
 			o ERROR_INVALID_ACTION X'01'
 			o ERROR_INVALID_OPTION X'02'
+			o ERRO X'03', unknown error
 			
 <<
 	 Request for PUT ACTION
@@ -107,6 +109,7 @@ REQUEST
 			o ERROR_INVALID_FIELD X'02'
 			o ERROR_INVALID_NAMELEN X'03'
 			o ERROR_INVALID_PASSLEN X'04'
+			o ERROR, unkown error X'05'
 
 <<
 	Request for EDIT ACTION
@@ -136,7 +139,8 @@ REQUEST
 			o ERROR_INVALID_ULEN X'03'
 			o ERROR_INVALID_ATTRIBUTE X'04'
 			o ERROR_INVALID_VALUELEN X'05'
-			o UNKOWN_USER_FAIL X'06'
+			o ERROR, unknown X'06'
+			o UNKNOWN_USER_FAIL X'07'
 			
 <<
 	Request for CONFIGBUFFSIZE ACTION
@@ -161,6 +165,7 @@ REQUEST
 			o ERROR_INVALID_ACTION X'01'
 			o ERROR_INVALID_SIZELEN X'02'
 			o ERROR_INVALID_SIZE X'03'
+			o ERROR X'04'
 
 <<
 	 Request for CONFIGSTATUS ACTION
@@ -190,6 +195,7 @@ REQUEST
 			o ERROR_INVALID_ACTION X'01'
 			o ERROR_INVALID_FIELD  X'02'
 			o ERROR_INVALID_STATUS X'03'
+			o ERROR X'04'
 			
 <<
 	 Request for DELETE ACTION
@@ -215,7 +221,8 @@ REQUEST
 			o ERROR_INVALID_ACTION X'01'
 			o ERROR_INVALID_FIELD X'02'
 			o ERROR_INVALID_ULEN X'03'
-			o UNKOWN_USER_FAIL X'04'
+			o ERROR X'04'
+			o UNKNOWN_USER_FAIL X'05'
 9. References
 
 [1] RFC 1928 – SOCKS Protocolo Version 5 			https://datatracker.ietf.org/doc/html/rfc1928

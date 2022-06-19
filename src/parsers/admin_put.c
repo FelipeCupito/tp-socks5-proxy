@@ -86,12 +86,23 @@ enum admin_put_state admin_put_parser_feed (admin_put_parser *p, uint8_t b){
     }
     break;
   case admin_put_done:
-  case admin_put_error:
-  case admin_put_error_action:
-  case admin_put_error_field:
-  case admin_put_error_namelen:
-  case admin_put_error_passlen:
+    p -> status = STATUS_OK;
     break;
+  case admin_put_error:
+    p -> status = STATUS_ERROR;
+      break;
+  case admin_put_error_action:
+    p -> status = STATUS_ERROR_INVALID_ACTION;
+      break;
+  case admin_put_error_field:
+    p -> status = STATUS_ERROR_INVALID_FIELD;
+      break;
+  case admin_put_error_namelen:
+    p -> status = STATUS_ERROR_INVALID_NAMELEN;
+      break;
+  case admin_put_error_passlen:
+    p -> status = STATUS_ERROR_INVALID_PASSLEN;
+      break;
   default:
     log_print(FATAL, "Invalid state %d.\n", p->state);
     break;

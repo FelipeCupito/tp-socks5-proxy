@@ -12,6 +12,7 @@
 static const uint8_t STATUS_OK = 0X00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_OPTION = 0x02;
+static const uint8_t STATUS_ERROR = 0x03;
 
 static const uint8_t GET_ACTION = 0X00;
 
@@ -39,6 +40,7 @@ enum admin_get_state {
 typedef struct admin_get_parser {
   enum admin_get_state state;
   enum option option;
+  uint8_t status;
 } admin_get_parser;
 
 void admin_get_parser_init(struct admin_get_parser *p);

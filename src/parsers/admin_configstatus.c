@@ -28,7 +28,7 @@ enum admin_configstatus_state configstatus_field(admin_configstatus_parser *p, u
 
 enum admin_configstatus_state status(admin_configstatus_parser *p, uint8_t b) {
   if (b == ON || b == OFF) {
-    p -> status = b;
+    p -> config_status = b;
     p -> state = admin_configstatus_done;
   } else {
     p -> state = admin_configstatus_error_status;
@@ -49,10 +49,20 @@ enum admin_configstatus_state admin_configstatus_parser_feed(admin_configstatus_
     p -> state = status(p,b);
     break;
   case admin_configstatus_error:
+    p -> status = STATUS_ERROR;
+    break;
   case admin_configstatus_error_action:
+  p -> status = STATUS_ERROR_INVALID_ACTION;
+    break;
   case admin_configstatus_error_field:
+  p -> status = STATUS_ERROR_INVALID_FIELD;
+    break;
   case admin_configstatus_error_status:
+  p -> status = STATUS_ERROR_INVALID_STAUS;
+    break;
   case admin_configstatus_done:
+  p -> status = STATUS_OK;
+    break;
     break;
   default:
     log_print(FATAL, "Invalid state %d.\n", p->state);

@@ -13,11 +13,12 @@ static const uint8_t STATUS_OK                     = 0x00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION   = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_FIELD    = 0x02;
 static const uint8_t STATUS_ERROR_INVALID_STAUS    = 0x03;
+static const uint8_t STATUS_ERROR                  = 0x04;
 
 static const uint8_t CONFIGSTATUS_ACTION = 0x04;
 
 static const uint8_t CONFIGSTATUS_AUTH_FIELD = 0x03;
-static const uint8_t CONFIGSTATUS_SPOOFING_FIELD = 0x04;\
+static const uint8_t CONFIGSTATUS_SPOOFING_FIELD = 0x04;
 
 static const uint8_t ON = 0x00;
 static const uint8_t OFF = 0x01;
@@ -38,6 +39,7 @@ typedef struct admin_configstatus_parser {
   uint8_t action;
   uint8_t field;
   uint8_t status;
+  uint8_t config_status;
 } admin_configstatus_parser;
 
 void admin_configstatus_parser_init(struct admin_configstatus_parser *p);
