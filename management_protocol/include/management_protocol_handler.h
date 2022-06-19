@@ -21,7 +21,7 @@
 static const uint8_t STATUS_OK                     = 0x00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION   = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_FIELD    = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_STAUS    = 0x03;
+static const uint8_t STATUS_ERROR_INVALID_STATUS    = 0x03;
 
 static const uint8_t CONFIGSTATUS_ACTION = 0x04;
 

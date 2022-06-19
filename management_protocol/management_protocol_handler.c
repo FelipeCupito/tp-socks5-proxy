@@ -1,4 +1,4 @@
-#include "./include/management_protocol_handler.h"
+#include "include/management_protocol_handler.h"
 
 // Funciones privadas
 static void send_receive_delete(int fd, char* username);
@@ -21,7 +21,7 @@ static void send_receive_configbuffsize(int fd, unsigned int size);
 static int send_configbuffsize_request(int fd, unsigned int size);
 static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status);
 
-static uint8_t send_receive_configstatus(int fd, uint8_t field, uint8_t status);
+static void send_receive_configstatus(int fd, uint8_t field, uint8_t status);
 static int send_configstatus_request(int fd, uint8_t field, uint8_t status);
 static uint8_t receive_configstatus_reply(int fd, uint8_t* status);
 
@@ -241,7 +241,7 @@ static uint8_t send_delete_request(int fd, char* username) {
     size_t username_len = strlen(username);
     uint8_t *request = NULL;
     
-    realloc(request, 3 + username_len + 1);
+    request = realloc(request, 3 + username_len + 1);
     request[0] = 0x05;
     request[1] = 0x00;
     request[2] = username_len;
@@ -503,7 +503,7 @@ static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status) {
 /* ------------------------------------------------------ */ 
 
 // TOGGLE 
-static uint8_t send_receive_configstatus(int fd, uint8_t field, uint8_t status) {
+static void send_receive_configstatus(int fd, uint8_t field, uint8_t status) {
 
     if(send_configstatus_request(fd, field, status) <= 0) {
          perror(strerror(errno));
