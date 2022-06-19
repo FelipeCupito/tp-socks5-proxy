@@ -51,9 +51,17 @@ enum admin_connect_state admin_connect_parser_feed(admin_connect_parser *p, uint
       }
       break;
     case admin_connect_done:
+      p -> status = STATUS_OK;
+      break;
     case admin_connect_error:
+      p -> status = STATUS_ERROR;
+      break;
     case admin_connect_error_version:
+      p -> status = STATUS_ERROR_IN_VERSION;
+        break;
     case admin_connect_error_passlen:
+      p -> status = STATUS_ERROR_IN_PASSLEN;
+        break;
       break;
 
     default:

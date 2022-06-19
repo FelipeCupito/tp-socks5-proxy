@@ -112,12 +112,26 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
     p -> state = edit_value(p,b);
     break;
   case admin_edit_done:
+    p -> status = STATUS_OK;
+    break;
   case admin_edit_error:
+  p -> status = STATUS_ERROR;
+    break;
   case admin_edit_error_action:
+  p -> status = STATUS_ERROR_INVALID_ACTION;
+    break;
   case admin_edit_error_field:
+  p -> status = STATUS_ERROR_INVALID_FIELD;
+    break;
   case admin_edit_error_keylen:
+  p -> status = STATUS_ERROR_INVALID_KEYLEN;
+    break;
   case admin_edit_error_valuelen:
+  p -> status = STATUS_ERROR_INVALID_VALUELEN;
+    break;
   case admin_edit_error_attribute:
+  p -> status = STATUS_ERROR_INVALID_ATTRIBUTE;
+    break;
   default:
     log_print(FATAL, "Invalid state %d.\n", p->state);
     break;

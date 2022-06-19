@@ -15,6 +15,8 @@ static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
 static const uint8_t STATUS_ERROR_INVALID_KEYLEN    = 0x03;
 static const uint8_t STATUS_ERROR_INVALID_ATTRIBUTE = 0x04;
 static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x05;
+static const uint8_t STATUS_ERROR                   = 0x06;
+static const uint8_t STATUS_UNKOWN_USER_FAIL        = 0x07;
 
 static const uint8_t EDIT_ACTION = 0x02;
 static const uint8_t USERS_FIELD = 0x00;
@@ -57,6 +59,7 @@ typedef struct admin_edit_parser {
   uint8_t value[MAX_VALUE_SIZE];
   uint8_t remaining;
   uint8_t read;
+  uint8_t status;
 } admin_edit_parser;
 
 void admin_edit_parser_init(struct admin_edit_parser *p);

@@ -11,7 +11,9 @@
 
 static const uint8_t STATUS_OK                      = 0x00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
-static const uint8_t STATUS_ERROR_INVALID_SIZE      = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_SIZELEN   = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_SIZE      = 0x03;
+static const uint8_t STATUS_ERROR                   = 0x04;
 
 static const uint8_t CONFIGBUFF_ACTION = 0x03;
 
@@ -21,6 +23,7 @@ enum admin_configbuff_state {
   admin_configbuff_done,
   admin_configbuff_error,
   admin_configbuff_error_action,
+  admin_configbuff_error_sizelen,
   admin_configbuff_error_size,
 };
 
@@ -30,6 +33,7 @@ typedef struct admin_configbuff_parser {
   uint8_t action;
   uint8_t remaining;
   uint8_t read;
+  uint8_t status;
 } admin_configbuff_parser;
 
 void admin_configbuff_parser_init(struct admin_configbuff_parser *p);

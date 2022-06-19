@@ -48,9 +48,19 @@ enum admin_configbuff_state admin_configbuff_parser_feed(admin_configbuff_parser
     p -> state = size(p,b);
     break;
   case admin_configbuff_error:
+    p -> status = STATUS_ERROR;
+    break;
   case admin_configbuff_error_action:
+  p -> status = STATUS_ERROR_INVALID_ACTION;
+    break;
   case admin_configbuff_error_size:
+  p -> status = STATUS_ERROR_INVALID_SIZE;
+    break;
+  case admin_configbuff_error_sizelen:
+  p -> status = STATUS_ERROR_INVALID_SIZELEN;
+    break;
   case admin_configbuff_done:
+  p -> status = STATUS_OK;
     break;
   default:
     log_print(FATAL, "Invalid state %d.\n", p->state);

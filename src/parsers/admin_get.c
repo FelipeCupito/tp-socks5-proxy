@@ -45,10 +45,17 @@ enum admin_get_state admin_get_parser_feed (admin_get_parser *p, uint8_t b) {
       p -> state = get_option(b,p);
       break;
     case admin_get_done:
-    case admin_get_error:
-    case admin_get_error_option:
-    case admin_get_error_action:
+      p -> status = STATUS_OK;
       break;
+    case admin_get_error:
+      p -> status = STATUS_ERROR;
+        break;
+    case admin_get_error_option:
+      p -> status = STATUS_ERROR_INVALID_OPTION;
+        break;
+    case admin_get_error_action:
+      p -> status = STATUS_ERROR_INVALID_ACTION;
+        break;
     default:
       log_print(FATAL, "Invalid state %d.\n", p->state);
       break;

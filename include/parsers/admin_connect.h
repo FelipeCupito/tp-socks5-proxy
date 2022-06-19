@@ -12,7 +12,8 @@
 static const uint8_t STATUS_OK = 0X00;
 static const uint8_t STATUS_ERROR_IN_VERSION = 0x01;
 static const uint8_t STATUS_ERROR_IN_PASSLEN = 0X02;
-static const uint8_t STATUS_AUTH_FAIL = 0X03;
+static const uint8_t STATUS_ERROR = 0X03;
+static const uint8_t STATUS_AUTH_FAIL = 0X04;
 
 #define MAX_PASS_SIZE 0XFF
 
@@ -34,13 +35,10 @@ struct password {
 typedef struct admin_connect_parser {
   enum admin_connect_state state;
   struct password password;
-
   uint8_t remaining;
   uint8_t read;
-
-  uint8_t status;
-
   uint8_t version;
+  uint8_t status;
 } admin_connect_parser;
 
 void admin_connect_parser_init(struct admin_connect_parser *p);
