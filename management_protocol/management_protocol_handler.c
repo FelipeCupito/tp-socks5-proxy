@@ -36,13 +36,13 @@ static void print_delete_response(int status);
 static void getUsers(int fd);
 static void getPasswords(int fd);
 
-char* get_msg[] = {"Success", "Invalid action", "Invalid option"};
-char* put_msg[] = {"Success", "Invalid action", "Invalid username length", "Invalid password length"};
-char* edit_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid username length", "Invalid attribute", "Invalid value length"};
+char* get_msg[] = { "Success", "Invalid action", "Invalid option" };
+char* put_msg[] = { "Success", "Invalid action", "Invalid username length", "Invalid password length" };
+char* edit_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid username length", "Invalid attribute", "Invalid value length" };
 // TODO: Preguntar que es invalid field en delete
-char* delete_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid username length", "Unknown user fail"};
-char* configstatus_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid status"};
-char* configbuffsize_msg[]= {"Success", "Invalid action", "Invalid buffer size length", "Invalid buffer size"};
+char* delete_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid username length", "Unknown user fail" };
+char* configstatus_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid status" };
+char* configbuffsize_msg[] = { "Success", "Invalid action", "Invalid buffer size length", "Invalid buffer size" };
 
 enum list_options {
     USERS,
@@ -60,7 +60,7 @@ enum get_options {
 } get_options;
 
 void login(int fd, struct manage_args* args) {
-    char * password = args->try_password;
+    char* password = args->try_password;
 
     // Creamos primer mensaje
     size_t password_len = strlen(password);
@@ -68,20 +68,20 @@ void login(int fd, struct manage_args* args) {
     msg = realloc(msg, 2 + password_len + 2);
     msg[0] = 0x00;
     msg[1] = password_len;
-    strcpy((char *)(msg + 2), password);
-    
+    strcpy((char*) (msg + 2), password);
+
     printf("COde %u\n", msg[0]);
     printf("pass len: %u\n", msg[1]);
     printf("About to send auth with %s\n", (char*) (msg + 2));
     // using send due to connected state
-    int bytes = send(fd, msg, strlen((char*)msg), MSG_NOSIGNAL);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
+    int bytes = send(fd, msg, strlen((char*) msg), MSG_NOSIGNAL);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
     printf("bytes sent: %d\n", bytes);
 
     // recibir respuesta
     char res[1];
     recv(fd, res, 1, 0);
 
-    switch(res[0]) {
+    switch (res[0]) {
         case CONN_STATUS_OK:
             printf("[INFO] AUTHORIZED\n");
             args->authorized = true;
@@ -98,51 +98,50 @@ void login(int fd, struct manage_args* args) {
         default:
             fprintf(stderr, "[ERROR] UNKNOWN RESPONSE\n");
     }
-    
+
     // Liberar memoria reservada para el mensaje
     free(msg);
 }
 
 void executeCommands(int fd, struct manage_args* args) {
-    if(args->list_flag) {
-        switch (args->list_option)
-        {
-        case USERS:
-            getUsers(fd);
-            break;
-        case PASSWORDS:
-            getPasswords(fd);
-            break;
-        case BUFFERSIZE:
-            break;
-        case AUTH_STATUS:
-            break;
-        case SPOOFING_STATUS:
-            break;
-        default:
-            break;
+    if (args->list_flag) {
+        switch (args->list_option) {
+            case USERS:
+                getUsers(fd);
+                break;
+            case PASSWORDS:
+                getPasswords(fd);
+                break;
+            case BUFFERSIZE:
+                break;
+            case AUTH_STATUS:
+                break;
+            case SPOOFING_STATUS:
+                break;
+            default:
+                break;
         }
     }
-    if(args->get_flag) {
-        switch (args->get_option)
-        {
-        case SENT_BYTES:
-            //getSentBytes(fd);
-            break;
-        case RECEIVED_BYTES: 
-            break;
-        case HISTORIC_CONNECTIONS:
-            break;
-        case CONCURRENT_CONNECTIONS:
-            break;
-        default:
-            break;
+    if (args->get_flag) {
+        switch (args->get_option) {
+            case SENT_BYTES:
+                //getSentBytes(fd);
+                break;
+            case RECEIVED_BYTES:
+                break;
+            case HISTORIC_CONNECTIONS:
+                getHistoricalConnections(fd);
+                break;
+            case CONCURRENT_CONNECTIONS:
+                break;
+            default:
+                break;
         }
     }
-    if(args->add_flag) {
-        
+    if (args->add_flag) {
+
     }
-    if(args->set_flag) {
+    if (args->set_flag) {
         //setBufferSize(fd, args->set_size);
     }
 }
@@ -150,12 +149,12 @@ void executeCommands(int fd, struct manage_args* args) {
 static void getUsers(int fd) {
     uint8_t* users_list = send_receive_get(fd, 0x00);
 
-    if(users_list == NULL) {
+    if (users_list == NULL) {
         return; // Todo el chequeo de errores ya esta implementado
     }
 
     printf("USER LIST\n\n");
-    printf("%s",(char*) users_list);
+    printf("%s", (char*) users_list);
 
     // TODO: preguntar si es valido asi
     free(users_list);
@@ -164,30 +163,48 @@ static void getUsers(int fd) {
 static void getPasswords(int fd) {
     uint8_t* passwords_list = send_receive_get(fd, 0x01);
 
-    if(passwords_list == NULL) {
+    if (passwords_list == NULL) {
         return; // Todo el chequeo de errores ya esta implementado
     }
 
     printf("PASSWORD LIST\n\n");
-    printf("%s",(char*) passwords_list);
+    printf("%s", (char*) passwords_list);
 
     free(passwords_list);
 }
 
 static void getHistoricalConnections(int fd) {
+    uint8_t* connectionCount = send_receive_get(fd, 0x07);
+
+    if (connectionCount == NULL) {
+        return;
+    }
+
+    printf("HISTORICAL CONNECTIONS: %d\n", *connectionCount);
+
+    free(connectionCount);
 
 }
 
 static void getConcurrentConections(int fd) {
+    uint8_t* connectionCount = send_receive_get(fd, 0x07);
+
+    if (connectionCount == NULL) {
+        return;
+    }
+
+    printf("HISTORICAL CONNECTIONS: %d\n", *connectionCount);
+
+    free(connectionCount);
 
 }
 
 static char* getConnections(int fd, uint8_t command) {
     uint8_t* reply = send_receive_get(fd, command);
 
-    if(reply == NULL)
+    if (reply == NULL)
         return NULL;     // errores ya manejados
-    
+
 
 }
 
@@ -240,12 +257,12 @@ static void setBufferSize(int fd, unsigned int size) {
 
 // Requests y replies
 
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 /*                         DELETE                         */
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 
 static void send_receive_delete(int fd, char* username) {
-    if(send_delete_request(fd, username) <= 0) {
+    if (send_delete_request(fd, username) <= 0) {
         printf("[DELETE] Error in sending request\n");
         perror(strerror(errno));
     }
@@ -253,10 +270,11 @@ static void send_receive_delete(int fd, char* username) {
     uint8_t status;
     int recv_bytes = receive_delete_reply(fd, &status);
 
-    if(recv_bytes <= 0) {
+    if (recv_bytes <= 0) {
         perror(strerror(errno));
         printf("[DELETE] Server error\n");
-    } else {
+    }
+    else {
         print_edit_response(status);
     }
 }
@@ -265,8 +283,8 @@ static uint8_t send_delete_request(int fd, char* username) {
     // TODO preguntar
     int sent_bytes;
     size_t username_len = strlen(username);
-    uint8_t *request = NULL;
-    
+    uint8_t* request = NULL;
+
     request = realloc(request, 3 + username_len + 1);
     request[0] = 0x05;
     request[1] = 0x00;
@@ -288,15 +306,15 @@ static uint8_t receive_delete_reply(int fd, uint8_t* status) {
     return rcv_bytes;
 }
 
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 /*                           GET                          */
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 
 static uint8_t* send_receive_get(int fd, uint8_t command) {
     int sent_bytes = send_get_request(fd, command);
 
-    if(sent_bytes <= 0) {
-          perror(strerror(errno));
+    if (sent_bytes <= 0) {
+        perror(strerror(errno));
         printf("[GET] Server error\n");
         exit(1);
         return NULL;
@@ -304,11 +322,12 @@ static uint8_t* send_receive_get(int fd, uint8_t command) {
     uint8_t status;
     uint8_t* reply = receive_get_request(fd, &status);
 
-    if(reply == NULL) {
-        if(status != STATUS_OK) {
+    if (reply == NULL) {
+        if (status != STATUS_OK) {
             print_get_response(status);
-        } else {
-             perror(strerror(errno));
+        }
+        else {
+            perror(strerror(errno));
             printf("[GET] Server error\n");
         }
     }
@@ -336,18 +355,18 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
 
     recv_bytes = recv(fd, info, 2, 0);
 
-    if(recv_bytes <= 0) {
+    if (recv_bytes <= 0) {
         exit(1);
     }
 
-    if(recv_bytes < 2) {
+    if (recv_bytes < 2) {
         *status = SERVER_ERROR;
         return NULL;
     }
 
     *status = info[0];
     // Solo nos interesa guardar la respuesta con STATUS_OK
-    if(*status != STATUS_OK) {
+    if (*status != STATUS_OK) {
         return NULL;
     }
 
@@ -355,8 +374,8 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
     uint8_t* rta = malloc(rta_len + 1);
 
     // Chequear si hay espacio suficiente
-    if(rta == NULL) {
-          perror(strerror(errno));
+    if (rta == NULL) {
+        perror(strerror(errno));
         printf("[GET] Not enough space for buffer");
         return NULL;
     }
@@ -368,37 +387,38 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
     return rta;
 }
 
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 /*                           PUT                          */
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 
 static void send_receive_put(int fd, char* username, char* password) {
     int sent_bytes = send_put_request(fd, username, password);
 
     // TODO: Chequear manejo de errores
-    if(sent_bytes <= 0) {
-         perror(strerror(errno));
+    if (sent_bytes <= 0) {
+        perror(strerror(errno));
         printf("[PUT] Error in sending request\n");
     }
 
     uint8_t status;
     int rcv_bytes = receive_put_reply(fd, &status);
 
-    if(rcv_bytes <= 0) {
-         perror(strerror(errno));
+    if (rcv_bytes <= 0) {
+        perror(strerror(errno));
         printf("[PUT] Server error\n");
-    } else {
+    }
+    else {
         print_put_response(status);
     }
 }
 
 static int send_put_request(int fd, char* username, char* password) {
     int sent_bytes = 0;
-    uint8_t *request = NULL;
+    uint8_t* request = NULL;
     size_t username_len = strlen(username);
     size_t password_len = strlen(password);
 
-    request = realloc(request, 2 + 2*sizeof(int) + username_len + password_len + 1);
+    request = realloc(request, 2 + 2 * sizeof(int) + username_len + password_len + 1);
     request[0] = 0x01;
     request[1] = 0x00;
     request[2] = username_len;
@@ -421,23 +441,24 @@ static int receive_put_reply(int fd, uint8_t* status) {
     return rcv_bytes;
 }
 
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 /*                         EDIT                           */
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 
 static void send_receive_edit(int fd, char* username, uint8_t attribute, char* value) {
-    if(send_edit_request(fd, username, attribute, value) <= 0) {
+    if (send_edit_request(fd, username, attribute, value) <= 0) {
         printf("[EDIT] Error in sending the request\n");
-         perror(strerror(errno));
+        perror(strerror(errno));
     }
 
     uint8_t status;
     int rcv_bytes = receive_edit_reply(fd, &status);
 
-    if(rcv_bytes <= 0) {
-         perror(strerror(errno));
+    if (rcv_bytes <= 0) {
+        perror(strerror(errno));
         printf("[EDIT] Server error\n");
-    } else {
+    }
+    else {
         print_edit_response(status);
     }
 }
@@ -474,29 +495,30 @@ static uint8_t receive_edit_reply(int fd, uint8_t* status) {
     *status = reply[0];
 
     return rcv_bytes;
-} 
+}
 
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 /*                    CONFIGBUFFSIZE                      */
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 
 static void send_receive_configbuffsize(int fd, unsigned int size) {
-    if(send_configbuffsize_request(fd, size) <= 0) {
+    if (send_configbuffsize_request(fd, size) <= 0) {
         printf("[CONFIGBUFFSIZE] Error in sending request\n");
-         perror(strerror(errno));
+        perror(strerror(errno));
     }
 
     uint8_t status;
     int recv_bytes = receive_configbuffsize_reply(fd, &status);
 
-    if(recv_bytes <= 0) {
-        if(recv_bytes < 0) {
+    if (recv_bytes <= 0) {
+        if (recv_bytes < 0) {
             // Negativo -> error
-             perror(strerror(errno));
-            
+            perror(strerror(errno));
+
         }
         printf("[CONFIGBUFFSIZE] Server error\n");
-    } else {
+    }
+    else {
         print_configbuffsize_response(status);
     }
 }
@@ -524,28 +546,29 @@ static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status) {
     return rcv_bytes;
 }
 
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 /*                     CONFIGSTATUS                       */
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 
 // TOGGLE 
 static void send_receive_configstatus(int fd, uint8_t field, uint8_t status) {
 
-    if(send_configstatus_request(fd, field, status) <= 0) {
-         perror(strerror(errno));
+    if (send_configstatus_request(fd, field, status) <= 0) {
+        perror(strerror(errno));
     }
 
     uint8_t reply_status;
     int recv_bytes = receive_configstatus_reply(fd, &reply_status);
 
     // Check if error
-    if(recv_bytes <= 0) {
-        if(recv_bytes < 0) {
+    if (recv_bytes <= 0) {
+        if (recv_bytes < 0) {
             // Negativo -> error
-             perror(strerror(errno));
+            perror(strerror(errno));
         }
         printf("[CONFIGSTATUS] Server error\n");
-    } else {
+    }
+    else {
         print_configstatus_response(status);
     }
 }
@@ -561,7 +584,7 @@ static int send_configstatus_request(int fd, uint8_t field, uint8_t status) {
 
     sent_bytes = send(fd, request, 3, 0);
 
-    if(sent_bytes) {
+    if (sent_bytes) {
         // server error?
     }
 
@@ -578,54 +601,60 @@ static uint8_t receive_configstatus_reply(int fd, uint8_t* status) {
     return rcv_bytes;
 }
 
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 /*                   REPLY STATUS MESSAGE                 */
-/* ------------------------------------------------------ */ 
+/* ------------------------------------------------------ */
 
 static void print_get_response(int status) {
-    if(status >= 0 && status < GET_MSG_SIZE) {
+    if (status >= 0 && status < GET_MSG_SIZE) {
         printf("Response: [GET] %s\n", get_msg[status]);
-    } else {
+    }
+    else {
         printf("[GET] Unknown status\n");
     }
 }
 
 static void print_put_response(int status) {
-    if(status >= 0 && status < PUT_MSG_SIZE) {
+    if (status >= 0 && status < PUT_MSG_SIZE) {
         printf("Response: [PUT] %s\n", put_msg[status]);
-    } else {
+    }
+    else {
         printf("[PUT] Unknown status\n");
     }
 }
 
 static void print_edit_response(int status) {
-    if(status >= 0 && status < EDIT_MSG_SIZE) {
+    if (status >= 0 && status < EDIT_MSG_SIZE) {
         printf("Response: [EDIT] %s\n", edit_msg[status]);
-    } else {
+    }
+    else {
         printf("[EDIT] Unknown status\n");
     }
 }
 
 static void print_configstatus_response(int status) {
-    if(status >= 0 && status < CONFIGSTATUS_MSG_SIZE) {
+    if (status >= 0 && status < CONFIGSTATUS_MSG_SIZE) {
         printf("Response: [CONFIGSTATUS] %s\n", configstatus_msg[status]);
-    } else {
+    }
+    else {
         printf("[CONFIGSTATUS] Unknown status\n");
     }
 }
 
 static void print_configbuffsize_response(int status) {
-    if(status >= 0 && status < CONFIGBUFFSIZE_MGS_SIZE) {
+    if (status >= 0 && status < CONFIGBUFFSIZE_MGS_SIZE) {
         printf("Response: [CONFIGBUFFSIZE] %s\n", configbuffsize_msg[status]);
-    } else {
+    }
+    else {
         printf("[CONFIGSTATUS] Unknown status\n");
     }
 }
 
 static void print_delete_response(int status) {
-    if(status >= 0 && status < DELETE_MSG_SIZE) {
+    if (status >= 0 && status < DELETE_MSG_SIZE) {
         printf("Response: [DELETE] %s\n", delete_msg[status]);
-    } else {
+    }
+    else {
         printf("[DELETE] Unknown status\n");
     }
 }
