@@ -1,8 +1,4 @@
-#include <sys/socket.h>
-#include <sys/types.h> 
-#include <signal.h>
-
-#include "../../include/management_protocol/args_handler.h"
+#include "../../include/management_protocol/management_protocol_client.h"
 
 // funciones privadas
 static void sigterm_handler(const int signal);
@@ -13,7 +9,7 @@ static bool done = false;
 int main(const int argc, char** argv) {
 
     struct manage_args args;
-    parse_args(argc, argv, &args);
+    parse_args_handler(argc, argv, &args);
 
     args.authorized = false;
 

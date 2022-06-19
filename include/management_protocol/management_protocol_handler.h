@@ -4,9 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <errno.h>
 #include "args_handler.h"
-#include "../parsers/admin_get.h"
-#include "../parsers/admin_configstatus.h"
 
 #define MAX_FIELD_SIZE 256
 #define SERVER_ERROR 0xFF
@@ -17,6 +16,16 @@
 #define DELETE_MSG_SIZE 5
 #define CONFIGSTATUS_MSG_SIZE 4
 #define CONFIGBUFFSIZE_MGS_SIZE 4
+
+static const uint8_t STATUS_OK                     = 0x00;
+static const uint8_t STATUS_ERROR_INVALID_ACTION   = 0x01;
+static const uint8_t STATUS_ERROR_INVALID_FIELD    = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_STAUS    = 0x03;
+
+static const uint8_t CONFIGSTATUS_ACTION = 0x04;
+
+static const uint8_t CONFIGSTATUS_AUTH_FIELD = 0x03;
+static const uint8_t CONFIGSTATUS_SPOOFING_FIELD = 0x04;
 
 char* get_msg[] = {"Success", "Invalid action", "Invalid option"};
 char* put_msg[] = {"Success", "Invalid action", "Invalid username length", "Invalid password length"};

@@ -25,6 +25,13 @@ static uint8_t send_receive_configstatus(int fd, uint8_t field, uint8_t status);
 static int send_configstatus_request(int fd, uint8_t field, uint8_t status);
 static uint8_t receive_configstatus_reply(int fd, uint8_t* status);
 
+static void print_get_response(int status);
+static void print_put_response(int status);
+static void print_edit_response(int status);
+static void print_configstatus_response(int status);
+static void print_configbuffsize_response(int status);
+static void print_delete_response(int status);
+
 
 static void getUsers(int fd);
 static void getPasswords(int fd);
@@ -94,7 +101,7 @@ void executeCommands(int fd, struct manage_args* args) {
         switch (args->get_option)
         {
         case SENT_BYTES:
-            getSentBytes(fd);
+            //getSentBytes(fd);
             break;
         case RECEIVED_BYTES: 
             break;
@@ -110,7 +117,7 @@ void executeCommands(int fd, struct manage_args* args) {
         
     }
     if(args->set_flag) {
-        setBufferSize(fd, args->set_size);
+        //setBufferSize(fd, args->set_size);
     }
 }
 
@@ -149,6 +156,7 @@ void getConcurrentConections(int fd) {
 
 }
 
+/*
 void getSentBytes(int fd) {
     int sent_bytes = send_get_request(fd, 0x05);
 
@@ -164,6 +172,8 @@ void getSentBytes(int fd) {
     }
 
 }
+*/
+/*
 
 void getReceivedBytes(int fd) {
     int sent_bytes = send_get_request(fd, 0x06);
@@ -179,7 +189,7 @@ void getReceivedBytes(int fd) {
         }
     }
 }
-
+*/
 static void addUser(int fd, char* username, char* password) {
     printf("ADD USER ACTION REQUESTED\n");
     send_receive_put(fd, username, password);
@@ -190,7 +200,7 @@ static void deleteUser(int fd, char* username) {
 }
 
 static void setBufferSize(int fd, unsigned int size) {
-    int sent_bytes = send_set_request(fd, size);
+    //int sent_bytes = send_set_request(fd, size);
 }
 
 // Requests y replies
@@ -202,14 +212,14 @@ static void setBufferSize(int fd, unsigned int size) {
 static void send_receive_delete(int fd, char* username) {
     if(send_delete_request(fd, username) <= 0) {
         printf("[DELETE] Error in sending request\n");
-        perror(errno);
+        perror(strerror(errno));
     }
 
     uint8_t status;
     int recv_bytes = receive_delete_reply(fd, &status);
 
     if(recv_bytes <= 0) {
-        perror(errno);
+        perror(strerror(errno));
         printf("[DELETE] Server error\n");
     } else {
         print_edit_response(status);
@@ -251,7 +261,7 @@ static uint8_t* send_receive_get(int fd, uint8_t command) {
     int sent_bytes = send_get_request(fd, command);
 
     if(sent_bytes <= 0) {
-        perror(errno);
+          perror(strerror(errno));
         printf("[GET] Server error\n");
         return NULL;
     }
@@ -262,7 +272,7 @@ static uint8_t* send_receive_get(int fd, uint8_t command) {
         if(status != STATUS_OK) {
             print_get_response(status);
         } else {
-            perror(errno);
+             perror(strerror(errno));
             printf("[GET] Server error\n");
         }
     }
@@ -272,7 +282,6 @@ static uint8_t* send_receive_get(int fd, uint8_t command) {
 
 static int send_get_request(int fd, uint8_t command) {
     int sent_bytes = 0;
-    enum get_status status;
 
     uint8_t request[2];
 
@@ -287,7 +296,7 @@ static int send_get_request(int fd, uint8_t command) {
 
 static uint8_t* receive_get_request(int fd, uint8_t* status) {
     int recv_bytes;
-    uint8_t* info[2] = malloc(2);
+    uint8_t info[2];
 
     recv_bytes = recv(fd, info, 2, 0);
 
@@ -307,7 +316,7 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
 
     // Chequear si hay espacio suficiente
     if(rta == NULL) {
-        perror(errno);
+          perror(strerror(errno));
         printf("[GET] Not enough space for buffer");
         return NULL;
     }
@@ -328,15 +337,15 @@ static void send_receive_put(int fd, char* username, char* password) {
 
     // TODO: Chequear manejo de errores
     if(sent_bytes <= 0) {
-        perror(errno);
+         perror(strerror(errno));
         printf("[PUT] Error in sending request\n");
     }
 
     uint8_t status;
     int rcv_bytes = receive_put_reply(fd, &status);
 
-    if(recv_bytes <= 0) {
-        perror(errno);
+    if(rcv_bytes <= 0) {
+         perror(strerror(errno));
         printf("[PUT] Server error\n");
     } else {
         print_put_response(status);
@@ -379,14 +388,14 @@ static int receive_put_reply(int fd, uint8_t* status) {
 static void send_receive_edit(int fd, char* username, uint8_t attribute, char* value) {
     if(send_edit_request(fd, username, attribute, value) <= 0) {
         printf("[EDIT] Error in sending the request\n");
-        perror(errno);
+         perror(strerror(errno));
     }
 
     uint8_t status;
     int rcv_bytes = receive_edit_reply(fd, &status);
 
-    if(recv_bytes <= 0) {
-        perror(errno);
+    if(rcv_bytes <= 0) {
+         perror(strerror(errno));
         printf("[EDIT] Server error\n");
     } else {
         print_edit_response(status);
@@ -422,9 +431,9 @@ static uint8_t receive_edit_reply(int fd, uint8_t* status) {
     uint8_t reply[1];
     rcv_bytes = recv(fd, reply, 1, 0);
 
-    *status = reply;
+    *status = reply[0];
 
-    return recv_bytes;
+    return rcv_bytes;
 } 
 
 /* ------------------------------------------------------ */ 
@@ -434,7 +443,7 @@ static uint8_t receive_edit_reply(int fd, uint8_t* status) {
 static void send_receive_configbuffsize(int fd, unsigned int size) {
     if(send_configbuffsize_request(fd, size) <= 0) {
         printf("[CONFIGBUFFSIZE] Error in sending request\n");
-        perror(errno);
+         perror(strerror(errno));
     }
 
     uint8_t status;
@@ -443,7 +452,7 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
     if(recv_bytes <= 0) {
         if(recv_bytes < 0) {
             // Negativo -> error
-            perror(errno);
+             perror(strerror(errno));
             
         }
         printf("[CONFIGBUFFSIZE] Server error\n");
@@ -470,9 +479,9 @@ static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status) {
     uint8_t reply[1];
     rcv_bytes = recv(fd, reply, 1, 0);
 
-    *status = reply;
+    status = reply;
 
-    return recv_bytes;
+    return rcv_bytes;
 }
 
 /* ------------------------------------------------------ */ 
@@ -483,7 +492,7 @@ static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status) {
 static uint8_t send_receive_configstatus(int fd, uint8_t field, uint8_t status) {
 
     if(send_configstatus_request(fd, field, status) <= 0) {
-        perror(errno);
+         perror(strerror(errno));
     }
 
     uint8_t reply_status;
@@ -493,7 +502,7 @@ static uint8_t send_receive_configstatus(int fd, uint8_t field, uint8_t status) 
     if(recv_bytes <= 0) {
         if(recv_bytes < 0) {
             // Negativo -> error
-            perror(errno);
+             perror(strerror(errno));
         }
         printf("[CONFIGSTATUS] Server error\n");
     } else {
@@ -526,19 +535,12 @@ static uint8_t receive_configstatus_reply(int fd, uint8_t* status) {
     rcv_bytes = recv(fd, &reply, 1, 0);
 
     *status = reply;
-    return recv_bytes;
+    return rcv_bytes;
 }
 
 /* ------------------------------------------------------ */ 
 /*                   REPLY STATUS MESSAGE                 */
 /* ------------------------------------------------------ */ 
-
-static void print_get_response(int status);
-static void print_put_response(int status);
-static void print_edit_response(int status);
-static void print_configstatus_response(int status);
-static void print_configbuffsize_response(int status);
-static void print_delete_response(int status);
 
 static void print_get_response(int status) {
     if(status >= 0 && status < GET_MSG_SIZE) {

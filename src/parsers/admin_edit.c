@@ -38,11 +38,11 @@ enum admin_edit_state edit_field(admin_edit_parser *p, uint8_t b) {
 }
 
 enum admin_edit_state edit_username(admin_edit_parser *p, uint8_t b) {
-  *( (p->key) + p->read ) = b;
+  *( (p->username) + p->read ) = b;
     p -> read ++;
 
     if (remaining_is_done(p)) {
-      *( (p->key) + p->read ) = '\0';
+      *( (p->username) + p->read ) = '\0';
       p -> state = admin_edit_attribute;
     } else {
       p -> state = admin_edit_username;
@@ -115,7 +115,7 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
   case admin_edit_error:
   case admin_edit_error_action:
   case admin_edit_error_field:
-  case admin_edit_error_keylen:
+  case admin_edit_error_ulen:
   case admin_edit_error_valuelen:
   case admin_edit_error_attribute:
   default:

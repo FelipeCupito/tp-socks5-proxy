@@ -5,12 +5,10 @@
 #include <string.h>
 #include "../args.h"
 
+
 #define DEFAULT_MNG_PORT 8080
 #define DEFAULT_MNG_ADDR_V4 "127.0.0.1"
 
-struct parsers {
-
-} parsers;
 
 struct manage_args {
     bool authorized;
@@ -18,8 +16,6 @@ struct manage_args {
     char* mng_addr;
     unsigned int mng_port;
     uint8_t version;
-
-    struct parsers* parserList;
 
     char* try_password;
 
@@ -45,6 +41,6 @@ struct manage_args {
     
 } manage_args;
 
-void parse_args(const int argc, char** argv, struct manage_args* mng_args);
+void parse_args_handler(const int argc, char** argv, struct manage_args* mng_args);
 
 #endif
