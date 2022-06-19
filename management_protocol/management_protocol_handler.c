@@ -160,7 +160,7 @@ static char* getConnections(int fd, uint8_t command) {
     uint8_t* reply = send_receive_get(fd, command);
 
     if(reply == NULL)
-        return;     // errores ya manejados
+        return NULL;     // errores ya manejados
     
 
 }
@@ -306,7 +306,7 @@ static int send_get_request(int fd, uint8_t command) {
 
 static uint8_t* receive_get_request(int fd, uint8_t* status) {
     int recv_bytes;
-    uint8_t* info[2] = malloc(2);
+    uint8_t info[2];
 
     recv_bytes = recv(fd, info, 2, 0);
 

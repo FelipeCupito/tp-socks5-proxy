@@ -9,8 +9,8 @@ TEST=test/parser_tests
 
 HFILES=$(shell find $(HEADERS) -name '*.h' | sed 's/^.\///')
 FILES=$(shell find $(SRC) -name '*.c' | sed 's/^.\///')
-CLIENT_HFILES=$(shell find $(CLIENT_HEADERS) -name '*.h' | sed 's/^.\///')
-CLIENT_FILES=$(shell find $(CLIENT) -name '*.c' | sed 's/^.\///')
+CLIENT_HFILES=management_protocol/include
+CLIENT_FILES=$(wildcard management_protocol/*.c)
 TESTFILES=$(shell find $(TEST) -name '*.c' | sed 's/^.\///')
 # TESTFILES=$(wildcard tests/parser_tests/*.c)
 
@@ -28,7 +28,7 @@ all:$(OFILES)
 	$(CC) $(OFILES) $(CFLAGS) $(LDFLAG) -o server
 
 client:$(CLIENT_OFILES)
-	$(CC) $(CLIENT_OFILES) $(CFLAGS) $(LDFLAG) -o client
+	cd management_protocol; make all
 
 test:$(OTFILES)
 	cd test; make all
