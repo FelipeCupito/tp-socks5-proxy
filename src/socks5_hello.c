@@ -87,7 +87,7 @@ unsigned int hello_write(struct selector_key *key) {
       if (SELECTOR_SUCCESS == selector_set_interest(key->s,key->fd, OP_READ)) {
         if (data->method == METHOD_AUTH_REQUIRED && is_auth_enabled()) {
           ret = AUTH_READ;
-        } else if(data->method == METHOD_NO_ACCEPTABLE_METHODS && !is_auth_enabled()){
+        } else if(data->method == METHOD_NO_AUTH_REQUIRED && !is_auth_enabled()){
           ret = REQUEST_READ;
         }else{
           ret = DONE;
