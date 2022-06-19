@@ -56,6 +56,7 @@ server
 
 #txt
 *.txt
+!Wannaprove_Protocol_v0.txt
 
 # History
 .bash-history
