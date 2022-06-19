@@ -6,9 +6,13 @@
 
 static void on_hello_method(void *data, const uint8_t method) {
   uint8_t *selected = data;
-  if (method == METHOD_NO_AUTH_REQUIRED || method == METHOD_AUTH_REQUIRED ||
-      method >= 0xFA) {
-    *selected = method;
+  int aux = is_auth_enabled();
+  if(aux){
+    if(method == METHOD_AUTH_REQUIRED)
+      *selected = method;
+  }else{
+    if(method == METHOD_NO_AUTH_REQUIRED)
+      *selected = method;
   }
 }
 
@@ -18,6 +22,7 @@ void hello_read_init(const unsigned state, struct selector_key *key) {
   data->rb = &ATTACHMENT(key)->read_buffer;
   data->wb = &ATTACHMENT(key)->write_buffer;
   hello_parser_init(&data->parser);
+  data->method = METHOD_NO_ACCEPTABLE_METHODS;
   data->parser.data = &data->method;
   data->parser.on_auth_method = on_hello_method;
 }
@@ -44,7 +49,6 @@ unsigned int hello_read(struct selector_key *key) {
       if (SELECTOR_SUCCESS == selector_set_interest_key(key, OP_WRITE)) {
         // serializa en un buff la respuesta al hello
         if (hello_marshall(data->wb, data->method) == -1) {err = true;}
-        if (data->method == METHOD_NO_ACCEPTABLE_METHODS) {err = true;}
       } else {err = true;}
 
       ret = HELLO_WRITE;
@@ -81,10 +85,12 @@ unsigned int hello_write(struct selector_key *key) {
     if (!buffer_can_read(buff)) {
       //se mando el mensaje completo
       if (SELECTOR_SUCCESS == selector_set_interest(key->s,key->fd, OP_READ)) {
-        if (data->method == METHOD_AUTH_REQUIRED) {
+        if (data->method == METHOD_AUTH_REQUIRED && is_auth_enabled()) {
           ret = AUTH_READ;
-        } else {
+        } else if(data->method == METHOD_NO_ACCEPTABLE_METHODS && !is_auth_enabled()){
           ret = REQUEST_READ;
+        }else{
+          ret = DONE;
         }
       } else {
         // error en selector_set

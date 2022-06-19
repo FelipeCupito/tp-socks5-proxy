@@ -33,7 +33,7 @@ void request_init(const unsigned state, struct selector_key *key) {
 unsigned int request_read(struct selector_key *key) {
   request_data *data = &ATTACHMENT(key)->client_data.request;
   unsigned int ret = REQUEST_READ;
-  bool err = 0;
+  bool err = false;
 
   buffer *buff = data->rb;
   size_t size;
@@ -46,6 +46,7 @@ unsigned int request_read(struct selector_key *key) {
   } else {
     buffer_write_adv(buff, n);
     request_state st = request_consume(buff, &data->parser, &err);
+    //TODO: request_is_done el ultimo parametro no tiene que ser &err?????
     if (request_is_done(st, 0)) {
       ret = request_process(key, data);
     }

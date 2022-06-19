@@ -11,23 +11,18 @@
 
 #include "../buffer.h"
 #include "../logger.h"
-/*
 
+/*
 +----+------+----------+------+----------+
 |VER | ULEN |  UNAME   | PLEN |  PASSWD  |
 +----+------+----------+------+----------+
 | 1  |  1   | 1 to 255 |  1   | 1 to 255 |
 +----+------+----------+------+----------+
-
 */
+
 static const uint8_t AUTH_SUCCESS = 0X00;
 static const uint8_t AUTH_FAIL = 0X01;
 #define MAX_USR_PASS_SIZE 0XFF
-
-// enum auth_type {
-//   auth_socks,
-//   auth_mng,
-// }
 
 enum auth_state {
   auth_version,
@@ -75,6 +70,6 @@ enum auth_state auth_consume(buffer *b, auth_parser *p, bool *error);
 
 bool auth_is_done(const enum auth_state state, bool *error);
 
-int auth_marshal(buffer *b, const uint8_t status, uint8_t version);
+int auth_marshall(buffer *b, const uint8_t status);
 
 #endif

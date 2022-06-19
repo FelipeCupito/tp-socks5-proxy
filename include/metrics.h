@@ -15,7 +15,7 @@
 
 
 //INIT
-void inti_metrics();
+void init_metrics();
 
 // SETTERS
 void add_connection();

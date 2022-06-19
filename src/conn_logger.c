@@ -46,8 +46,14 @@ void log_conn( void* data, enum socks_response_status status) {
   int port = get_port(socks->client_addr);
   int port_dest = get_port(socks->final_server_addr);
 
-  log_print(LOG, "[%s]\t%s:%d ---> %s:%d %s", date, ip, port, ip_dest,
+  if(is_auth_enabled()){
+    log_print(LOG, "[%s] %s %s:%d ---> %s:%d %s", date, socks->user, ip, port, ip_dest,
             port_dest, get_status(status));
+  }else{
+    log_print(LOG, "[%s]\t%s:%d ---> %s:%d %s", date, ip, port, ip_dest,
+            port_dest, get_status(status));
+  }
+  
 }
 
 

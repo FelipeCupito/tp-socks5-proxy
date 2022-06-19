@@ -7,7 +7,7 @@ static int current_connections = 0;
 
 
 //INIT
-void inti_metrics(){
+void init_metrics(){
     sent_byte = 0;
     received_bytes = 0;
     historic_connections = 0;

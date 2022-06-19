@@ -1,19 +1,7 @@
 #include "../../include/parsers/hello.h"
-/*
 
-enum hello_state {
-  hello_version,
-  // Estamos leyendo la cantidad de metodos
-  hello_nmethods,
-  // Estamos leyendo los metodos
-  hello_methods,
-  hello_done,
-  hello_error_unsupported_version,
-}
 
-*/
-
-/*extern*/ void hello_parser_init(struct hello_parser* p) {
+void hello_parser_init(struct hello_parser* p) {
 	p->state = hello_version;
 	p->remaining = 0;
 }

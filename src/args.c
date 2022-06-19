@@ -11,22 +11,23 @@ void fill_sockaddr_v6(struct sockaddr_in6* addr, int port, char* ip);
 int fill_ip_sockaddr(const char *ip, struct sockaddr_in* addrV4, struct sockaddr_in6* addrV6);
 void fill_port_sockaddr(int port, struct sockaddr_in* addrV4, struct sockaddr_in6* addrV6);
 
-void parse_args(const int argc, char **argv, args *arguments) {
+void parse_args(const int argc, char **argv, config *configuration) {
 
-  memset(arguments, 0, sizeof(args));
+  //memset(configuration, 0, sizeof(config));
 
   // default socks proxy
-  fill_sockaddr_v4(&arguments->socksV4, DEFAULT_SOCKS_PORT, DEFAULT_SOCKS_ADDRESS_V4);
-  arguments->socksV4_flag = true;
-  fill_sockaddr_v6(&arguments->socksV6, DEFAULT_SOCKS_PORT, DEFAULT_SOCKS_ADDRESS_V6);
-  arguments->socksV6_flag = true;
+  fill_sockaddr_v4(&configuration->socksV4, DEFAULT_SOCKS_PORT, DEFAULT_SOCKS_ADDRESS_V4);
+  configuration->socksV4_flag = true;
+  fill_sockaddr_v6(&configuration->socksV6, DEFAULT_SOCKS_PORT, DEFAULT_SOCKS_ADDRESS_V6);
+  configuration->socksV6_flag = true;
 
-  // mng arguments
-  fill_sockaddr_v4(&arguments->mngV4, DEFAULT_MNG_PORT, DEFAULT_MNG_ADDRESS_V4);
-  arguments->mngV4_flag = true;
-  fill_sockaddr_v6(&arguments->mngV6, DEFAULT_MNG_PORT, DEFAULT_MNG_ADDRESS_V6);
+  // mng configuration
+  fill_sockaddr_v4(&configuration->mngV4, DEFAULT_MNG_PORT, DEFAULT_MNG_ADDRESS_V4);
+  configuration->mngV4_flag = true;
+  fill_sockaddr_v6(&configuration->mngV6, DEFAULT_MNG_PORT, DEFAULT_MNG_ADDRESS_V6);
   //TODO: sino (unable to bind socket_v6)
-  arguments->mngV6_flag = false;
+  configuration->mngV6_flag = false;
+
 
   // guardo los argumentos
   int c;
@@ -41,43 +42,43 @@ void parse_args(const int argc, char **argv, args *arguments) {
       break;
     case 'l':
       //ip socks
-      ipv = fill_ip_sockaddr(optarg, &arguments->socksV4, &arguments->socksV6);
+      ipv = fill_ip_sockaddr(optarg, &configuration->socksV4, &configuration->socksV6);
       if (ipv == -1) {
         log_print(LOG_ERROR, "invalid server ip addr: %s\n", optarg);
         goto finally;
       }
-      ipv == 4 ? (arguments->socksV6_flag = false) : (arguments->socksV4_flag = false);
+      ipv == 4 ? (configuration->socksV6_flag = false) : (configuration->socksV4_flag = false);
       break;
     case 'L':
-      ipv = fill_ip_sockaddr(optarg, &arguments->mngV4, &arguments->mngV6);
+      ipv = fill_ip_sockaddr(optarg, &configuration->mngV4, &configuration->mngV6);
       if (ipv == -1) {
         log_print(LOG_ERROR, "invalid Mng server ip addr: %s\n", optarg);
         goto finally;
       }
-      ipv == 4 ? (arguments->mngV6_flag = false) : (arguments->mngV4_flag = false);
+      ipv == 4 ? (configuration->mngV6_flag = false) : (configuration->mngV4_flag = false);
       break;
     case 'N':
-      arguments->disectors_enabled = false;
+      configuration->disectors_enabled = false;
       break;
     case 'p':
-      fill_port_sockaddr(port(optarg), &arguments->socksV4, &arguments->socksV6);
+      fill_port_sockaddr(port(optarg), &configuration->socksV4, &configuration->socksV6);
       break;
     case 'P':
-      fill_port_sockaddr(port(optarg), &arguments->mngV4, &arguments->mngV6);
+      fill_port_sockaddr(port(optarg), &configuration->mngV4, &configuration->mngV6);
       break;
     case 'u':
       if (nusers >= MAX_USERS) {
         log_print(LOG_ERROR, "maximum number of command line users reached: %d.\n",
             MAX_USERS);
       } else {
-        user(optarg, arguments->users + nusers);
+        user(optarg, configuration->users + nusers);
         nusers++;
+        configuration->users_size = nusers;
       }
       break;
     case 'v':
       version();
       exit(0);
-      break;
     default:
       log_print(LOG_ERROR, "unknown argument %d.\n", c);
     }

@@ -12,33 +12,30 @@
  */
 #include <arpa/inet.h>
 #include <errno.h>
-#include <limits.h>
 #include <netinet/in.h>
-#include <netinet/tcp.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h> // socket
-#include <sys/types.h>  // socket
 #include <unistd.h>
 
 #include "../include/socks5.h"
 #include "../include/args.h"
 #include "../include/selector.h"
 #include "../include/logger.h"
+#include "../include/server_config.h"
 
 
-#define SOCKS_BACKLOG 100               // la longitud máxima de la cola de conexiones pendientes
+#define SOCKS_BACKLOG 10 // la longitud máxima de la cola de conexiones pendientes
 #define MAX_FD 1024 // cantidad maxima de fd de aceptados por el selector
 #define INET_ADDRSTRLEN 16
 #define INET6_ADDRSTRLEN 46
+#define SELECT_TIMEOUT 10
 
 // funciones privadas
 char *init_server_v4(int *fd, struct sockaddr_in addr);
 char *init_server_v6(int *fd, struct sockaddr_in6 addr);
-static void sigterm_handler(const int signal);
+static void sigterm_handler(int signal);
 
 // variables
 static bool done = false;
@@ -56,37 +53,36 @@ int main(const int argc, char **argv) {
 
   char *err_msg = NULL;                   // se guarda el mensaje de error
   selector_status ss = SELECTOR_SUCCESS;  // status del selector
-  fd_selector selector = NULL;            // selector
-  args arguments;                         // argumentos del programa
+  fd_selector selector = NULL;            // selector                       // argumentos del programa
 
 
-  inti_metrics();
-
-  //guardo los argumntos 
-  parse_args(argc, argv, &arguments);
+  //init parametro del proxy
+  init_metrics();
+  config *configuration = init_config();
+  parse_args(argc, argv, configuration);
 
   // cierro stdin y stdout
   close(0);
   close(1);
 
   //  creo los todo los socket pasivos
-  if (arguments.socksV4_flag) {
-    err_msg = init_server_v4(&passive_fds[SOCKS_V4], arguments.socksV4);
+  if (configuration->socksV4_flag) {
+    err_msg = init_server_v4(&passive_fds[SOCKS_V4], configuration->socksV4);
     if (err_msg != NULL)
       goto finally;
   }
-  if (arguments.socksV6_flag) {
-    err_msg = init_server_v6(&passive_fds[SOCKS_V6], arguments.socksV6);
+  if (configuration->socksV6_flag) {
+    err_msg = init_server_v6(&passive_fds[SOCKS_V6], configuration->socksV6);
     if (err_msg != NULL)
       goto finally;
   }
-  if (arguments.mngV4_flag) {
-    err_msg = init_server_v4(&passive_fds[MNG_V4], arguments.mngV4);
+  if (configuration->mngV4_flag) {
+    err_msg = init_server_v4(&passive_fds[MNG_V4], configuration->mngV4);
     if (err_msg != NULL)
       goto finally;
   }
-  if (arguments.mngV6_flag) {
-    err_msg = init_server_v6(&passive_fds[MNG_V6], arguments.mngV6);
+  if (configuration->mngV6_flag) {
+    err_msg = init_server_v6(&passive_fds[MNG_V6], configuration->mngV6);
     if (err_msg != NULL)
       goto finally;
   }

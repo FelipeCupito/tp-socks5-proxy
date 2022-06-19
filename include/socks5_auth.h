@@ -11,14 +11,13 @@
 #include <sys/types.h>  // socket
 #include <unistd.h>
 
+#include "parsers/auth.h"
 #include "buffer.h"
 #include "stm.h"
 #include "selector.h"
 #include "logger.h"
 #include "socks5.h"
-
-
-
+#include "server_config.h"
 
 
 ///////////////////////////////////////////
@@ -31,9 +30,6 @@ unsigned int auth_read(struct selector_key *key);
 ///////////////////////////////////////////
 //AUTH_WRITE
 //////////////////////////////////////////
-
 unsigned int auth_write(struct selector_key *key);
-
-
 
 #endif
