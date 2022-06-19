@@ -1,66 +1,45 @@
-Metricas:
-	- Cantidad de usuarios
-	- Registro de conexiones
-		* fecha
-		* nombre usuario
-		* ip origen
-		* puerto origen
-		* ip destino
-		* puerto destino
-		* status code de socksv5
-	- Registro de passwords spoofeadas
-		* fecha
-		* nombre usuario
-		* password
-	- Conexiones por usuario ?
-		* NO hace falta
-	- Spoofing activado o no
-	- Auth activado o no
-	- Cantidad de bytes transferidos
-		* recibidos y enviados
-Acciones:
-	- list number of users
-	- add user?
-	- delete user?
-	- list connections
-		* historicas
-		* concurrentes
-	- list user connections
-		* NO es necesario
-	- list passwords spoofeadas
-	- set passwords?
-	- toggle auth required
-		* status de auth
-	- toggle spoofing
-		* status
-	- get bytes
-		* recibidos
-		* enviados
-	- get buffer size
-	- set buffer size
-	- get auth status
-	- get spoof status
+﻿Authors:										May - June 2022
+	Felipe Cupito
+	Juan Manuel De Luca
+	Azul Kim
+	Faustino Maggioni Duffy
 	
-	
-CONNECTION	
+					WANNAPPROVE Protocol Version 0
 
-<<
+1. Introduction
+
+The protocol defined here allows an administrator user for a server implementing SOCKS5 [1]. The main actions that this administrator can do are changing settings of the server and its state, mainly the users’ information. 
+
+2. Procedure
+
+When a TCP-based client wishes to take control of a SOCKS5 server, it must open a TCP connection to the WANNAPROVE (8080) port on the server system. Then, if this requestes succeed, the client enters must authenticate with the right admin password to be allowed to connect. For this it must sent the request details.
+
+The WANNAPROVE request is structured thus:
+
 	+--------+---------+----------+
 	|VERSION | PASSLEN |  PASSWD  |
 	+--------+---------+----------+
 	| X'00'  |  1      | 1 to 255 |
 	+--------+---------+----------+
->> 
+	
+	Where:
+		o VERSION protocol version: X’00’
+		o PASSLEN number of bytes of the incoming password
+		o PASSWD the actual password
+
+Then the WANNAPROVE server will evaluate the format of the request and if the password is correct and response as follows:
+
 	+--------+
 	|STATUS  |
 	+--------+
 	| 1      |
 	+--------+
-	STATUS:
-		OK: X'00'
-		ERROR_IN_VERSION: X'01'
-		ERROR_IN_PASSLEN: X'02'
-		AUTH_FAIL: X'03'
+	
+	Where STATUS can be:
+		      o OK X'00', the client has connected
+		      o ERROR_IN_VERSION X'01', incorrect version number
+			o ERROR_IN_PASSLEN: X'02', passlen was zero or negative
+			o AUTH_FAIL: X'03', the password didn’t match
 			
 REQUEST
 
@@ -215,7 +194,7 @@ REQUEST
 <<
 	 Request for DELETE ACTION
 		+---------+--------+---------+----------+
-		| ACTION  | FIELD  | ULEN		 | USERNAME |
+		| ACTION  | FIELD  | ULEN    | USERNAME |
 		+---------+--------+---------+----------+
 		|  X'05'  | X'00'  | 1       | 1 to 255 |
 		+---------+--------+---------+----------+
@@ -237,3 +216,6 @@ REQUEST
 			o ERROR_INVALID_FIELD X'02'
 			o ERROR_INVALID_ULEN X'03'
 			o UNKOWN_USER_FAIL X'04'
+9. References
+
+[1] RFC 1928 – SOCKS Protocolo Version 5 			https://datatracker.ietf.org/doc/html/rfc1928
