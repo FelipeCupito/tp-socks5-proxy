@@ -35,6 +35,8 @@ static void print_delete_response(int status);
 
 static void getUsers(int fd);
 static void getPasswords(int fd);
+static void getHistoricalConnections(int fd);
+static void getConcurrentConections(int fd);
 
 char* get_msg[] = { "Success", "Invalid action", "Invalid option" };
 char* put_msg[] = { "Success", "Invalid action", "Invalid username length", "Invalid password length" };
