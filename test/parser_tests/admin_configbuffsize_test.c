@@ -23,6 +23,7 @@ START_TEST(test_admin_configbuff_normal)
     FIXBUF(b, data);
     enum admin_configbuff_state st = admin_configbuff_consume(&b, &parser, &errored);
     ck_assert_uint_eq(admin_configbuff_done, st);
+    // TODO size
     uint32_t size = parser.size[3] | (parser.size[2] << 8) | (parser.size[1] << 16) | (parser.size[0] << 24);
     ck_assert_uint_eq(size, 2575);
     ck_assert_uint_eq(false, errored);

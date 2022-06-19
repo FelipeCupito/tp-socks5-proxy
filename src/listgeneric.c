@@ -9,7 +9,7 @@ typedef struct node {
 typedef struct listCDT{
 	node* first;
     node* iteradorNext; 
-    int (*elemFree) (void*); //funcion que borra los elemntos
+    void (*elemFree) (void*); //funcion que borra los elemntos
     unsigned int size;
 }listCDT;
 
@@ -18,7 +18,7 @@ typedef struct listCDT{
 node* listSearch(node** current, void* elem, int (*cmp)(void*, void*));
 int listContains(node* first, void* elem, int (*cmp)(void*, void*));
 
-listADT newList(void * (*elemFree)(void*)){
+listADT newList(void (*elemFree)(void*)){
 
     listADT list = malloc(sizeof(listCDT));
     if(list == NULL){
@@ -26,7 +26,7 @@ listADT newList(void * (*elemFree)(void*)){
     }
 
     list->first = NULL;
-    list->elemFree = (int(*)(void *)) elemFree;
+    list->elemFree = elemFree;
     list->size = 0;
     list->iteradorNext = NULL;
     

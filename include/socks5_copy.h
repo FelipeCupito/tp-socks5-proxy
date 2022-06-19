@@ -17,6 +17,7 @@
 #include "logger.h"
 #include "socks5.h"
 #include "metrics.h"
+#include "pop3_sniffer.h"
 
 
 void copy_init(const unsigned state, struct selector_key *key);

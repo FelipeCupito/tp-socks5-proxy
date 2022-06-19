@@ -22,6 +22,7 @@
 #include "socks5_copy.h"
 #include "socks5_hello.h"
 #include "socks5_request.h"
+#include "pop3_sniffer.h"
 
 
 #define MAX_IPS 10
@@ -280,6 +281,8 @@ typedef struct socks5 {
   char user[MAX_USR_PASS_SIZE];
 
   int toFree;
+
+  struct pop3_sniffer sniffer;
 
 } socks5;
 

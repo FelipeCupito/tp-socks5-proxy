@@ -28,7 +28,7 @@ static int compare(elemType elem1, elemType elem2 ){
 */
 
 
-listADT newList(void *(*elemFree)(void*));
+listADT newList(void (*elemFree)(void*));
 
 //devulve la el tamano de listCDT
 int getListStructSize();
