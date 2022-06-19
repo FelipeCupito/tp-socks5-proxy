@@ -24,6 +24,7 @@
 #include "../include/selector.h"
 #include "../include/logger.h"
 #include "../include/server_config.h"
+#include "../include/mng_handler.h"
 
 
 #define SOCKS_BACKLOG 10 // la longitud máxima de la cola de conexiones pendientes
@@ -125,8 +126,7 @@ int main(const int argc, char **argv) {
     if (fd == SOCKS_V4 || fd == SOCKS_V6) {
       ss = selector_register(selector, passive_fds[fd], &socks5_passive_handler,OP_READ, NULL);
     } else {
-      // TODO: sacar el &socks5_passive_handler y poner&mng_passive_handler
-      ss = selector_register(selector, passive_fds[fd], &socks5_passive_handler, OP_READ, NULL);
+      ss = selector_register(selector, passive_fds[fd], &mng_passive_handler, OP_READ, NULL);
     }
     if (ss != SELECTOR_SUCCESS) {
       err_msg = "registering fd";

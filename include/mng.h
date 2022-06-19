@@ -16,6 +16,9 @@
 #include "selector.h"
 #include "logger.h"
 #include "mng_handler.h"
+#include "server_config.h"
+#include "/parsers/admin_connect.h"
+
 
 ///////////////////////////////////////////
 //HELLO_READ

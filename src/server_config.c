@@ -6,11 +6,19 @@ config conf;
 
 config* init_config(){
   conf.disectors_enabled = DEFAULT_DISECTORS;
+  conf.mng_token = MNG_TOKEN;
   conf.socks_buffer_size = DEFAULT_SOCKS_BUFFER_SIZE;
   conf.users_size = 0;
+
   return &conf;
 }
 
+int checkToken(char *token){
+    if(strcmp(conf.mng_token, token)== 0){
+        return 1;
+      }
+  return 0;
+}
 
 int checkUser(char *user, char *pass){
     for (int i = 0; i < conf.users_size; i++){

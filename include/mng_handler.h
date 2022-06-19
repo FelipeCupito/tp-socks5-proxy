@@ -22,6 +22,12 @@
 #define ATTACHMENT(key) ((struct mng *)(key)->data)
 
 /////////////////////////////////////////////////////////////////////////
+// FD HANDLER
+/////////////////////////////////////////////////////////////////////////
+const struct fd_handler mng_passive_handler;
+const struct fd_handler mng_handler;
+
+/////////////////////////////////////////////////////////////////////////
 // Estados posibles de cada estado de socks5
 /////////////////////////////////////////////////////////////////////////
 enum mng_state {
@@ -52,6 +58,12 @@ typedef struct mng {
 
   // Estado del Socket:
   struct state_machine stm;
+
+  // estado del socket cliente
+  union parsers {
+    struct admin_connect_parser connect;
+
+  } parsers;
 
   // buffer de escritura
   uint8_t raw_buff_a[BUFFER_SIZE], raw_buff_b[BUFFER_SIZE];

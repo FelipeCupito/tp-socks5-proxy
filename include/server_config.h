@@ -17,9 +17,10 @@
 
 
 #define MAX_USERS 10
-#define SELECT_TIMEOUT 10
+#define MNG_TOKEN "holacomoestas"
 #define DEFAULT_SOCKS_BUFFER_SIZE 1024
 #define DEFAULT_DISECTORS true
+
 
 //variables:
 struct users {
@@ -45,6 +46,9 @@ typedef struct config{
   bool disectors_enabled;
   uint16_t socks_buffer_size;
 
+  //
+  char *mng_token;
+
   //user config
   struct users users[MAX_USERS];
   int users_size;
@@ -54,6 +58,8 @@ typedef struct config{
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 config* init_config();
+
+int checkToken(char *token);
 
 //devulve 1 si ok, 0 sino
 int checkUser(char *user, char *pass);
