@@ -3,10 +3,10 @@
 										WANNAPPROVE Protocol Version 0
 
 Authors:
-	Felipe Cupito
-	Juan Manuel De Luca
-	Azul Kim
-	Faustino Maggioni Duffy
+	Cupitó, Felipe
+	De Luca, Juan Manuel
+	Kim, Azul Candelaria
+	Maggioni Duffy, Faustino
 
 1. Introduction
 
