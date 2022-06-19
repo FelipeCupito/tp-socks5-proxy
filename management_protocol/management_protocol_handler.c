@@ -148,11 +148,20 @@ static void getPasswords(int fd) {
     free(passwords_list);
 }
 
-void getHistoricalConnections(int fd) {
+static void getHistoricalConnections(int fd) {
 
 }
 
-void getConcurrentConections(int fd) {
+static void getConcurrentConections(int fd) {
+
+}
+
+static char* getConnections(int fd, uint8_t command) {
+    uint8_t* reply = send_receive_get(fd, command);
+
+    if(reply == NULL)
+        return;     // errores ya manejados
+    
 
 }
 
@@ -263,6 +272,7 @@ static uint8_t* send_receive_get(int fd, uint8_t command) {
     if(sent_bytes <= 0) {
           perror(strerror(errno));
         printf("[GET] Server error\n");
+        exit(1);
         return NULL;
     }
     uint8_t status;
@@ -296,9 +306,13 @@ static int send_get_request(int fd, uint8_t command) {
 
 static uint8_t* receive_get_request(int fd, uint8_t* status) {
     int recv_bytes;
-    uint8_t info[2];
+    uint8_t* info[2] = malloc(2);
 
     recv_bytes = recv(fd, info, 2, 0);
+
+    if(recv_bytes <= 0) {
+        exit(1);
+    }
 
     if(recv_bytes < 2) {
         *status = SERVER_ERROR;
