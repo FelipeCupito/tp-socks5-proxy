@@ -111,7 +111,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			+--------+
 			| STATUS |
 			+--------+
-			|  1     |
+			| 1      |
 			+--------+
 			
 			STATUS:
@@ -145,7 +145,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			+--------+
 			| STATUS |
 			+--------+
-			|  1     |
+			| 1      |
 			+--------+
 			
 			STATUS:
@@ -176,7 +176,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			+--------+
 			| STATUS |
 			+--------+
-			|  1     |
+			| 1      |
 			+--------+
 			
 			STATUS:
@@ -193,7 +193,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			+--------+-------+--------+
 			| ACTION | FIELD | STATUS |
 			+--------+-------+--------+
-			|  X'04' | 1     | 1      |
+			| X'04'  | 1     | 1      |
 			+--------+-------+--------+
 		
 			ACTION:
@@ -210,7 +210,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			+--------+
 			| STATUS |
 			+--------+
-			|  1     |
+			| 1      |
 			+--------+
 			
 			STATUS:
@@ -240,7 +240,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			+--------+
 			| STATUS |
 			+--------+
-			|  1     |
+			| 1      |
 			+--------+
 			
 			STATUS:
