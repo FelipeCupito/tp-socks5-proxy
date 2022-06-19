@@ -17,6 +17,7 @@
 #include "logger.h"
 #include "socks5.h"
 #include "parsers/hello.h"
+#include "server_config.h"
 
 
 ///////////////////////////////////////////

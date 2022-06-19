@@ -25,10 +25,6 @@
 #include "pop3_sniffer.h"
 
 
-#define MAX_IPS 10
-#define IP_V4_ADDR_SIZE 4
-#define IP_V6_ADDR_SIZE 16
-#define PORT_SIZE 2
 #define BUFFER_SIZE 4096 // TODO: sacar
 
 #define ATTACHMENT(key) ((struct socks5 *)(key)->data)
@@ -168,16 +164,6 @@ enum socks_state {
   ERROR,
 };
 /////////////////////////////////////////////////////////////////////////
-// Estados posibles de cada estado de socks5
-/////////////////////////////////////////////////////////////////////////
-/*
-typedef enum addr_type {
-  IPv4 = 0x01,
-  DOMAINNAME = 0x03,
-  IPv6 = 0x04,
-} addr_type;
-*/
-/////////////////////////////////////////////////////////////////////////
 // Store de cada estado
 /////////////////////////////////////////////////////////////////////////
 
@@ -190,8 +176,14 @@ typedef struct hello_data {
 } hello_data;
 
 typedef struct auth_data {
-  int i;
-  // TODO;
+  buffer *rb, *wb;
+
+  auth_parser parser;
+  
+  struct user* user;
+  struct pass* pass;
+  
+  uint8_t status;
 } auth_data;
 
 typedef struct request_data {
@@ -281,6 +273,8 @@ typedef struct socks5 {
   buffer read_buffer, write_buffer;
 
   enum socks_response_status status; //enum status
+
+  char user[MAX_USR_PASS_SIZE];
 
   int toFree;
 

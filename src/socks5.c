@@ -3,12 +3,16 @@
 
 
 //funciones privadas:
+struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clntAddrLen);
 void socks5_passive_accept(struct selector_key *key);
-
+//socks5 handler
 void socks5_read(struct selector_key *key);
 void socks5_write(struct selector_key *key);
 void socks5_block(struct selector_key *key);
 void socks5_close(struct selector_key *key);
+//
+void socks5_done(struct selector_key *key);
+void socks5_free(struct socks5 *socks5);
 
 /////////////////////////////////////////////////////////////////////////
 // FD HANDLER
@@ -120,14 +124,7 @@ struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, s
 /////////////////////////////////////////////////////////////////////////
 /*  PASSIVE SOCKS                                                      */
 /////////////////////////////////////////////////////////////////////////
-// funcione privada:
-void socks5_done(struct selector_key *key);
-void socks5_free(struct socks5 *socks5);
-//socks5 handler
-void socks5_read(struct selector_key *key);
-void socks5_write(struct selector_key *key);
-void socks5_block(struct selector_key *key);
-void socks5_close(struct selector_key *key);
+
 
 void socks5_passive_accept(struct selector_key *key) {
 
@@ -213,16 +210,16 @@ void socks5_done(struct selector_key *key) {
 
   for (int i = 0; i < 2; ++i) {
     if (fds[i] != -1) {
+
       selector_unregister_fd(key->s, fds[i]);
     }
     close(fds[i]);
   }
 }
 
-
 void socks5_close(struct selector_key *key) {
   struct socks5 *socks = ATTACHMENT(key);
-  if(socks->status != status_close ){
+  if(socks->status != status_close){
     socks5_free(socks);
   }else if(socks->toFree > 0){
     socks5_free(key->data);

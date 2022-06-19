@@ -14,6 +14,7 @@
 
 #include "logger.h"
 #include "socks5.h"
+#include "server_config.h"
 
 
 // data es si o si struct socks5, no se porque no me deja ponerlo
