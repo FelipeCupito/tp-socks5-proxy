@@ -25,6 +25,7 @@ static uint8_t send_receive_configstatus(int fd, uint8_t field, uint8_t status);
 static int send_configstatus_request(int fd, uint8_t field, uint8_t status);
 static uint8_t receive_configstatus_reply(int fd, uint8_t* status);
 
+
 static void getUsers(int fd);
 static void getPasswords(int fd);
 
@@ -77,6 +78,7 @@ void executeCommands(int fd, struct manage_args* args) {
             getUsers(fd);
             break;
         case PASSWORDS:
+            getPasswords(fd);
             break;
         case BUFFERSIZE:
             break;
@@ -113,22 +115,30 @@ void executeCommands(int fd, struct manage_args* args) {
 }
 
 static void getUsers(int fd) {
-    int sent_bytes = send_get_request(fd, 0x00);
-    
-    uint8_t status;
-    char* users_list = (char*) receive_get_request(fd, &status);
+    uint8_t* users_list = send_receive_get(fd, 0x00);
 
     if(users_list == NULL) {
-        return;
+        return; // Todo el chequeo de errores ya esta implementado
     }
 
     printf("USER LIST\n\n");
-    printf("%s", users_list);
+    printf("%s",(char*) users_list);
 
+    // TODO: preguntar si es valido asi
+    free(users_list);
 }
 
 static void getPasswords(int fd) {
+    uint8_t* passwords_list = send_receive_get(fd, 0x01);
 
+    if(passwords_list == NULL) {
+        return; // Todo el chequeo de errores ya esta implementado
+    }
+
+    printf("PASSWORD LIST\n\n");
+    printf("%s",(char*) passwords_list);
+
+    free(passwords_list);
 }
 
 void getHistoricalConnections(int fd) {
