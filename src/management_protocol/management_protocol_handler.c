@@ -287,7 +287,7 @@ static int send_put_request(int fd, char* username, char* password) {
     size_t username_len = strlen(username);
     size_t password_len = strlen(password);
 
-    realloc(request, 2 + 2*sizeof(int) + username_len + password_len + 1);
+    request = realloc(request, 2 + 2*sizeof(int) + username_len + password_len + 1);
     request[0] = 0x01;
     request[1] = 0x00;
     request[2] = username_len;
@@ -309,6 +309,57 @@ static int receive_put_reply(int fd, uint8_t* status) {
 
     return rcv_bytes;
 }
+
+static void send_receive_edit(int fd, char* username, uint8_t attribute, char* value) {
+    if(send_edit_request(fd, username, attribute, value) <= 0) {
+        printf("[EDIT] Error in sending the request");
+        perror(errno);
+    }
+
+    uint8_t status;
+    int rcv_bytes = receive_edit_reply(fd, &status);
+
+    if(recv_bytes <= 0) {
+        perror(errno);
+        printf("[EDIT] Server error\n");
+    } else {
+        print_edit_response(status);
+    }
+}
+
+static int send_edit_request(int fd, char* username, uint8_t attribute, char* value) {
+    int sent_bytes;
+
+    uint8_t* request = NULL;
+    size_t username_len = strlen(username);
+    size_t value_len = strlen(value);
+
+    request = realloc(request, 5 + username_len + value_len + 1);
+    request[0] = 0x02;
+    request[1] = 0x00;
+    request[2] = username_len;
+    strcpy((char*) (request + 3), username);
+    request[3 + username_len] = attribute;
+    request[4 + username_len] = value_len;
+    strcpy((char*) (request + 5 + username_len), value);
+
+    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
+
+    // TODO: ver cuando hacer el free
+    free(request);
+
+    return sent_bytes;
+}
+
+static uint8_t receive_edit_reply(int fd, uint8_t* status) {
+    int rcv_bytes;
+    uint8_t reply[1];
+    rcv_bytes = recv(fd, reply, 1, 0);
+
+    *status = reply;
+
+    return recv_bytes;
+} 
 
 static void send_receive_configbuffsize(int fd, unsigned int size) {
     if(send_configbuffsize_request(fd, size) <= 0) {
@@ -406,11 +457,27 @@ static uint8_t receive_configstatus_reply(int fd, uint8_t* status) {
 
 // Reply status message
 
+static void print_get_response(int status) {
+    if(status >= 0 && status < GET_MSG_SIZE) {
+        printf("Response: [GET] %s\n", get_msg[status]);
+    } else {
+        printf("[GET] Unknown status\n");
+    }
+}
+
 static void print_put_response(int status) {
     if(status >= 0 && status < PUT_MSG_SIZE) {
         printf("Response: [PUT] %s\n", put_msg[status]);
     } else {
         printf("[PUT] Unknown status\n");
+    }
+}
+
+static void print_edit_response(int status) {
+    if(status >= 0 && status < EDIT_MSG_SIZE) {
+        printf("Response: [EDIT] %s\n", edit_msg[status]);
+    } else {
+        printf("[EDIT] Unknown status\n");
     }
 }
 
@@ -427,13 +494,5 @@ static void print_configbuffsize_response(int status) {
         printf("Response: [CONFIGBUFFSIZE] %s\n", configbuffsize_msg[status]);
     } else {
         printf("[CONFIGSTATUS] Unknown status\n");
-    }
-}
-
-static void print_get_response(int status) {
-    if(status >= 0 && status < GET_MSG_SIZE) {
-        printf("Response: [GET] %s\n", get_msg[status]);
-    } else {
-        printf("[GET] Unknown status\n");
     }
 }

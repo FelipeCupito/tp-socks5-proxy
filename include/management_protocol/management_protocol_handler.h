@@ -8,16 +8,18 @@
 #include "../parsers/admin_get.h"
 #include "../parsers/admin_configstatus.h"
 
-#define GET_RESPONSE_SIZE 256
+#define MAX_FIELD_SIZE 256
 #define SERVER_ERROR 0xFF
 
 #define GET_MSG_SIZE 3
 #define PUT_MSG_SIZE 4
+#define EDIT_MSG_SIZE 6
 #define CONFIGSTATUS_MSG_SIZE 4
 #define CONFIGBUFFSIZE_MGS_SIZE 4
 
 char* get_msg[] = {"Success", "Invalid action", "Invalid option"};
 char* put_msg[] = {"Success", "Invalid action", "Invalid username length", "Invalid password length"};
+char* edit_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid username length", "Invalid attribute", "Invalid value length"};
 char* configstatus_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid status"};
 char* configbuffsize_msg[]= {"Success", "Invalid action", "Invalid buffer size length", "Invalid buffer size"};
 
