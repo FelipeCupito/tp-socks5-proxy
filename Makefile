@@ -34,7 +34,7 @@ test:$(OTFILES)
 	cd test; make all
 
 clean:
-	cd test; make clean; cd ..; rm -rf $(OFILES) server
+	cd test; make clean; cd ..; cd management_protocol; make clean; cd ..; rm -rf $(OFILES) server
 
 
  #-Werror pasa los w a errores

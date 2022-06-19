@@ -37,6 +37,6 @@ int main(const int argc, char** argv) {
 }
 
 static void sigterm_handler(const int signal) {
-  log_print(INFO, "signal %d, cleaning up and exiting ", signal);
+  printf("signal %d, cleaning up and exiting ", signal);
   done = true;
 }

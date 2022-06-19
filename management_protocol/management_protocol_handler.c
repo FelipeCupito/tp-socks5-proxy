@@ -49,7 +49,7 @@ void login(int fd, struct manage_args* args) {
     strcpy((char *)(msg + 2), password);
     
     // using send due to connected state
-    send(fd, msg, strlen(msg), MSG_NOSIGNAL);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
+    send(fd, msg, strlen(msg), 0x80000);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
 
     // recibir respuesta
     char res[1];
@@ -247,7 +247,7 @@ static uint8_t send_delete_request(int fd, char* username) {
     request[2] = username_len;
     strcpy((char*) (request + 3), username);
 
-    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
+    sent_bytes = send(fd, request, strlen((char*) request), 0x80000);
 
     free(request);
     return sent_bytes;
@@ -380,7 +380,7 @@ static int send_put_request(int fd, char* username, char* password) {
     request[3 + username_len] = password_len;
     strcpy((char*) (request + 4 + username_len), password);
 
-    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
+    sent_bytes = send(fd, request, strlen((char*) request), 0x80000);
 
     free(request);
 
@@ -432,7 +432,7 @@ static int send_edit_request(int fd, char* username, uint8_t attribute, char* va
     request[4 + username_len] = value_len;
     strcpy((char*) (request + 5 + username_len), value);
 
-    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
+    sent_bytes = send(fd, request, strlen((char*) request), 0x80000);
 
     // TODO: ver cuando hacer el free
     free(request);
@@ -482,7 +482,7 @@ static int send_configbuffsize_request(int fd, unsigned int size) {
     request[0] = 0x03;
     request[1] = size;
 
-    sent_bytes = send(fd, request, 2, MSG_NOSIGNAL);
+    sent_bytes = send(fd, request, 2, 0x80000);
 
     free(request);
     return sent_bytes;

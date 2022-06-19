@@ -6,6 +6,9 @@
 #include <sys/socket.h>
 #include <sys/types.h> 
 #include <signal.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #include "management_protocol_handler.h"
 #include "args_handler.h"
