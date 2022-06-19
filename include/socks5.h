@@ -25,10 +25,6 @@
 #include "pop3_sniffer.h"
 
 
-#define MAX_IPS 10
-#define IP_V4_ADDR_SIZE 4
-#define IP_V6_ADDR_SIZE 16
-#define PORT_SIZE 2
 #define BUFFER_SIZE 4096 // TODO: sacar
 
 #define ATTACHMENT(key) ((struct socks5 *)(key)->data)
