@@ -200,7 +200,7 @@ extern bool request_is_done(const enum request_state state, bool* errored) {
 	return ret;
 }
 
-extern int request_marshall(buffer* b, const enum socks_response_status status, struct request* request) {
+extern int request_marshalll(buffer* b, const enum socks_response_status status, struct request* request) {
 	const enum socks_addr_type atyp = request->dst_addr_type;
 	const union socks_addr addr = request->dst_addr;
 	const in_port_t dest_port = request->dst_port;

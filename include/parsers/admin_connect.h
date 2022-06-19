@@ -9,11 +9,7 @@
 #include "../buffer.h"
 #include "../logger.h"
 
-static const uint8_t STATUS_OK = 0X00;
-static const uint8_t STATUS_ERROR_IN_VERSION = 0x01;
-static const uint8_t STATUS_ERROR_IN_PASSLEN = 0X02;
-static const uint8_t STATUS_ERROR = 0X03;
-static const uint8_t STATUS_AUTH_FAIL = 0X04;
+
 
 #define MAX_PASS_SIZE 0XFF
 
@@ -49,6 +45,6 @@ enum admin_connect_state admin_connect_consume(buffer *b, admin_connect_parser *
 
 bool admin_connect_is_done(const enum admin_connect_state state, bool *error);
 
-int admin_connect_marshal(buffer *b, const uint8_t status);
+int admin_connect_marshall(buffer *b, const uint8_t status);
 
 #endif

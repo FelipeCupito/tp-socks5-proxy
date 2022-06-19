@@ -145,7 +145,7 @@ enum auth_state auth_consume(buffer *buff, struct auth_parser *p, bool *errored)
 }
 
 //TODO: esta mall
-int auth_marshall(buffer *b, const uint8_t status) {
+int auth_marshalll(buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 

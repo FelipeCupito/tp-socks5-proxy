@@ -174,7 +174,7 @@ unsigned int request_connect(struct selector_key *key, request_data *request) {
       }else {
         // si no hay mas ip, comunico el error
         log_conn(ATTACHMENT(key), *request->status);
-        if (request_marshall(request->wb, *request->status, &request->request) == -1) {
+        if (request_marshalll(request->wb, *request->status, &request->request) == -1) {
           err = true;
         }
         if (SELECTOR_SUCCESS != selector_set_interest(key->s, *request->client_fd, OP_WRITE)){
@@ -297,7 +297,7 @@ unsigned int request_connecting(struct selector_key *key) {
     }
   }
 
-  if (request_marshall(request->wb, *request->status, &request->request) == -1) {
+  if (request_marshalll(request->wb, *request->status, &request->request) == -1) {
     *request->status = status_general_SOCKS_server_failure;
     abort();
   }

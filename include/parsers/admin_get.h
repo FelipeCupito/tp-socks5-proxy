@@ -9,12 +9,7 @@
 #include "../buffer.h"
 #include "../logger.h"
 
-static const uint8_t STATUS_OK = 0X00;
-static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;
-static const uint8_t STATUS_ERROR_INVALID_OPTION = 0x02;
-static const uint8_t STATUS_ERROR = 0x03;
 
-static const uint8_t GET_ACTION = 0X00;
 
 enum option {
   users = 0x00,
@@ -51,6 +46,6 @@ enum admin_get_state admin_get_consume(buffer *b, admin_get_parser *p, bool *err
 
 bool admin_get_is_done(const enum admin_get_state state, bool *error);
 
-int admin_get_marshal(buffer *b, const uint8_t status, uint8_t *res);
+int admin_get_marshall(buffer *b, const uint8_t status, uint8_t *res);
 
 #endif

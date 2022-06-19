@@ -9,15 +9,6 @@
 #include "../buffer.h"
 #include "../logger.h"
 
-static const uint8_t STATUS_OK                      = 0X00;
-static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
-static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_ULEN      = 0x03;
-static const uint8_t STATUS_ERROR                   = 0x04;
-static const uint8_t STATUS_UNKNOWN_USER_FAIL       = 0x05;
-
-static const uint8_t DELETE_ACTION = 0x05;
-static const uint8_t USERS_FIELD = 0x00;
 
 #define MAX_KEY_SIZE 0XFF
 
@@ -52,6 +43,6 @@ enum admin_delete_state admin_delete_consume(buffer *b, admin_delete_parser *p, 
 
 bool admin_delete_is_done(const enum admin_delete_state state, bool *error);
 
-int admin_delete_marshal(buffer *b, const uint8_t status);
+int admin_delete_marshall(buffer *b, const uint8_t status);
 
 #endif

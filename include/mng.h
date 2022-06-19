@@ -17,25 +17,76 @@
 #include "logger.h"
 #include "mng_handler.h"
 #include "server_config.h"
-#include "/parsers/admin_connect.h"
+#include "parsers/admin_connect.h"
+#include "parsers/admin_get.h"
+#include "parsers/admin_edit.h"
+#include "parsers/admin_put.h"
+#include "parsers/admin_delete.h"
+#include "parsers/admin_configbuffsize.h"
+#include "parsers/admin_configstatus.h"
 
+enum request_actions{
+  GET = 0x00,
+  PUT = 0x01,
+  EDIT = 0x02,
+  CONFIGBUFFSIZE = 0x03,
+  CONFIGSTATUS = 0x04,
+  DELETE = 0x05
+};
 
 ///////////////////////////////////////////
 //HELLO_READ
 //////////////////////////////////////////
-void mng_hello_read_init(const unsigned state, struct selector_key *key);
-unsigned int mng_hello_read(struct selector_key *key);
+void mng_connect_read_init(const unsigned state, struct selector_key *key);
+unsigned int mng_connect_read(struct selector_key *key);
 
 ///////////////////////////////////////////
 //HELLO_WRITE
 //////////////////////////////////////////
-unsigned int mng_hello_write(struct selector_key *key);
+unsigned int mng_connect_write(struct selector_key *key);
 
 ///////////////////////////////////////////
 //REQUEST
 //////////////////////////////////////////
-void mng_request_init(const unsigned state, struct selector_key *key);
 unsigned int mng_request(struct selector_key *key);
+
+
+////////////////////////////////////////////
+//REQUEST_GET
+////////////////////////////////////////////
+void request_get_init(const unsigned state, struct selector_key *key);
+unsigned int request_get_request(struct selector_key *key);
+
+///////////////////////////////////////////
+//REQUEST_PUT
+//////////////////////////////////////////
+void request_put_init(const unsigned state, struct selector_key *key);
+unsigned int request_put_request(struct selector_key *key);
+
+///////////////////////////////////////////
+//REQUEST_EDIT
+//////////////////////////////////////////
+void request_edit_init(const unsigned state, struct selector_key *key);
+unsigned int request_edit_request(struct selector_key *key);
+
+///////////////////////////////////////////
+//REQUEST_BUFFSIZE
+//////////////////////////////////////////
+void request_buffsize_init(const unsigned state, struct selector_key *key);
+unsigned int request_buffsize_request(struct selector_key *key);
+
+///////////////////////////////////////////
+//REQUEST_CONFIGSTATUS
+//////////////////////////////////////////
+void request_configstatus_init(const unsigned state, struct selector_key *key);
+unsigned int request_configstatus_request(struct selector_key *key);
+
+///////////////////////////////////////////
+//REQUEST_DELETE
+//////////////////////////////////////////
+void request_delete_init(const unsigned state, struct selector_key *key);
+unsigned int request_delete_request(struct selector_key *key);
+
 
 ///////////////////////////////////////////
 //REPLIES

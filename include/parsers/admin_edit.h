@@ -9,20 +9,7 @@
 #include "../buffer.h"
 #include "../logger.h"
 
-static const uint8_t STATUS_OK                      = 0X00;
-static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
-static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_KEYLEN    = 0x03;
-static const uint8_t STATUS_ERROR_INVALID_ATTRIBUTE = 0x04;
-static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x05;
-static const uint8_t STATUS_ERROR                   = 0x06;
-static const uint8_t STATUS_UNKOWN_USER_FAIL        = 0x07;
 
-static const uint8_t EDIT_ACTION = 0x02;
-static const uint8_t USERS_FIELD = 0x00;
-
-static const uint8_t USERNAME_ATTRIBUTE = 0x00;
-static const uint8_t PASSWORD_ATTRIBUTE = 0x01;
 
 #define MAX_VALUE_SIZE 0XFF
 
@@ -70,6 +57,6 @@ enum admin_edit_state admin_edit_consume(buffer *b, admin_edit_parser *p, bool *
 
 bool admin_edit_is_done(const enum admin_edit_state state, bool *error);
 
-int admin_edit_marshal(buffer *b, const uint8_t status);
+int admin_edit_marshall(buffer *b, const uint8_t status);
 
 #endif

@@ -1,5 +1,15 @@
 #include "../../include/parsers/admin_put.h"
 
+static const uint8_t STATUS_OK = 0X00;
+static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;
+static const uint8_t STATUS_ERROR_INVALID_FIELD = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_NAMELEN = 0x03;
+static const uint8_t STATUS_ERROR_INVALID_PASSLEN = 0x04;
+static const uint8_t STATUS_ERROR = 0x05;
+
+static const uint8_t PUT_ACTION = 0X01;
+static const uint8_t USERS_FIELD = 0X00;
+
 void admin_put_parser_init (struct admin_put_parser *p) {
   p -> state = admin_put_action;
   memset(&p -> user, 0, sizeof(p -> user));
@@ -151,7 +161,7 @@ enum admin_put_state admin_put_consume (buffer *buff, struct admin_put_parser *p
   return state;
 }
 
-extern int admin_put_marshall (buffer *b, const uint8_t status) {
+extern int admin_put_marshalll (buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 

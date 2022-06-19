@@ -9,13 +9,7 @@
 #include "../buffer.h"
 #include "../logger.h"
 
-static const uint8_t STATUS_OK                      = 0x00;
-static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
-static const uint8_t STATUS_ERROR_INVALID_SIZELEN   = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_SIZE      = 0x03;
-static const uint8_t STATUS_ERROR                   = 0x04;
 
-static const uint8_t CONFIGBUFF_ACTION = 0x03;
 
 enum admin_configbuff_state {
   admin_configbuff_action,
@@ -44,6 +38,6 @@ enum admin_configbuff_state admin_configbuff_consume(buffer *b, admin_configbuff
 
 bool admin_configbuff_is_done(const enum admin_configbuff_state state, bool *error);
 
-int admin_configbuff_marshal(buffer *b, const uint8_t status);
+int admin_configbuff_marshall(buffer *b, const uint8_t status);
 
 #endif

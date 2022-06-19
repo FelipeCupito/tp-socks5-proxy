@@ -16,10 +16,17 @@
 #include "selector.h"
 #include "stm.h"
 #include "mng.h"
+#include "parsers/admin_connect.h"
+#include "parsers/admin_get.h"
+#include "parsers/admin_edit.h"
+#include "parsers/admin_put.h"
+#include "parsers/admin_delete.h"
+#include "parsers/admin_configbuffsize.h"
+#include "parsers/admin_configstatus.h"
 
 
 #define BUFFER_SIZE 4096 // TODO: sacar
-#define ATTACHMENT(key) ((struct mng *)(key)->data)
+#define ATTACH(key) ((struct mng *)(key)->data)
 
 /////////////////////////////////////////////////////////////////////////
 // FD HANDLER
@@ -31,17 +38,18 @@ const struct fd_handler mng_handler;
 // Estados posibles de cada estado de socks5
 /////////////////////////////////////////////////////////////////////////
 enum mng_state {
-  HELLO_READ,
-
-  HELLO_WRITE,
-
+  CONNECT_READ,
+  CONNECT_WRITE,
   REQUEST,
-
+  REQUEST_GET,
+  REQUEST_PUT,
+  REQUEST_EDIT,
+  REQUEST_BUFFSIZE,
+  REQUEST_CONFIGSTATUS,
+  REQUEST_DELETE,
   REPLIES,
-
-  DONE,
-
-  ERROR,
+  MNG_DONE,
+  MNG_ERROR,
 };
 /////////////////////////////////////////////////////////////////////////
 // Store de cada estado
@@ -62,7 +70,7 @@ typedef struct mng {
   // estado del socket cliente
   union parsers {
     struct admin_connect_parser connect;
-
+    struct admin_get_parser get;
   } parsers;
 
   // buffer de escritura

@@ -1,5 +1,12 @@
 #include "../../include/parsers/admin_get.h"
 
+static const uint8_t STATUS_OK = 0X00;
+static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;
+static const uint8_t STATUS_ERROR_INVALID_OPTION = 0x02;
+static const uint8_t STATUS_ERROR = 0x03;
+
+static const uint8_t GET_ACTION = 0X00;
+
 void admin_get_parser_init (struct admin_get_parser *p) {
   p -> state = admin_get_action;
 }
@@ -107,9 +114,10 @@ extern int admin_get_marshall(buffer *b, const uint8_t status, uint8_t *res) {
     return -1;
   }
 
+  //TODO: ver buff[1]
   size_t len = n + sizeof(res);
   buff[0] = status;
-  buff[1] = sizeof(res);
+  buff[1] = sizeof(*res);
   memcpy(&buff[2], res, sizeof(*res));
   buffer_write_adv(b, len);
   return len;

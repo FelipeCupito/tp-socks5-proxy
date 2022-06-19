@@ -1,5 +1,21 @@
 #include "../../include/parsers/admin_edit.h"
 
+static const uint8_t STATUS_OK                      = 0X00;
+static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
+static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_KEYLEN    = 0x03;
+static const uint8_t STATUS_ERROR_INVALID_ATTRIBUTE = 0x04;
+static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x05;
+static const uint8_t STATUS_ERROR                   = 0x06;
+static const uint8_t STATUS_UNKOWN_USER_FAIL        = 0x07;
+
+static const uint8_t EDIT_ACTION = 0x02;
+static const uint8_t USERS_FIELD = 0x00;
+
+static const uint8_t USERNAME_ATTRIBUTE = 0x00;
+static const uint8_t PASSWORD_ATTRIBUTE = 0x01;
+
+
 void admin_edit_parser_init (struct admin_edit_parser *p) {
   p -> state = admin_edit_action;
   p -> remaining = 0;
@@ -181,7 +197,7 @@ enum admin_edit_state admin_edit_consume (buffer *buff, struct admin_edit_parser
   return state;
 }
 
-extern int admin_edit_marshall (buffer *b, const uint8_t status) {
+extern int admin_edit_marshalll (buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 

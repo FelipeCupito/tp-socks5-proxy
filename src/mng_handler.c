@@ -31,28 +31,57 @@ const struct fd_handler mng_handler = {
 /////////////////////////////////////////////////////////////////////////
 const struct state_definition mng_state_definition[] = {
         {
-                .state = HELLO_READ,
-                .on_arrival = mng_hello_read_init,
-                .on_read_ready = mng_hello_read,
+                .state = CONNECT_READ,
+                .on_arrival = mng_connect_read_init,
+                .on_read_ready = mng_connect_read,
         },
         {
-                .state = HELLO_WRITE,
-                .on_write_ready = mng_hello_write,
+                .state = CONNECT_WRITE,
+                .on_write_ready = mng_connect_write,
         },
         {
                 .state = REQUEST,
-                .on_arrival = mng_request_init,
                 .on_read_ready = mng_request,
+        },
+        {
+                .state = REQUEST_GET,
+                .on_arrival = request_get_init,
+                .on_read_ready = request_get_request,
+        },
+        {
+                .state = REQUEST_PUT,
+                .on_arrival = request_put_init,
+                .on_read_ready = request_put_request,
+        },
+        {
+                .state = REQUEST_EDIT,
+                .on_arrival = request_edit_init,
+                .on_read_ready = request_edit_request,
+        },
+        {
+                .state = REQUEST_BUFFSIZE,
+                .on_arrival = request_buffsize_init,
+                .on_read_ready = request_buffsize_request,
+        },
+        {
+                .state = REQUEST_CONFIGSTATUS,
+                .on_arrival = request_configstatus_init,
+                .on_read_ready = request_configstatus_request,
+        },
+        {
+                .state = REQUEST_DELETE,
+                .on_arrival = request_delete_init,
+                .on_read_ready = request_delete_request,
         },
         {
                 .state = REPLIES,
                 .on_write_ready = mng_replies,
         },
         {
-                .state = DONE,
+                .state = MNG_DONE,
         },
         {
-                .state = ERROR,
+                .state = MNG_ERROR,
         }
 };
 
@@ -69,9 +98,9 @@ mng* mng_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clnt
 
   //smt:
   newMng->stm.current = &mng_state_definition[0];
-  newMng->stm.max_state = ERROR;
+  newMng->stm.max_state = MNG_ERROR;
   newMng->stm.states = mng_state_definition;
-  newMng->stm.initial = HELLO_READ;
+  newMng->stm.initial = CONNECT_READ;
   stm_init(&(newMng->stm));
 
   //init buffers
@@ -138,41 +167,41 @@ void mng_passive_accept(struct selector_key *key) {
 // accepted socksv5 handler
 ////////////////////////////////////////////////////////////////////////
 void mng_read(struct selector_key *key) {
-  struct state_machine *stm = &ATTACHMENT(key)->stm;
+  struct state_machine *stm = &ATTACH(key)->stm;
   const enum mng_state st = stm_handler_read(stm, key);
 
-  if (ERROR == st || DONE == st) {
+  if (MNG_ERROR == st || MNG_DONE == st) {
     mng_done(key);
   }
 }
 
 void mng_write(struct selector_key *key) {
-  struct state_machine *stm = &ATTACHMENT(key)->stm;
+  struct state_machine *stm = &ATTACH(key)->stm;
   const enum mng_state st = stm_handler_write(stm, key);
 
-  if (ERROR == st || DONE == st) {
+  if (MNG_ERROR == st || MNG_DONE == st) {
     mng_done(key);
   }
 }
 
 void mng_block(struct selector_key *key) {
-  struct state_machine *stm = &ATTACHMENT(key)->stm;
+  struct state_machine *stm = &ATTACH(key)->stm;
   const enum mng_state st = stm_handler_block(stm, key);
 
-  if (ERROR == st || DONE == st) {
+  if (MNG_ERROR == st || MNG_DONE == st) {
     mng_done(key);
   }
 }
 
 void mng_done(struct selector_key *key) {
 
-  int fd = ATTACHMENT(key)->client_fd;
+  int fd = ATTACH(key)->client_fd;
   selector_unregister_fd(key->s, fd);
   close(fd);
 
 }
 
 void mng_close(struct selector_key *key) {
-  free(ATTACHMENT(key));
+  free(ATTACH(key));
 }
 

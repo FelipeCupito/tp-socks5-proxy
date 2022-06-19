@@ -1,5 +1,14 @@
 #include "../../include/parsers/admin_configbuffsize.h"
 
+
+static const uint8_t STATUS_OK                      = 0x00;
+static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
+static const uint8_t STATUS_ERROR_INVALID_SIZELEN   = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_SIZE      = 0x03;
+static const uint8_t STATUS_ERROR                   = 0x04;
+
+static const uint8_t CONFIGBUFF_ACTION = 0x03;
+
 void admin_configbuff_parser_init (struct admin_configbuff_parser *p) {
   p -> state = admin_configbuff_action;
   p -> remaining = 4;
@@ -108,7 +117,7 @@ enum admin_configbuff_state admin_configbuff_consume (buffer *buff, struct admin
   return state;
 }
 
-extern int admin_configbuff_marshall (buffer *b, const uint8_t status) {
+extern int admin_configbuff_marshalll (buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 

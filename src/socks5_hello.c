@@ -48,7 +48,7 @@ unsigned int hello_read(struct selector_key *key) {
       // termine de recibir ahora quiere envia la respuesta
       if (SELECTOR_SUCCESS == selector_set_interest_key(key, OP_WRITE)) {
         // serializa en un buff la respuesta al hello
-        if (hello_marshall(data->wb, data->method) == -1) {err = true;}
+        if (hello_marshalll(data->wb, data->method) == -1) {err = true;}
       } else {err = true;}
 
       ret = HELLO_WRITE;

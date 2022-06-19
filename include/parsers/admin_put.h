@@ -9,15 +9,7 @@
 #include "../buffer.h"
 #include "../logger.h"
 
-static const uint8_t STATUS_OK = 0X00;
-static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;
-static const uint8_t STATUS_ERROR_INVALID_FIELD = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_NAMELEN = 0x03;
-static const uint8_t STATUS_ERROR_INVALID_PASSLEN = 0x04;
-static const uint8_t STATUS_ERROR = 0x05;
 
-static const uint8_t PUT_ACTION = 0X01;
-static const uint8_t USERS_FIELD = 0X00;
 
 #define MAX_USR_PASS_SIZE 0XFF
 
@@ -41,7 +33,7 @@ struct username {
     uint8_t username[MAX_USR_PASS_SIZE];
 };
 
-struct pass {
+struct put_pass {
     uint8_t passlen;
     uint8_t passwd[MAX_USR_PASS_SIZE];
 };
@@ -51,7 +43,7 @@ typedef struct admin_put_parser {
   uint8_t field;
   uint8_t action;
   struct username user;
-  struct pass pass;
+  struct put_pass pass;
   uint8_t remaining;
   uint8_t read;
   uint8_t status;
@@ -65,6 +57,6 @@ enum admin_put_state admin_put_consume(buffer *b, admin_put_parser *p, bool *err
 
 bool admin_put_is_done(const enum admin_put_state state, bool *error);
 
-int admin_put_marshal(buffer *b, const uint8_t status);
+int admin_put_marshall(buffer *b, const uint8_t status);
 
 #endif

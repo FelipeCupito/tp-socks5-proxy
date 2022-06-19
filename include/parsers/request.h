@@ -104,7 +104,7 @@ bool request_is_done(const enum request_state state, bool* errored);
 
 void request_close(struct request_parser* p);
 
-extern int request_marshall(buffer* b, const enum socks_response_status status, struct request* request);
+extern int request_marshalll(buffer* b, const enum socks_response_status status, struct request* request);
 
 enum socks_response_status errno_to_socks(int err);
 

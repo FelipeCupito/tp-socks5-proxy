@@ -1,5 +1,19 @@
 #include "../../include/parsers/admin_configstatus.h"
 
+static const uint8_t STATUS_OK                     = 0x00;
+static const uint8_t STATUS_ERROR_INVALID_ACTION   = 0x01;
+static const uint8_t STATUS_ERROR_INVALID_FIELD    = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_STAUS    = 0x03;
+static const uint8_t STATUS_ERROR                  = 0x04;
+
+static const uint8_t CONFIGSTATUS_ACTION = 0x04;
+
+static const uint8_t CONFIGSTATUS_AUTH_FIELD = 0x03;
+static const uint8_t CONFIGSTATUS_SPOOFING_FIELD = 0x04;
+
+static const uint8_t ON = 0x00;
+static const uint8_t OFF = 0x01;
+
 void admin_configstatus_parser_init (struct admin_configstatus_parser *p) {
   p -> state = admin_configstatus_action;
 }
@@ -111,7 +125,7 @@ enum admin_configstatus_state admin_configstatus_consume (buffer *buff, struct a
   return state;
 }
 
-extern int admin_configstatus_marshall (buffer *b, const uint8_t status) {
+extern int admin_configstatus_marshalll (buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 

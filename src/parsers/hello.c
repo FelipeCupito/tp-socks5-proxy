@@ -96,7 +96,7 @@ extern enum hello_state hello_consume(buffer* buff, struct hello_parser* p, bool
 	return state;
 }
 
-extern int hello_marshall(buffer* b, const uint8_t method) {
+extern int hello_marshalll(buffer* b, const uint8_t method) {
 	size_t n;
 	uint8_t* buff = buffer_write_ptr(b, &n);
 
