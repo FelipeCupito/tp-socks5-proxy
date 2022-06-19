@@ -18,11 +18,11 @@ When a TCP-based client wishes to take control of a SOCKS5 server, it must open 
 
 The WANNAPROVE request is structured thus:
 
-	+--------+---------+----------+
-	|VERSION | PASSLEN |  PASSWD  |
-	+--------+---------+----------+
-	| X'00'  |  1      | 1 to 255 |
-	+--------+---------+----------+
+	+---------+---------+----------+
+	| VERSION | PASSLEN | PASSWD   |
+	+---------+---------+----------+
+	| X'00'   | 1       | 1 to 255 |
+	+---------+---------+----------+
 	
 	Where:
 		o VERSION protocol version: X'00'
@@ -32,7 +32,7 @@ The WANNAPROVE request is structured thus:
 Then the WANNAPROVE server will evaluate the format of the request and if the password is correct it will send the following response:
 
 	+--------+
-	|STATUS  |
+	| STATUS |
 	+--------+
 	| 1      |
 	+--------+
