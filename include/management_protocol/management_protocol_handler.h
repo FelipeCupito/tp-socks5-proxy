@@ -14,12 +14,15 @@
 #define GET_MSG_SIZE 3
 #define PUT_MSG_SIZE 4
 #define EDIT_MSG_SIZE 6
+#define DELETE_MSG_SIZE 5
 #define CONFIGSTATUS_MSG_SIZE 4
 #define CONFIGBUFFSIZE_MGS_SIZE 4
 
 char* get_msg[] = {"Success", "Invalid action", "Invalid option"};
 char* put_msg[] = {"Success", "Invalid action", "Invalid username length", "Invalid password length"};
 char* edit_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid username length", "Invalid attribute", "Invalid value length"};
+// TODO: Preguntar que es invalid field en delete
+char* delete_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid username length", "Unknown user fail"};
 char* configstatus_msg[] = {"Success", "Invalid action", "Invalid field", "Invalid status"};
 char* configbuffsize_msg[]= {"Success", "Invalid action", "Invalid buffer size length", "Invalid buffer size"};
 

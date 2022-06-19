@@ -1,9 +1,30 @@
 #include "../../include/management_protocol/management_protocol_handler.h"
 
 // Funciones privadas
-static int send_get_request(int fd, uint8_t command);
+static void send_receive_delete(int fd, char* username);
+static uint8_t send_delete_request(int fd, char* username);
+static uint8_t receive_delete_reply(int fd, uint8_t* status);
 
-static uint8_t receive_toggle_reply(int fd);
+static uint8_t* send_receive_get(int fd, uint8_t command);
+static int send_get_request(int fd, uint8_t command);
+static uint8_t* receive_get_request(int fd, uint8_t* status);
+
+static void send_receive_put(int fd, char* username, char* password);
+static int send_put_request(int fd, char* username, char* password);
+static int receive_put_reply(int fd, uint8_t* status);
+
+static void send_receive_edit(int fd, char* username, uint8_t attribute, char* value);
+static int send_edit_request(int fd, char* username, uint8_t attribute, char* value);
+static uint8_t receive_edit_reply(int fd, uint8_t* status);
+
+static void send_receive_configbuffsize(int fd, unsigned int size);
+static int send_configbuffsize_request(int fd, unsigned int size);
+static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status);
+
+static uint8_t send_receive_configstatus(int fd, uint8_t field, uint8_t status);
+static int send_configstatus_request(int fd, uint8_t field, uint8_t status);
+static uint8_t receive_configstatus_reply(int fd, uint8_t* status);
+
 static void getUsers(int fd);
 static void getPasswords(int fd);
 
@@ -163,31 +184,58 @@ static void setBufferSize(int fd, unsigned int size) {
 }
 
 // Requests y replies
+
+/* ------------------------------------------------------ */ 
+/*                         DELETE                         */
+/* ------------------------------------------------------ */ 
+
+static void send_receive_delete(int fd, char* username) {
+    if(send_delete_request(fd, username) <= 0) {
+        printf("[DELETE] Error in sending request\n");
+        perror(errno);
+    }
+
+    uint8_t status;
+    int recv_bytes = receive_delete_reply(fd, &status);
+
+    if(recv_bytes <= 0) {
+        perror(errno);
+        printf("[DELETE] Server error\n");
+    } else {
+        print_edit_response(status);
+    }
+}
+
 static uint8_t send_delete_request(int fd, char* username) {
     // TODO preguntar
-    int sent_bytes = 0;
+    int sent_bytes;
     size_t username_len = strlen(username);
     uint8_t *request = NULL;
-    // TODO por que 2 + ? y + 1?
-    realloc(request, 2 + 2 * sizeof(int) + username_len + 1);
+    
+    realloc(request, 3 + username_len + 1);
     request[0] = 0x05;
     request[1] = 0x00;
     request[2] = username_len;
     strcpy((char*) (request + 3), username);
 
-    sent_bytes = send(fd, request, strlen((char*) request), 0);
+    sent_bytes = send(fd, request, strlen((char*) request), MSG_NOSIGNAL);
 
     free(request);
     return sent_bytes;
 }
 
-static uint8_t receive_delete_reply(int fd) {
+static uint8_t receive_delete_reply(int fd, uint8_t* status) {
     int rcv_bytes;
     uint8_t reply;
     rcv_bytes = recv(fd, &reply, 1, 0);
 
-    return reply;
+    *status = reply;
+    return rcv_bytes;
 }
+
+/* ------------------------------------------------------ */ 
+/*                           GET                          */
+/* ------------------------------------------------------ */ 
 
 static uint8_t* send_receive_get(int fd, uint8_t command) {
     int sent_bytes = send_get_request(fd, command);
@@ -261,6 +309,10 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
     return rta;
 }
 
+/* ------------------------------------------------------ */ 
+/*                           PUT                          */
+/* ------------------------------------------------------ */ 
+
 static void send_receive_put(int fd, char* username, char* password) {
     int sent_bytes = send_put_request(fd, username, password);
 
@@ -310,9 +362,13 @@ static int receive_put_reply(int fd, uint8_t* status) {
     return rcv_bytes;
 }
 
+/* ------------------------------------------------------ */ 
+/*                         EDIT                           */
+/* ------------------------------------------------------ */ 
+
 static void send_receive_edit(int fd, char* username, uint8_t attribute, char* value) {
     if(send_edit_request(fd, username, attribute, value) <= 0) {
-        printf("[EDIT] Error in sending the request");
+        printf("[EDIT] Error in sending the request\n");
         perror(errno);
     }
 
@@ -361,6 +417,10 @@ static uint8_t receive_edit_reply(int fd, uint8_t* status) {
     return recv_bytes;
 } 
 
+/* ------------------------------------------------------ */ 
+/*                    CONFIGBUFFSIZE                      */
+/* ------------------------------------------------------ */ 
+
 static void send_receive_configbuffsize(int fd, unsigned int size) {
     if(send_configbuffsize_request(fd, size) <= 0) {
         printf("[CONFIGBUFFSIZE] Error in sending request\n");
@@ -404,6 +464,10 @@ static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status) {
 
     return recv_bytes;
 }
+
+/* ------------------------------------------------------ */ 
+/*                     CONFIGSTATUS                       */
+/* ------------------------------------------------------ */ 
 
 // TOGGLE 
 static uint8_t send_receive_configstatus(int fd, uint8_t field, uint8_t status) {
@@ -455,7 +519,16 @@ static uint8_t receive_configstatus_reply(int fd, uint8_t* status) {
     return recv_bytes;
 }
 
-// Reply status message
+/* ------------------------------------------------------ */ 
+/*                   REPLY STATUS MESSAGE                 */
+/* ------------------------------------------------------ */ 
+
+static void print_get_response(int status);
+static void print_put_response(int status);
+static void print_edit_response(int status);
+static void print_configstatus_response(int status);
+static void print_configbuffsize_response(int status);
+static void print_delete_response(int status);
 
 static void print_get_response(int status) {
     if(status >= 0 && status < GET_MSG_SIZE) {
@@ -494,5 +567,13 @@ static void print_configbuffsize_response(int status) {
         printf("Response: [CONFIGBUFFSIZE] %s\n", configbuffsize_msg[status]);
     } else {
         printf("[CONFIGSTATUS] Unknown status\n");
+    }
+}
+
+static void print_delete_response(int status) {
+    if(status >= 0 && status < DELETE_MSG_SIZE) {
+        printf("Response: [DELETE] %s\n", delete_msg[status]);
+    } else {
+        printf("[DELETE] Unknown status\n");
     }
 }
