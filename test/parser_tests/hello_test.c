@@ -27,9 +27,10 @@ START_TEST(test_hello_normal)
     hello_parser_init(&parser);
     uint8_t data[] = {
         0x05, // socks version
-        0x02, // nmethods
-        0x00, // no authentication
-        0x02, // auth
+        0x03, // nmethods
+	    0x03,
+        0x02, // no authentication
+        0x01, // auth
     };
     buffer b;
     FIXBUF(b, data);

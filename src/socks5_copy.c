@@ -74,7 +74,7 @@ unsigned int copy_read(struct selector_key *key) {
     
     buffer_write_adv(buff, n);
     if(is_client){
-      add_received_bytes(n);
+      add_sent_byte(n);
     }
     pop3sniff(ptr, n, ATTACHMENT(key));
   } else {
@@ -114,7 +114,7 @@ unsigned copy_write(struct selector_key *key) {
   if (n >= 0) {
     buffer_read_adv(buff, n);
     if(is_client){
-      add_sent_byte(n);
+      add_received_bytes(n);
     }
     pop3sniff(ptr, n, ATTACHMENT(key));
   } else {
