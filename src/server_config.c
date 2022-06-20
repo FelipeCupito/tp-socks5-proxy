@@ -4,6 +4,8 @@ int num_to_8bytes(char *res, int res_size, uint32_t n);
 int num_to_4bytes(char *res, int res_size, uint32_t n);
 int bool_to_bytes(char *res, int res_size, bool n);
 void ip_to_str(struct sockaddr_storage *addr, char *dest_ip);
+struct users* get_user(char *username);
+
 
 config conf;
 
@@ -36,6 +38,28 @@ int checkUser(char *user, char *pass){
     }
     return 0;
 }
+
+////////////////////////////////////////////////////////
+//                      EDIT
+////////////////////////////////////////////////////////
+int edit_user(char *username, char *new_value, uint8_t attr){
+  struct users* user = get_user(username);
+
+  if(user == NULL ||strlen(new_value) >= MAX_STR_SIZE){
+    return -1;
+  }
+
+  if(attr == 0x00){
+    strcpy(user->name, new_value);
+  }else{
+    strcpy(user->pass, new_value);
+  }
+
+  return 0;
+}
+
+
+
 ////////////////////////////////////////////////////////
 //                      PUT
 ////////////////////////////////////////////////////////
@@ -176,6 +200,17 @@ int is_auth_enabled(){
 ////////////////////////////////////////
 //privadas
 ///////////////////////////////////////////
+
+struct users* get_user(char *username){
+  for (int i = 0; i < conf.users_size; ++i) {
+    char *user = conf.users[i].name;
+    if(strcmp(user, username) == 0){
+      return &conf.users[i];
+    }
+    return NULL;
+  }
+}
+
 //o ON X'00'
 //o OFF X'01'
 int bool_to_bytes(char *res, int res_size, bool n){
