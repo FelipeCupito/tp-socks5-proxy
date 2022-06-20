@@ -93,7 +93,7 @@ static void config_spoof(int fd, uint8_t status);
 // DELETE
 static void delete_user(int fd, char* username);
 
-char* get_cmds[] = { "users", "passwords", "buffersize", "authstatus", "spoofingstatus", "sentbytes", "receivedbytes", "historic", "concurrent" };
+char* get_cmds[] = { "users", "passwords", "buffersize", "authstatus", "spoofstatus", "sentbytes", "rcvbytes", "historic", "concurrent" };
 
 char* get_msg[] = { "Success", "Invalid action", "Invalid option" };
 char* put_msg[] = { "Success", "Invalid action", "Invalid username length", "Invalid password length" };
@@ -133,8 +133,14 @@ void login(int fd, struct manage_args* args) {
     msg[1] = password_len;
     strcpy((char*) (msg + 2), password);
 
+    printf("Code %u\n", msg[0]);
+    printf("pass len: %u\n", msg[1]);
+    printf("About to send auth with %s\n", (char*) (msg + 2));
+
     // using send due to connected state
     int bytes = send(fd, msg, password_len + 4, 0);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
+    printf("bytes sent: %d\n", bytes);
+
 
     // recibir respuesta
     char res[1];
@@ -591,7 +597,7 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
 
     uint8_t status;
     int recv_bytes = receive_configbuffsize_reply(fd, &status);
-    log_print(INFO, "%d", recv_bytes);
+
     if (recv_bytes <= 0) {
         if (recv_bytes < 0) {
             // Negativo -> error
@@ -605,7 +611,7 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
 static int send_configbuffsize_request(int fd, unsigned int size) {
     int sent_bytes = 0;
     uint8_t request[5];
-    log_print(INFO, "dsfdf");
+
     request[0] = 0x03;
     request[1] = (size >> 24) & 0xFF;
     request[2] = (size >> 16) & 0xFF;

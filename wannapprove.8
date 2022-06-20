@@ -1,0 +1,107 @@
+.\" Macros
+.ds PX \s-1POSIX\s+1
+.de EXAMPLE .\" Format de los ejemplos
+.RS 10
+.BR "\\$1"
+.RE
+..
+
+.TH wannapprove 0.0.0 "21 de Junio 2022"
+.LO 8
+.SH NAME
+wannapprove \- cliente para el servidor proxy SOCKS 5 - Grupo 6
+
+.SH SINOPSIS
+.HP 10
+.B  wannapprove
+[ POSIX style options ]
+
+.SH OPCIONES
+
+.IP "\fB-h\fR"
+Imprime la ayuda y termina.
+
+.IP "\fB\-L\fB \fIdirección-cliente\fR"
+Establece la dirección para el management client.
+Por defecto el valor es \fI127.0.0.1\fR.
+
+.IP "\fB\-P\fB \fIpuerto\fR"
+Puerto TCP donde escuchará por conexiones entrante del protocolo
+WANNAPPROVE. Por defecto el valor es \fI8080\fR.
+
+.IP "\fB\-a\fB \fItoken\fR"
+Token para autenticar al usuario.
+
+.IP "\fB\-g\fB \fIopción\fR"
+Imprime los datos de la opción indicada.
+
+.IP "\fB\-e\fB \fIuser:attr:value\fR"
+Edita el atributo del usuario indicado (user o pass).
+
+.IP "\fB\-d\fB \fIusername\fR"
+Elimina el usuario con el username provisto.
+
+.IP "\fB\-i\fB \fIuser:pass\fR"
+Agrega el usuario con el user y pass provistos.
+
+.IP "\fB\-t\fB \fIoptions:status\fR"
+Configura la opción recibida con el status provisto.
+
+.IP "\fB\-b\fB \fIsize\fR"
+Ajusta el tamaño del buffer con el size provisto.
+
+.IP "\fB\-v\fB"
+Imprime información sobre la veresión y termina.
+
+.SH OPCIONES PARA GET
+
+.IP "\fBusers\fR"
+Imprime la lista de usuarios con sus contraseñas.
+
+.IP "\fBpasswords\fR"
+Imprime la lista de passwords sniffeadas.
+
+.IP "\fBbuffersize\fR"
+Imprime el tamaño actual del buffer.
+
+.IP "\fBauthstatus\fR"
+Imprime el estado actual del auth.
+
+.IP "\fBspoofstatus\fR"
+Imprime el estado actual del spoofing.
+
+.IP "\fBsentbytes\fR"
+Imprime la cantidad de bytes enviados.
+
+.IP "\fBrcvbytes\fR"
+Imprime la cantidad de bytes recibidos.
+
+.IP "\fBhistoric\fR"
+Imprime la cantidad de conexiones históricas.
+
+.IP "\fBconcurrent\fR"
+Imprime la cantidad de conexiones concurrentes.
+
+.SH OPCIONES PARA ATTR DE -e
+
+.IP "\fB0\fR"
+Indica que se editará el usuario.
+
+.IP "\fB1\fR"
+Indica que se editará al contraseña.
+
+.SH OPCIONES PARA OPTIONS DE -d
+
+.IP "\fBauth\fR"
+Indica que se configurará el auth.
+
+.IP "\fBspoof\fR"
+Indica que se configurará el spoofing.
+
+.SH OPCIONES PARA STATUS DE -d
+
+.IP "\fBon\fR"
+Indica que se habilitará la opción.
+
+.IP "\fBoff\fR"
+Indica que se deshabilitará la opción.
