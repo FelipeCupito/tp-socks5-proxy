@@ -5,7 +5,8 @@ int num_to_4bytes(char *res, int res_size, uint32_t n);
 int bool_to_bytes(char *res, int res_size, bool n);
 void ip_to_str(struct sockaddr_storage *addr, char *dest_ip);
 struct users* get_user(char *username);
-
+void copy_user(struct users usr1, struct users usr2);
+int equal(struct users usr1, char *username);
 
 config conf;
 
@@ -40,6 +41,28 @@ int checkUser(char *user, char *pass){
 }
 
 ////////////////////////////////////////////////////////
+//                      DELETE
+////////////////////////////////////////////////////////
+int delete_user(char *username){
+
+  bool find_flag = false;
+  for (int i = 0; i < conf.users_size; ++i) {
+    struct users user = conf.users[i];
+    if(equal(user, username)){
+      find_flag = true;
+    }
+    if(find_flag && i < (conf.users_size-1)){
+      struct users next_user = conf.users[i+1];
+      copy_user(user, next_user);
+    }
+  }
+  if(find_flag){
+    return 0;
+  }
+  return -1;
+}
+
+////////////////////////////////////////////////////////
 //                      EDIT
 ////////////////////////////////////////////////////////
 int edit_user(char *username, char *new_value, uint8_t attr){
@@ -57,6 +80,8 @@ int edit_user(char *username, char *new_value, uint8_t attr){
 
   return 0;
 }
+
+
 
 
 
@@ -200,6 +225,17 @@ int is_auth_enabled(){
 ////////////////////////////////////////
 //privadas
 ///////////////////////////////////////////
+
+void copy_user(struct users usr1, struct users usr2){
+  strcpy(usr1.name, usr2.name);
+  strcpy(usr1.pass, usr2.pass);
+}
+
+int equal(struct users usr1, char *username){
+  if(strcmp(usr1.name, username) == 0)
+    return 1;
+  return 0;
+}
 
 struct users* get_user(char *username){
   for (int i = 0; i < conf.users_size; ++i) {

@@ -9,8 +9,9 @@
 #include "../buffer.h"
 #include "../logger.h"
 
-
 #define MAX_KEY_SIZE 0XFF
+
+
 
 enum admin_delete_state {
   admin_delete_action,

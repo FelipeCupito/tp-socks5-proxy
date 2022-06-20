@@ -10,7 +10,7 @@
 #include "../logger.h"
 
 
-static const uint8_t STATUS_UNKOWN_USER_FAIL = 0x07;
+
 #define MAX_VALUE_SIZE 0XFF
 
 enum attribute {

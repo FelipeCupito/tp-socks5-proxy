@@ -296,14 +296,16 @@ unsigned int request_edit_request(struct selector_key *key){
         goto finally;
       }
       if (st == admin_edit_done) {
-        if(edit_user((char*)parser->username, (char*)parser->value, parser->attr) != 0)
-          parser->status = STATUS_UNKOWN_USER_FAIL;
+        if(edit_user((char*)parser->username, (char*)parser->value, parser->attr) != 0){
+          parser->status = 0x07; //STATUS_UNKOWN_USER_FAIL
+        }
       }
       if(admin_edit_marshall(buff_write, parser->status) == -1){err = true;}
       ret = REPLIES;
 
-    } else { err = true; }
-  }
+    }
+
+  }else { err = true; }
 
 
   finally:
@@ -333,7 +335,22 @@ unsigned int request_buffsize_request(struct selector_key *key){
   n = recv(key->fd, ptr, size, 0);
   if(n>0) {
     buffer_write_adv(buff_read, n);
+    enum admin_configbuff_state st = admin_configbuff_consume(buff_read, parser, &err);
+    if (admin_configbuff_is_done(st, &err)) {
+      if (SELECTOR_SUCCESS != selector_set_interest_key(key, OP_WRITE)) {
+        err = true;
+        goto finally;
+      }
+      if (st == admin_edit_done) {
 
+
+
+
+      }
+      if(admin_configbuff_marshall(buff_write, parser->status) == -1){err = true;}
+      ret = REPLIES;
+
+    } else { err = true; }
 
 
 
@@ -399,11 +416,22 @@ unsigned int request_delete_request(struct selector_key *key){
   n = recv(key->fd, ptr, size, 0);
   if(n>0) {
     buffer_write_adv(buff_read, n);
+    enum admin_delete_state st = admin_delete_consume(buff_read, parser, &err);
+    if (admin_delete_is_done(st, &err)) {
+      if (SELECTOR_SUCCESS != selector_set_interest_key(key, OP_WRITE)) {
+        err = true;
+        goto finally;
+      }
+      if (st == admin_edit_done) {
+        if (delete_user((char *) parser->username) != 0) {
+          parser->status = 0x05; //STATUS_UNKNOWN_USER_FAIL;
+        }
+      }
+      if (admin_delete_marshall(buff_write, parser->status) == -1) { err = true; }
+      ret = REPLIES;
+    }
 
-
-
-
-  }else{err = true;}
+  }else { err = true; }
 
   finally:
   return err ? MNG_ERROR : ret;

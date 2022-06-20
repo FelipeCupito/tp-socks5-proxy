@@ -120,7 +120,7 @@ enum admin_configbuff_state admin_configbuff_consume (buffer *buff, struct admin
   return state;
 }
 
-extern int admin_configbuff_marshalll (buffer *b, const uint8_t status) {
+extern int admin_configbuff_marshall(buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 
