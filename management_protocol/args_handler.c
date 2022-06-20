@@ -102,15 +102,15 @@ static void mng_usage(char* command) {
         command);
 }
 
-static unsigned short port(const char *s) {
-  char *end = 0;
-  const long sl = strtol(s, &end, 10);
+static unsigned short port(const char* s) {
+    char* end = 0;
+    const long sl = strtol(s, &end, 10);
 
-  if (end == s || '\0' != *end ||
-      ((LONG_MIN == sl || LONG_MAX == sl) && ERANGE == errno) || sl < 0 ||
-      sl > USHRT_MAX) {
-    log_print(LOG_ERROR, "port should in in the range of 1-65536: %s\n", s);
-    return 1;
-  }
-  return (unsigned short)sl;
+    if (end == s || '\0' != *end ||
+        ((LONG_MIN == sl || LONG_MAX == sl) && ERANGE == errno) || sl < 0 ||
+        sl > USHRT_MAX) {
+        log_print(LOG_ERROR, "port should in in the range of 1-65536: %s\n", s);
+        return 1;
+    }
+    return (unsigned short) sl;
 }

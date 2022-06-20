@@ -133,14 +133,8 @@ void login(int fd, struct manage_args* args) {
     msg[1] = password_len;
     strcpy((char*) (msg + 2), password);
 
-    printf("Code %u\n", msg[0]);
-    printf("pass len: %u\n", msg[1]);
-    printf("About to send auth with %s\n", (char*) (msg + 2));
-
     // using send due to connected state
     int bytes = send(fd, msg, password_len + 4, 0);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
-    printf("bytes sent: %d\n", bytes);
-
 
     // recibir respuesta
     char res[1];
