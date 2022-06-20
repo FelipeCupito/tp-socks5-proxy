@@ -72,6 +72,9 @@ int checkToken(char *token);
 //devulve 1 si ok, 0 sino
 int checkUser(char *user, char *pass);
 
+//edit
+int edit_user(char *username, char *new_value, uint8_t attr);
+
 //put
 int add_user(char* user, char* pass);
 

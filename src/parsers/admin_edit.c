@@ -7,7 +7,7 @@ static const uint8_t STATUS_ERROR_INVALID_ULEN      = 0x03;
 static const uint8_t STATUS_ERROR_INVALID_ATTRIBUTE = 0x04;
 static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x05;
 static const uint8_t STATUS_ERROR                   = 0x06;
-static const uint8_t STATUS_UNKOWN_USER_FAIL        = 0x07; //TODO: no se usa
+
 
 static const uint8_t EDIT_ACTION = 0x02;
 static const uint8_t USERS_FIELD = 0x00;
@@ -203,7 +203,7 @@ enum admin_edit_state admin_edit_consume (buffer *buff, struct admin_edit_parser
   return state;
 }
 
-extern int admin_edit_marshalll (buffer *b, const uint8_t status) {
+int admin_edit_marshall(buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 

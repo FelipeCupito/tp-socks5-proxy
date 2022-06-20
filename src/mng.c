@@ -296,9 +296,11 @@ unsigned int request_edit_request(struct selector_key *key){
         goto finally;
       }
       if (st == admin_edit_done) {
-
+        if(edit_user((char*)parser->username, (char*)parser->value, parser->attr) != 0)
+          parser->status = STATUS_UNKOWN_USER_FAIL;
       }
-
+      if(admin_edit_marshall(buff_write, parser->status) == -1){err = true;}
+      ret = REPLIES;
 
     } else { err = true; }
   }
