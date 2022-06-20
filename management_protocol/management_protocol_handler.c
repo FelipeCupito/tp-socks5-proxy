@@ -64,20 +64,22 @@ enum get_options {
 void login(int fd, struct manage_args* args) {
     char* password = args->try_password;
 
-    // Creamos primer mensaje
+     //Creamos primer mensaje
     size_t password_len = strlen(password);
-    uint8_t* msg = NULL;
-    msg = realloc(msg, 2 + password_len + 2);
+    //TODO: si password_len > 255 error;
+    uint8_t* msg = realloc(msg, 2 + password_len + 2);
     msg[0] = 0x00;
     msg[1] = password_len;
     strcpy((char*) (msg + 2), password);
 
-    printf("COde %u\n", msg[0]);
+    printf("Code %u\n", msg[0]);
     printf("pass len: %u\n", msg[1]);
     printf("About to send auth with %s\n", (char*) (msg + 2));
+    
     // using send due to connected state
-    int bytes = send(fd, msg, strlen((char*) msg), MSG_NOSIGNAL);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
+    int bytes = send(fd, msg, password_len+4, 0);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
     printf("bytes sent: %d\n", bytes);
+  
 
     // recibir respuesta
     char res[1];

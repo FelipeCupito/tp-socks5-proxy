@@ -23,7 +23,7 @@ all:$(OFILES)
 	$(CC) $(OFILES) $(CFLAGS) $(LDFLAG) -o server
 
 client:
-	cd management_protocol; make all;
+	cd management_protocol; make clean all;
 
 test:$(OTFILES)
 	cd test; make all

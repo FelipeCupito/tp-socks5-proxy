@@ -115,7 +115,7 @@ mng* mng_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clnt
   newMng->client_addr_len = clntAddrLen;
 
   //si esta en 1 se puede liberar la memoria
-  newMng->toFree = 0;
+  newMng->close = 0;
 
   return newMng;
 }

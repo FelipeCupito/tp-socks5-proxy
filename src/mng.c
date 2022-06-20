@@ -34,12 +34,16 @@ unsigned int mng_connect_read(struct selector_key *key){
         goto finally;
       }
       if(st == admin_connect_done){
-        if (checkToken((char *) parser->password.passwd) == 0) {
+        if (checkToken((char *) parser->password.passwd)) {
+          //la contraseña es correcta
           if (admin_connect_marshall(buff_write, 0x00) == -1) {err = true;}
         }else{
+          //la contraseña es incorrecta
+          ATTACH(key)->close = 1;
           if (admin_connect_marshall(buff_write, 0X04) == -1) {err = true;}
         }
       }else{
+        ATTACH(key)->close = 1;
         if (admin_connect_marshall(buff_write, parser->status) == -1) { err = true; }
       }
       ret = CONNECT_WRITE;
@@ -74,10 +78,15 @@ unsigned int mng_connect_write(struct selector_key *key){
   } else {
     buffer_read_adv(buff, n);
     if (!buffer_can_read(buff)) {
-      if (SELECTOR_SUCCESS == selector_set_interest(key->s,key->fd, OP_READ)) {
-        ret = REQUEST;
+      if(ATTACH(key)->close == 0){
+        //no se cierra
+        if (SELECTOR_SUCCESS == selector_set_interest(key->s,key->fd, OP_READ)) {
+          ret = REQUEST;
+        }else{
+          err = true;
+        }
       }else{
-        err = true;
+        ret = MNG_DONE;
       }
     }
   }
@@ -91,7 +100,7 @@ unsigned int mng_connect_write(struct selector_key *key){
 //////////////////////////////////////////
 unsigned int mng_request(struct selector_key *key){
 
-  unsigned int ret = CONNECT_READ;
+  unsigned int ret = REQUEST;
   bool err = false;
   
   buffer *buff_read = &ATTACH(key)->read_buffer;

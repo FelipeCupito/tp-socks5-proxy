@@ -14,9 +14,9 @@ config* init_config(){
 }
 
 int checkToken(char *token){
-    if(strcmp(conf.mng_token, token)== 0){
-        return 1;
-      }
+  if(strcmp(conf.mng_token, token) == 0){
+    return 1;
+  }
   return 0;
 }
 

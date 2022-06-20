@@ -77,7 +77,7 @@ typedef struct mng {
   uint8_t raw_buff_a[BUFFER_SIZE], raw_buff_b[BUFFER_SIZE];
   buffer read_buffer, write_buffer;
 
-  int toFree;
+  int close;
 } mng;
 
 #endif

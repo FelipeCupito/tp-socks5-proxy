@@ -13,7 +13,6 @@
 #define DEFAULT_MNG_PORT 8080
 #define DEFAULT_MNG_ADDR_V4 "127.0.0.1"
 
-
 typedef struct manage_args {
     bool authorized;
 
