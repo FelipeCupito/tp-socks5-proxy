@@ -21,7 +21,7 @@ typedef struct manage_args {
     uint8_t version;
 
     char* try_password;
-
+    
     bool get_flag;
     char* get_option;
 
@@ -31,6 +31,11 @@ typedef struct manage_args {
 
     bool delete_flag;
     char* delete_username;
+
+    bool edit_flag;
+    char* edit_username;
+    unsigned int edit_attribute;
+    char* edit_value;
 
     bool toggle_flag;
     char* toggle_option;
