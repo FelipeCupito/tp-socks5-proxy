@@ -591,7 +591,7 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
 
     uint8_t status;
     int recv_bytes = receive_configbuffsize_reply(fd, &status);
-
+    log_print(INFO, "%d", recv_bytes);
     if (recv_bytes <= 0) {
         if (recv_bytes < 0) {
             // Negativo -> error
@@ -605,7 +605,7 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
 static int send_configbuffsize_request(int fd, unsigned int size) {
     int sent_bytes = 0;
     uint8_t request[5];
-
+    log_print(INFO, "dsfdf");
     request[0] = 0x03;
     request[1] = (size >> 24) & 0xFF;
     request[2] = (size >> 16) & 0xFF;
