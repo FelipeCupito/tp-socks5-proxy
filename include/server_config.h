@@ -104,6 +104,12 @@ int set_buff_size(char* size);
 
 int four_bytes_to_num(char* src);
 
+//configstatus
+
+int set_auth_status(uint8_t status);
+int set_sniff_status(uint8_t status);
+void set_status(uint8_t field, uint8_t status);
+
 //is
 int is_spoofing_enabled();
 

@@ -334,7 +334,7 @@ unsigned int request_buffsize_request(struct selector_key *key){
   if(n>0) {
     buffer_write_adv(buff_read, n);
     enum admin_configbuff_state st = admin_configbuff_consume(buff_read, parser, &err);
-    if (admin_edit_is_done(st, &err)) {
+    if (admin_configbuff_is_done(st, &err)) {
       if (SELECTOR_SUCCESS != selector_set_interest_key(key, OP_WRITE)) {
         err = true;
         goto finally;
@@ -347,8 +347,8 @@ unsigned int request_buffsize_request(struct selector_key *key){
       if(admin_configbuff_marshall(buff_write, parser->status) == -1){err = true;}
       ret = REPLIES;
 
-    } else { err = true; }
-  }
+    } 
+  }else { err = true; }
   finally:
   return err ? MNG_ERROR : ret;
 }
@@ -376,12 +376,20 @@ unsigned int request_configstatus_request(struct selector_key *key){
   n = recv(key->fd, ptr, size, 0);
   if(n>0) {
     buffer_write_adv(buff_read, n);
+    enum admin_configstatus_state st = admin_configstatus_consume(buff_read, parser, &err);
+    if (admin_configstatus_is_done(st, &err)) {
+      if (SELECTOR_SUCCESS != selector_set_interest_key(key, OP_WRITE)) {
+        err = true;
+        goto finally;
+      }
+      if (st == admin_configstatus_done) {
+        set_status(parser -> field, parser -> config_status);
+      }
+      if(admin_configbuff_marshall(buff_write, parser->status) == -1){err = true;}
+      ret = REPLIES;
 
-
-
-
-  }else{err = true;}
-
+    } 
+  }else { err = true; }
   finally:
   return err ? MNG_ERROR : ret;
 }

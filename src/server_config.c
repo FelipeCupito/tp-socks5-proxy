@@ -69,6 +69,29 @@ int set_buff_size(char* size){
 }
 
 ////////////////////////////////////////////////////////
+//                      CONFIGSTATUS
+////////////////////////////////////////////////////////
+int set_auth_status(uint8_t status){
+  log_print(INFO, "status %d", (bool) status);
+  conf.auth_enabled = (bool) status;
+  return conf.auth_enabled;
+}
+
+int set_sniff_status(uint8_t status){
+  conf.disectors_enabled = (bool) status;
+  return conf.disectors_enabled;
+}
+
+void set_status(uint8_t field, uint8_t status){
+  int ret;
+  if (field == 0x03) {
+    ret = set_auth_status(status);
+  } else {
+    ret = set_sniff_status(status);
+  }
+}
+
+////////////////////////////////////////////////////////
 //                      PUT
 ////////////////////////////////////////////////////////
 int add_user(char* user, char* pass){
