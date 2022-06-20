@@ -230,6 +230,7 @@ void execute_commands(int fd, struct manage_args* args) {
                 get_concurrent_conections(fd);
                 break;
             default:
+                error_quit(fd, "GET: Invalid command");
                 break;
         }
     }
@@ -609,12 +610,15 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
 
 static int send_configbuffsize_request(int fd, unsigned int size) {
     int sent_bytes = 0;
-    uint8_t request[2];
+    uint8_t request[5];
 
     request[0] = 0x03;
-    request[1] = size;
+    request[1] = (size >> 24) & 0xFF;
+    request[2] = (size >> 16) & 0xFF;
+    request[3] = (size >> 8) & 0xFF;
+    request[4] = size & 0xFF;
 
-    sent_bytes = send(fd, request, 2, MSG_NOSIGNAL);
+    sent_bytes = send(fd, request, 5, MSG_NOSIGNAL);
 
     return sent_bytes;
 }
