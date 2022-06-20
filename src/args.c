@@ -124,8 +124,14 @@ static void user(char *s, struct users *user) {
   } else {
     *p = 0;
     p++;
-    user->name = s;
-    user->pass = p;
+    if(strlen(s) > MAX_STR_SIZE || strlen(p) > MAX_STR_SIZE){
+      log_print(LOG_ERROR, "username or password is too long");
+      return;
+    }
+    strcpy(user->name, s);
+    strcpy(user->pass, p);
+    //user->name = s;
+    //user->pass = p;
   }
 }
 

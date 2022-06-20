@@ -37,6 +37,26 @@ int checkUser(char *user, char *pass){
     return 0;
 }
 ////////////////////////////////////////////////////////
+//                      PUT
+////////////////////////////////////////////////////////
+int add_user(char* user, char* pass){
+  if(conf.users_size + 1 >= MAX_USERS )
+    return -1;
+
+  if(strlen(user) > MAX_STR_SIZE || strlen(user) > MAX_STR_SIZE){
+    return -1;
+  }
+
+  struct users *new_user = &conf.users[conf.users_size];
+  strcpy(new_user->name, user);
+  strcpy(new_user->pass, pass);
+
+  conf.users_size ++;
+
+  return 0;
+}
+
+////////////////////////////////////////////////////////
 //                  GETTERS
 ////////////////////////////////////////////////////////
 int get_users(char *res, int res_size){

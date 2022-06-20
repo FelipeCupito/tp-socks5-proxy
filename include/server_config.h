@@ -27,11 +27,11 @@
 #define DEFAULT_DISECTORS true
 
 #define MNG_BUFFER_SIZE 4096 // TODO: sacar
-
+#define MAX_STR_SIZE 255
 //variables:
 struct users {
-  char *name;
-  char *pass;
+  char name[MAX_STR_SIZE];
+  char pass[MAX_STR_SIZE];
 };
 
 typedef struct config{
@@ -71,6 +71,9 @@ config* init_config();
 int checkToken(char *token);
 //devulve 1 si ok, 0 sino
 int checkUser(char *user, char *pass);
+
+//put
+int add_user(char* user, char* pass);
 
 //getters
 int get_users(char *res, int res_size);

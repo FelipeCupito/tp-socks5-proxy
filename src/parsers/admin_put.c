@@ -168,7 +168,7 @@ enum admin_put_state admin_put_consume (buffer *buff, struct admin_put_parser *p
   return state;
 }
 
-extern int admin_put_marshalll (buffer *b, const uint8_t status) {
+int admin_put_marshall(buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 

@@ -246,12 +246,20 @@ unsigned int request_put_request(struct selector_key *key){
   n = recv(key->fd, ptr, size, 0);
   if(n>0) {
     buffer_write_adv(buff_read, n);
-    
-
-
-
-
-
+    enum admin_put_state st = admin_put_consume(buff_read, parser, &err);
+    if(admin_put_is_done(st, &err)){
+      if (SELECTOR_SUCCESS != selector_set_interest_key(key, OP_WRITE)) {
+        err = true;
+        goto finally;
+      }
+      if(st == admin_put_done){
+        if(add_user((char*) parser->user.username, (char*) parser->pass.passwd) != 0){
+          parser->status = 0x05;
+        }
+      }
+      if (admin_put_marshall(buff_write, parser->status) == -1) {err = true;}
+      ret = REPLIES;
+    }
   }else{err = true;}
 
   finally:
@@ -281,6 +289,15 @@ unsigned int request_edit_request(struct selector_key *key){
   n = recv(key->fd, ptr, size, 0);
   if(n>0) {
     buffer_write_adv(buff_read, n);
+    enum admin_edit_state st = admin_edit_consume(buff_read, parser, &err);
+    if(admin_edit_is_done(st, &err)){
+      if (SELECTOR_SUCCESS != selector_set_interest_key(key, OP_WRITE)) {
+        err = true;
+        goto finally;
+      }
+      if(st == admin_put_done){
+
+      }
 
 
 
