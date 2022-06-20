@@ -19,7 +19,7 @@ void parse_args_handler(const int argc, char** argv, struct manage_args* mng_arg
     mng_args->delete_flag = false;
     mng_args->set_flag = false;
 
-    while ((c = getopt(argc, argv, "hL:P:a:g:e:d:i:s:t:b:v")) != -1) {
+    while ((c = getopt(argc, argv, "hL:P:a:g:e:d:i:t:b:v")) != -1) {
         switch (c) {
             case 'h':
                 // Help
@@ -40,6 +40,10 @@ void parse_args_handler(const int argc, char** argv, struct manage_args* mng_arg
                 break;
             case 'e':
                 // edit user
+                mng_args->edit_flag = true;
+                mng_args->edit_username = strtok(optarg, delimiter);
+                mng_args->edit_attribute = atoi(strtok(NULL, delimiter));
+                mng_args->edit_value = strtok(NULL, delimiter);
                 break;
             case 'd':
                 // delete user (TODO como distingo que usuario borro?)
@@ -52,9 +56,6 @@ void parse_args_handler(const int argc, char** argv, struct manage_args* mng_arg
                 mng_args->add_username = strtok(optarg, delimiter);
                 mng_args->add_password = strtok(NULL, delimiter);
                 // Chequear error desp
-                break;
-            case 's':
-                // set (TODO como distingo que usuario edito?)
                 break;
             case 't':
                 // toggle
@@ -96,16 +97,15 @@ static void mng_usage(char* command) {
         command);
 }
 
-static unsigned short port(const char* s) {
-    char* end = 0;
-    const long sl = strtol(s, &end, 10);
+static unsigned short port(const char *s) {
+  char *end = 0;
+  const long sl = strtol(s, &end, 10);
 
-    if (end == s || '\0' != *end ||
-        ((LONG_MIN == sl || LONG_MAX == sl) && ERANGE == errno) || sl < 0 ||
-        sl > USHRT_MAX) {
-        // log_print(LOG_ERROR, "port should in in the range of 1-65536: %s\n", s);
-        printf("port should in in the range of 1-65536: %s\n");
-        return 1;
-    }
-    return (unsigned short) sl;
+  if (end == s || '\0' != *end ||
+      ((LONG_MIN == sl || LONG_MAX == sl) && ERANGE == errno) || sl < 0 ||
+      sl > USHRT_MAX) {
+    log_print(LOG_ERROR, "port should in in the range of 1-65536: %s\n", s);
+    return 1;
+  }
+  return (unsigned short)sl;
 }
