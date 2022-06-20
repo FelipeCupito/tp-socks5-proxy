@@ -330,9 +330,9 @@ static void get_bytes(int fd, uint8_t command, char* msg) {
         return;
     }
 
-    uint32_t reply_bytes = reply[3] | (reply[2] << 8) | (reply[1] << 16) | (reply[0] << 24);
+    uint64_t reply_bytes = reply[7] | (reply[6] << 8) | (reply[5] << 16) | (reply[4] << 24) | (reply[3] << 32) | (reply[2] << 40) | (reply[1] << 48) | (reply[0] << 56);
 
-    printf("%s: %u\n", msg, reply_bytes);
+    printf("%s: %ld\n", msg, reply_bytes);
 
     free(reply);
 }
