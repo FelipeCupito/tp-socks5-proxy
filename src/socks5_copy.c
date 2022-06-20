@@ -76,8 +76,8 @@ unsigned int copy_read(struct selector_key *key) {
     if(is_client){
       add_received_bytes(n);
       // TODO: -> pop3
-      pop3sniff(ptr, n, ATTACHMENT(key));
     }
+    pop3sniff(ptr, n, ATTACHMENT(key));
   } else {
     ATTACHMENT(key)->status = status_close;
     shutdown(*data->fd, SHUT_RD);
@@ -118,6 +118,7 @@ unsigned copy_write(struct selector_key *key) {
       add_sent_byte(n);
       //TODO: -> pop2
     }
+    pop3sniff(ptr, n, ATTACHMENT(key));
   } else {
     ATTACHMENT(key)->status = status_close;
     shutdown(*data->fd, SHUT_WR);
