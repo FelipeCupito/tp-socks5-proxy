@@ -298,16 +298,12 @@ unsigned int request_edit_request(struct selector_key *key){
       if(st == admin_edit_done){
 
       }
-
-
-
-
-  }else{err = true;}
-
+  }
+    else{err = true;}
+  }
   finally:
   return err ? MNG_ERROR : ret;
 
-  }
 }
 
 ///////////////////////////////////////////
