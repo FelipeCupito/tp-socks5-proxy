@@ -72,7 +72,8 @@ void parse_args_handler(const int argc, char** argv, struct manage_args* mng_arg
                 break;
             case 'v':
                 // mensaje de la version
-                mng_args->version = atoi(optarg);
+                // mng_args->version = atoi(optarg);
+                printf("Wannapprove Protocol version 0\n");
                 exit(0);
                 break;
             default:

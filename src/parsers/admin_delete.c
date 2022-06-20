@@ -5,7 +5,7 @@ static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
 static const uint8_t STATUS_ERROR_INVALID_ULEN      = 0x03;
 static const uint8_t STATUS_ERROR                   = 0x04;
-static const uint8_t STATUS_UNKNOWN_USER_FAIL       = 0x05; //TODO: no se usa
+const uint8_t STATUS_UNKNOWN_USER_FAIL = 0x05;
 
 static const uint8_t DELETE_ACTION = 0x05;
 static const uint8_t USERS_FIELD = 0x00;
@@ -147,7 +147,7 @@ enum admin_delete_state admin_delete_consume (buffer *buff, struct admin_delete_
   return state;
 }
 
-extern int admin_delete_marshalll (buffer *b, const uint8_t status) {
+extern int admin_delete_marshall(buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 
