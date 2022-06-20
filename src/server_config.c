@@ -58,7 +58,15 @@ int edit_user(char *username, char *new_value, uint8_t attr){
   return 0;
 }
 
+////////////////////////////////////////////////////////
+//                      CONFIGBUFF
+////////////////////////////////////////////////////////
 
+int set_buff_size(char* size){
+  int res = four_bytes_to_num(size);
+  conf.socks_buffer_size = res;
+  return 0;
+}
 
 ////////////////////////////////////////////////////////
 //                      PUT
@@ -226,6 +234,11 @@ int bool_to_bytes(char *res, int res_size, bool n){
   return 1;
 }
 
+int four_bytes_to_num(char* src) {
+  uint32_t num = src[3] | (src[2] << 8) | (src[1] << 16) | (src[0] << 24);
+  return num;
+}
+
 int num_to_4bytes(char *res, int res_size, uint32_t n){
 
   if(res_size < 4){
@@ -259,4 +272,3 @@ void ip_to_str(struct sockaddr_storage *addr, char *dest_ip){
     inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)addr)->sin6_addr), dest_ip, INET6_ADDRSTRLEN);
   }
 }
-
