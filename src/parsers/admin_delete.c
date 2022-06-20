@@ -31,6 +31,7 @@ enum admin_delete_state delete_action(admin_delete_parser *p, uint8_t b) {
     p -> state = admin_delete_field;
   } else {
     p -> state = admin_delete_error_action;
+    p -> status = STATUS_ERROR_INVALID_ACTION;
   }
 
   return p -> state;
@@ -42,6 +43,7 @@ enum admin_delete_state delete_field(admin_delete_parser *p, uint8_t b) {
     p -> state = admin_delete_ulen;
   } else {
     p -> state = admin_delete_error_field;
+    p -> status = STATUS_ERROR_INVALID_FIELD;
   }
 
   return p -> state;
@@ -54,6 +56,7 @@ enum admin_delete_state delete_username(admin_delete_parser *p, uint8_t b) {
     if (remaining_is_done(p)) {
       *( (p->username) + p->read ) = '\0';
       p -> state = admin_delete_done;
+      p -> status = STATUS_OK;
     } else {
       p -> state = admin_delete_username;
     }
@@ -72,6 +75,7 @@ enum admin_delete_state admin_delete_parser_feed(admin_delete_parser *p, uint8_t
   case admin_delete_ulen:
     if (b <= 0) {
       p -> state = admin_delete_error_ulen;
+      p -> status = STATUS_ERROR_INVALID_ULEN;
     } else {
       remaining_set(p,b);
       p -> ulen = b;

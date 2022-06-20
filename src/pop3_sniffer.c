@@ -135,14 +135,12 @@ enum pop3_sniffer_state check_password(struct pop3_sniffer* s,uint8_t b){
   if(toupper(b) == toupper(*(OK + s -> read))){
     s -> read++;
     if(s -> read == strlen(OK)){
-      log_print(INFO, "Setea OK");
       s -> state = pop3_sniffer_ok;
     }
   }
   else if(toupper(b) == toupper(*(ERR + s -> check_read))){
     s -> check_read++;
     if(s -> check_read == strlen(ERR)){
-      log_print(INFO, "Setea ERR");
       s -> state = pop3_sniffer_user;
     }
   }
@@ -250,7 +248,6 @@ void pop3sniff(uint8_t *ptr, ssize_t size, void *socks5){
     if (!pop3_is_parsing(s)){
       pop3_sniffer_init(s);
     }
-    log_print(INFO, "DONE? %d", pop3_is_done(s));
     if(!pop3_is_done(s)){
         size_t count;
         uint8_t *pop3_ptr = buffer_write_ptr(&s -> buffer,&count);
@@ -263,6 +260,5 @@ void pop3sniff(uint8_t *ptr, ssize_t size, void *socks5){
             buffer_write_adv(&s -> buffer,count);
         }
         enum pop3_sniffer_state st = pop3_sniffer_consume(s, socks5);
-        log_print(INFO, "FINAL STATE %d", st);
     }
 }

@@ -9,7 +9,7 @@ ALL_OBJECTS= $(OBJECTS_PARSERS)
 %.o: %.c
 	$(CC) $(TESTFLAGS) -I../include -c $< -o $@
 
-all: hello_test auth_test req_test admin_connect_test admin_action_test admin_get_test admin_put_test admin_edit_test admin_delete_test admin_configbuffsize_test admin_configstatus_test sniffer_test
+all: hello_test auth_test req_test admin_connect_test admin_get_test admin_put_test admin_edit_test admin_delete_test admin_configbuffsize_test admin_configstatus_test sniffer_test
 
 hello_test: parser_tests/hello_test.o
 	$(CC) parser_tests/hello_test.c ../src/parsers/hello.c ../src/buffer.c ../src/logger.c -o hello_test $(TESTFLAGS)

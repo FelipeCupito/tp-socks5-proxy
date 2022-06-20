@@ -14,9 +14,9 @@ The protocol defined here allows an administrator user for a server implementing
 
 2. Procedure
 
-When a TCP-based client wishes to take control of a SOCKS5 server, it must open a TCP connection to the WANNAPROVE (8080) port on the server system. Then, if this request succeeds, the client entering must authenticate with the right admin password to be allowed to connect. For this it must sent the request details.
+When a TCP-based client wishes to take control of a SOCKS5 server, it must open a TCP connection to the WANNAPPROVE (8080) port on the server system. Then, if this request succeeds, the client entering must authenticate with the right admin password to be allowed to connect. For this it must sent the request details.
 
-The WANNAPROVE request is structured thus:
+The WANNAPPROVE request is structured thus:
 
 	+---------+---------+----------+
 	| VERSION | PASSLEN | PASSWD   |
@@ -29,7 +29,7 @@ The WANNAPROVE request is structured thus:
 		o PASSLEN number of bytes of the incoming password
 		o PASSWD the actual password
 
-Then the WANNAPROVE server will evaluate the format of the request and if the password is correct it will send the following response:
+Then the WANNAPPROVE server will evaluate the format of the request and if the password is correct it will send the following response:
 
 	+--------+
 	| STATUS |
@@ -60,6 +60,8 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 
 	3.1. GET ACTION
 
+	This action allows the administrator to query data of a SOCKS5 server.
+
 		<<	Request for GET ACTION
 
 			+--------+--------+
@@ -68,7 +70,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			| X'00'  | 1      |
 			+--------+--------+
 
-			OPTION: 
+			Where OPTION can be: 
 				o USERS X'00'
 				o PASSWORDS X'01'
 				o BUFFERSIZE X'02'
@@ -87,13 +89,15 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			| 1      | 1      | VARIABLE |
 			+--------+--------+----------+
 			
-			STATUS:
+			Where STATUS can be:
 				o OK X'00'
 				o ERROR_INVALID_ACTION X'01'
 				o ERROR_INVALID_OPTION X'02'
 				o ERROR X'03', unknown error
 
 	3.2. PUT ACTION
+
+	This action allows the administrator to add data to a SOCKS5 server, in this version it can only add users.
 			
 		<<	Request for PUT ACTION
 
@@ -105,7 +109,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 		
 			ACTION: o PUT X'01'
 			FIELD:  o USERS X'00'
-			
+
 		>>	Reply for PUT ACTION
 
 			+--------+
@@ -114,7 +118,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			| 1      |
 			+--------+
 			
-			STATUS:
+			Where STATUS can be:
 				o OK X'00'
 				o ERROR_INVALID_ACTION X'01'
 				o ERROR_INVALID_FIELD X'02'
@@ -123,6 +127,8 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 				o ERROR, unkown error X'05'
 
 	3.3. EDIT ACTION
+
+	This action allows the administrator to edit data to a SOCKS5 server, in this version it can only edit users' names or passwords.
 
 		<<	Request for EDIT ACTION
 
@@ -136,7 +142,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 				o EDIT X'02'
 			FIELD:
 				o USERS X'00'
-			ATRIBUTE:	
+			Where ATRIBUTE can be:	
 				o USERNAME X'00'
 				o PASSWORD X'01'
 
@@ -148,7 +154,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			| 1      |
 			+--------+
 			
-			STATUS:
+			Where STATUS can be:
 				o OK X'00'
 				o ERROR_INVALID_ACTION X'01'
 				o ERROR_INVALID_FIELD X'02'
@@ -159,6 +165,8 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 				o UNKNOWN_USER_FAIL X'07'
 
 	3.4. CONFIGBUFFSIZE ACTION
+	
+	This actions allows the administrator to change the size of the buffer.
 			
 		<<	Request for CONFIGBUFFSIZE ACTION
 
@@ -179,7 +187,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			| 1      |
 			+--------+
 			
-			STATUS:
+			Where STATUS can be:
 				o OK X'00'
 				o ERROR_INVALID_ACTION X'01'
 				o ERROR_INVALID_SIZELEN X'02'
@@ -187,6 +195,8 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 				o ERROR X'04'
 
 	3.5. CONFIGSTATUS ACTION
+
+	This action allows the administrator to turn on or off the necesity of authentication for regular users or to turn on or off the sniffing of pop3 credentials.
 
 		<<	Request for CONFIGSTATUS ACTION
 
@@ -198,10 +208,10 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 		
 			ACTION:
 				o CONFIG STATUS X'04'
-			FIELD:
+			Where FIELD can be:
 				o AUTH X'03'
 				o SPOOF X'04' 	
-			STATUS:
+			Where STATUS can be:
 				o ON X'00'
 				o OFF X'01'
 
@@ -213,7 +223,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			| 1      |
 			+--------+
 			
-			STATUS:
+			Where STATUS can be:
 				o OK X'00'	
 				o ERROR_INVALID_ACTION X'01'
 				o ERROR_INVALID_FIELD  X'02'
@@ -221,7 +231,9 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 				o ERROR X'04'
 
 	3.6. DELETE ACTION
-			
+
+	This action allows the administrator to delete data of a SOCKS5 server, in this version it can only delete users.
+
 		<<	Request for DELETE ACTION
 
 			+--------+-------+------+----------+
@@ -243,7 +255,7 @@ Then the WANNAPROVE server will evaluate the format of the request and if the pa
 			| 1      |
 			+--------+
 			
-			STATUS:
+			Where STATUS can be:
 				o OK X'00'
 				o ERROR_INVALID_ACTION X'01'
 				o ERROR_INVALID_FIELD X'02'

@@ -3,7 +3,7 @@
 static const uint8_t STATUS_OK                     = 0x00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION   = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_FIELD    = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_STAUS    = 0x03;
+static const uint8_t STATUS_ERROR_INVALID_STATUS    = 0x03;
 static const uint8_t STATUS_ERROR                  = 0x04;
 
 static const uint8_t CONFIGSTATUS_ACTION = 0x04;
@@ -24,6 +24,7 @@ enum admin_configstatus_state configstatus_action(admin_configstatus_parser *p, 
     p -> state = admin_configstatus_field;
   } else {
     p -> state = admin_configstatus_error_action;
+    p -> status = STATUS_ERROR_INVALID_ACTION;
   }
 
   return p -> state;
@@ -35,6 +36,7 @@ enum admin_configstatus_state configstatus_field(admin_configstatus_parser *p, u
     p -> state = admin_configstatus_status;
   } else {
     p -> state = admin_configstatus_error_field;
+    p -> status = STATUS_ERROR_INVALID_FIELD;
   }
 
   return p -> state;
@@ -44,8 +46,10 @@ enum admin_configstatus_state status(admin_configstatus_parser *p, uint8_t b) {
   if (b == ON || b == OFF) {
     p -> config_status = b;
     p -> state = admin_configstatus_done;
+    p -> status = STATUS_OK;
   } else {
     p -> state = admin_configstatus_error_status;
+    p -> status = STATUS_ERROR_INVALID_STATUS;
   }
 
   return p -> state;
@@ -72,7 +76,7 @@ enum admin_configstatus_state admin_configstatus_parser_feed(admin_configstatus_
   p -> status = STATUS_ERROR_INVALID_FIELD;
     break;
   case admin_configstatus_error_status:
-  p -> status = STATUS_ERROR_INVALID_STAUS;
+  p -> status = STATUS_ERROR_INVALID_STATUS;
     break;
   case admin_configstatus_done:
   p -> status = STATUS_OK;

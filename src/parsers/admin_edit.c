@@ -3,7 +3,7 @@
 static const uint8_t STATUS_OK                      = 0X00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_KEYLEN    = 0x03;
+static const uint8_t STATUS_ERROR_INVALID_ULEN      = 0x03;
 static const uint8_t STATUS_ERROR_INVALID_ATTRIBUTE = 0x04;
 static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x05;
 static const uint8_t STATUS_ERROR                   = 0x06;
@@ -37,6 +37,7 @@ enum admin_edit_state edit_action(admin_edit_parser *p, uint8_t b) {
     p -> state = admin_edit_field;
   } else {
     p -> state = admin_edit_error_action;
+    p -> status = STATUS_ERROR_INVALID_ACTION;
   }
 
   return p -> state;
@@ -48,6 +49,7 @@ enum admin_edit_state edit_field(admin_edit_parser *p, uint8_t b) {
     p -> state = admin_edit_ulen;
   } else {
     p -> state = admin_edit_error_field;
+    p -> status = STATUS_ERROR_INVALID_FIELD;
   }
 
   return p -> state;
@@ -73,6 +75,7 @@ enum admin_edit_state attribute(admin_edit_parser *p, uint8_t b) {
    p -> state = admin_edit_valuelen;
  } else {
    p -> state = admin_edit_error_attribute;
+   p -> status = STATUS_ERROR_INVALID_ATTRIBUTE;
  }
 
  return p -> state;
@@ -85,6 +88,7 @@ enum admin_edit_state edit_value(admin_edit_parser *p, uint8_t b) {
     if (remaining_is_done(p)) {
       *( (p->value) + p->read ) = '\0';
       p -> state = admin_edit_done;
+      p -> status = STATUS_OK;
     } else {
       p -> state = admin_edit_value;
     }
@@ -103,6 +107,7 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
   case admin_edit_ulen:
     if (b <= 0) {
       p -> state = admin_edit_error_ulen;
+      p -> status = STATUS_ERROR_INVALID_ULEN;
     } else {
       remaining_set(p,b);
       p -> ulen = b;
@@ -118,6 +123,7 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
   case admin_edit_valuelen:
     if (b <= 0) {
       p -> state = admin_edit_error_valuelen;
+      p -> status = STATUS_ERROR_INVALID_VALUELEN;
     } else {
       remaining_set(p,b);
       p -> valuelen = b;
@@ -140,7 +146,7 @@ enum admin_edit_state admin_edit_parser_feed(admin_edit_parser *p, uint8_t b) {
   p -> status = STATUS_ERROR_INVALID_FIELD;
     break;
   case admin_edit_error_ulen:
-  p -> status = STATUS_ERROR_INVALID_KEYLEN;
+  p -> status = STATUS_ERROR_INVALID_ULEN;
     break;
   case admin_edit_error_valuelen:
   p -> status = STATUS_ERROR_INVALID_VALUELEN;

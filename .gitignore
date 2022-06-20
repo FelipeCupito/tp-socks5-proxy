@@ -57,8 +57,7 @@ client
 
 #txt
 *.txt
-!Wannaprove_Protocol_v0.txt
-
+!Wannapprove_Protocol_v0.txt
 # History
 .bash-history
 .DS_Store
