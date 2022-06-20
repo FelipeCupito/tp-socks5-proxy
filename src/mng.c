@@ -295,7 +295,7 @@ unsigned int request_edit_request(struct selector_key *key){
         err = true;
         goto finally;
       }
-      if(st == admin_put_done){
+      if(st == admin_edit_done){
 
       }
 
@@ -307,6 +307,7 @@ unsigned int request_edit_request(struct selector_key *key){
   finally:
   return err ? MNG_ERROR : ret;
 
+  }
 }
 
 ///////////////////////////////////////////
