@@ -96,8 +96,8 @@ void login(int fd, struct manage_args* args) {
     }
 
     // TODO: Fijarse que hay un warning de que no esta inicializado
-    // hacer uint8_t*msg = NULL;
-    uint8_t* msg = realloc(msg, 2 + password_len + 2);
+    uint8_t* msg = NULL;
+    msg = realloc(msg, 2 + password_len + 2);
     msg[0] = 0x00;
     msg[1] = password_len;
     strcpy((char*) (msg + 2), password);
@@ -380,7 +380,7 @@ static void send_receive_delete(int fd, char* username) {
         printf("[DELETE] Server error\n");
     }
     else {
-        print_edit_response(status);
+        print_delete_response(status);
     }
 }
 
@@ -641,7 +641,6 @@ static int send_configbuffsize_request(int fd, unsigned int size) {
 
     sent_bytes = send(fd, request, 2, MSG_NOSIGNAL);
 
-    free(request);
     return sent_bytes;
 }
 
