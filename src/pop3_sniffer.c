@@ -20,21 +20,21 @@ void freeSniffer() {
   freeList(list);
 }
 
-/*static*/ void reset_read(struct pop3_sniffer* s, uint8_t remain){
+void reset_read(struct pop3_sniffer* s, uint8_t remain){
   s -> read = 0;
   s -> remaining = remain;
 }
 
-void beginSnifferList(){
+void begin_Sniffer_List(){
   listToBegin(list);
 }
 
-struct sniff_info* getNext() {
-  if (listHasNext(list)){
-		return ((sniff_info*) listNext(list));
-  } else {
-    return NULL;
-  }
+int sniffer_hast_next(){
+  return listHasNext(list);
+}
+
+struct sniff_info* sniffer_get_next() {
+  return ((sniff_info*) listNext(list));
 }
 
 void pop3_sniffer_init_list(){

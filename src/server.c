@@ -168,6 +168,7 @@ finally:
     selector_destroy(selector);
   }
   selector_close();
+  freeSniffer();
 
   for (int i = 0; i < passive_fds_size; i++) {
     if (passive_fds[i] != -1)

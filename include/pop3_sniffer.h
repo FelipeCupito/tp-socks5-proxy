@@ -70,6 +70,10 @@ void freeSniffer();
 //socks5 de tipo struct socks5 si o si
 void pop3sniff(uint8_t *ptr, ssize_t size, void *socks5);
 
-struct sniff_info* getNext();
+void begin_Sniffer_List();
+
+int sniffer_hast_next();
+
+struct sniff_info* sniffer_get_next();
 
 #endif

@@ -17,6 +17,7 @@
 
 #include "buffer.h"
 #include "metrics.h"
+#include "pop3_sniffer.h"
 
 #define MAX_USERS 10
 
@@ -68,15 +69,13 @@ config* init_config();
 
 //checks
 int checkToken(char *token);
-
+//devulve 1 si ok, 0 sino
+int checkUser(char *user, char *pass);
 
 //getters
 int get_users(buffer *buff_write);
 
-int get_pass(buffer *buff_write);
-
-//devulve 1 si ok, 0 sino
-int checkUser(char *user, char *pass);
+int get_pop3_pass(buffer *buff_write);
 
 int get_buff_size(buffer *buff_write);
 

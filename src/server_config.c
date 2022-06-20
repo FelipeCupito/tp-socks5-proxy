@@ -1,9 +1,9 @@
 #include "../include/server_config.h"
 
-int numTo8bytes(buffer *buff_write , uint64_t n);
-int numTo4bytes(buffer *buff_write,uint32_t n);
-int boolToBytes(buffer *buff_write, bool n);
-
+int num_to_8bytes(buffer *buff_write , uint64_t n);
+int num_to_4bytes(buffer *buff_write,uint32_t n);
+int bool_to_bytes(buffer *buff_write, bool n);
+void ip_to_str(struct sockaddr_storage *addr, char *dest_ip);
 
 config conf;
 
@@ -15,6 +15,8 @@ config* init_config(){
   conf.mng_token = MNG_TOKEN;
   conf.socks_buffer_size = DEFAULT_SOCKS_BUFFER_SIZE;
   conf.users_size = 0;
+
+  pop3_sniffer_init_list();
 
   return &conf;
 }
@@ -37,32 +39,22 @@ int checkUser(char *user, char *pass){
     }
     return 0;
 }
-
+////////////////////////////////////////////////////////
+//                  GETTERS
+////////////////////////////////////////////////////////
 int get_users(buffer *buff_write){
   size_t size;
   size_t n = 0;
   uint8_t *ptr = buffer_write_ptr(buff_write, &size);
   for (int i = 0; i < conf.users_size; i++) {
-    char * user = conf.users[i].name;
-    for (int j = 0; user[j] != '\0' && size-2 > n; j++) {
+    char *user = conf.users[i].name;
+    char *pass = conf.users[i].pass;
+    for (int j = 0; user[j] != '\0' && size-3 > n; j++) {
       ptr[n] = user[j];
       n++;
     }
-    ptr[n++] = '\n';
-  }
-  ptr[n++] = '\0';
-
-  buffer_write_adv(buff_write, n);
-  return n;
-}
-
-int get_pass(buffer *buff_write){
-  size_t size;
-  size_t n = 0;
-  uint8_t *ptr = buffer_write_ptr(buff_write, &size);
-  for (int i = 0; i < conf.users_size; i++) {
-    char * pass = conf.users[i].pass;
-    for (int j = 0; pass[j] != '\0' && size-2 > n; j++) {
+    ptr[n++] = ' ';
+    for (int j = 0; user[j] != '\0' && size-2 > n; j++) {
       ptr[n] = pass[j];
       n++;
     }
@@ -74,44 +66,86 @@ int get_pass(buffer *buff_write){
   return n;
 }
 
+int get_pop3_pass(buffer *buff_write){
+  if(!sniffer_hast_next())
+    begin_Sniffer_List();
+
+  size_t size;
+  size_t n = 0;
+  uint8_t *ptr = buffer_write_ptr(buff_write, &size);
+
+  while(sniffer_hast_next() && size > n){
+    sniff_info *pop3_info = sniffer_get_next();
+    char *user_socks = pop3_info->proxy_username;
+    for (int j = 0; user_socks[j] != '\0' && size-3 > n; j++) {
+      ptr[n] = user_socks[j];
+      n++;
+    }
+    ptr[n++] = ' ';
+    char *pop3_user = pop3_info->user;
+    for (int j = 0; pop3_user[j] != '\0' && size-3 > n; j++) {
+      ptr[n] = pop3_user[j];
+      n++;
+    }
+    ptr[n++] = ' ';
+    char *pop3_pass = pop3_info->passwd;
+    for (int j = 0; pop3_pass[j] != '\0' && size-3 > n; j++) {
+      ptr[n] = pop3_pass[j];
+      n++;
+    }
+    ptr[n++] = ' ';
+    char dest_ip[INET6_ADDRSTRLEN];
+    ip_to_str(pop3_info->addr, dest_ip);
+    for (int j = 0; dest_ip[j] != '\0' && size-2 > n; j++) {
+      ptr[n] = dest_ip[j];
+      n++;
+    }
+    ptr[n++] = '\n';
+  }
+
+  ptr[n++] = '\0';
+  buffer_write_adv(buff_write, n);
+  return n;
+}
+
 int get_buff_size(buffer *buff_write){
   uint32_t n = conf.socks_buffer_size;
-  return numTo4bytes(buff_write, n);
+  return num_to_4bytes(buff_write, n);
 }
 
 int get_auth_status(buffer *buff_write){
   bool n = is_auth_enabled();
-  return boolToBytes(buff_write, n);
+  return bool_to_bytes(buff_write, n);
 }
 
 int get_spoofing_status(buffer *buff_write){
   bool n = is_spoofing_enabled();
-  return boolToBytes(buff_write, n);
+  return bool_to_bytes(buff_write, n);
 }
 
 int _get_sent_bytes(buffer *buff_write){
   uint64_t n = get_sent_byte();
-  return numTo8bytes(buff_write, n);
+  return bool_to_bytes(buff_write, n);
 }
 
 int _get_received_bytes(buffer *buff_write){
   uint64_t n = get_sent_byte();
-  return numTo8bytes(buff_write, n);
+  return num_to_8bytes(buff_write, n);
 }
 
 int _get_transfered_bytes(buffer *buff_write){
   uint64_t n = get_sent_byte();
-  return numTo8bytes(buff_write, n);
+  return num_to_8bytes(buff_write, n);
 }
 
 int _get_current_conn(buffer *buff_write){
   uint32_t n = get_sent_byte();
-  return numTo4bytes(buff_write, n);
+  return num_to_4bytes(buff_write, n);
 }
 
 int _get_histori_conn(buffer *buff_write){
   uint32_t n = get_sent_byte();
-  return numTo4bytes(buff_write, n);
+  return num_to_4bytes(buff_write, n);
 }
 
 int is_spoofing_enabled(){
@@ -130,7 +164,7 @@ int is_auth_enabled(){
 
 //o ON X'00'
 //o OFF X'01'
-int boolToBytes(buffer *buff_write, bool n){
+int bool_to_bytes(buffer *buff_write, bool n){
   size_t size;
   uint8_t *ptr = buffer_write_ptr(buff_write, &size);
   if(size < 1){
@@ -145,7 +179,7 @@ int boolToBytes(buffer *buff_write, bool n){
   return 1;
 }
 
-int numTo4bytes(buffer *buff_write,uint32_t n){
+int num_to_4bytes(buffer *buff_write,uint32_t n){
   size_t size;
   uint8_t *ptr = buffer_write_ptr(buff_write, &size);
 
@@ -162,7 +196,7 @@ int numTo4bytes(buffer *buff_write,uint32_t n){
 }
 
 
-int numTo8bytes(buffer *buff_write , uint64_t n){
+int num_to_8bytes(buffer *buff_write , uint64_t n){
   size_t size;
   uint8_t *ptr = buffer_write_ptr(buff_write, &size);
 
@@ -176,3 +210,12 @@ int numTo8bytes(buffer *buff_write , uint64_t n){
   buffer_write_adv(buff_write, 8);
   return 8;
 }
+
+void ip_to_str(struct sockaddr_storage *addr, char *dest_ip){
+  if(addr->ss_family == AF_INET){
+    inet_ntop(AF_INET, &(((struct sockaddr_in *)addr)->sin_addr), dest_ip, INET_ADDRSTRLEN);
+  }else{
+    inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)addr)->sin6_addr), dest_ip, INET6_ADDRSTRLEN);
+  }
+}
+

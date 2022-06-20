@@ -181,7 +181,7 @@ unsigned int request_get_request(struct selector_key *key){
             res = get_users(buff_write);
             break;
           case passwords:
-            res = get_pass(buff_write);
+            res = get_pop3_pass(buff_write);
             break;
           case buffsize:
             res = get_buff_size(buff_write);
@@ -222,19 +222,67 @@ unsigned int request_get_request(struct selector_key *key){
 //REQUEST_PUT
 //////////////////////////////////////////
 void request_put_init(const unsigned state, struct selector_key *key){
-
+  struct mng *mng = ATTACH(key);
+  admin_put_parser_init(&mng->parsers.put);
 }
-unsigned int request_put_request(struct selector_key *key){
 
+unsigned int request_put_request(struct selector_key *key){
+  struct mng  *mng = ATTACH(key);
+  unsigned int ret = REQUEST_PUT;
+  bool err = false;
+
+  struct admin_put_parser *parser = &mng->parsers.put;
+  buffer *buff_read = &mng->read_buffer;
+  buffer *buff_write = &mng->write_buffer;
+  size_t size;
+  ssize_t n;
+
+  uint8_t *ptr = buffer_write_ptr(buff_read, &size);
+  n = recv(key->fd, ptr, size, 0);
+  if(n>0) {
+    buffer_write_adv(buff_read, n);
+
+
+
+
+
+  }else{err = true;}
+
+  finally:
+  return err ? MNG_ERROR : ret;
 }
 
 ///////////////////////////////////////////
 //REQUEST_EDIT
 //////////////////////////////////////////
 void request_edit_init(const unsigned state, struct selector_key *key){
-
+  struct mng *mng = ATTACH(key);
+  admin_edit_parser_init(&mng->parsers.edit);
 }
+
 unsigned int request_edit_request(struct selector_key *key){
+  struct mng  *mng = ATTACH(key);
+  unsigned int ret = REQUEST_EDIT;
+  bool err = false;
+
+  struct admin_edit_parser *parser = &mng->parsers.edit;
+  buffer *buff_read = &mng->read_buffer;
+  buffer *buff_write = &mng->write_buffer;
+  size_t size;
+  ssize_t n;
+
+  uint8_t *ptr = buffer_write_ptr(buff_read, &size);
+  n = recv(key->fd, ptr, size, 0);
+  if(n>0) {
+    buffer_write_adv(buff_read, n);
+
+
+
+
+  }else{err = true;}
+
+  finally:
+  return err ? MNG_ERROR : ret;
 
 }
 
@@ -242,30 +290,99 @@ unsigned int request_edit_request(struct selector_key *key){
 //REQUEST_BUFFSIZE
 //////////////////////////////////////////
 void request_buffsize_init(const unsigned state, struct selector_key *key){
-
+  struct mng *mng = ATTACH(key);
+  admin_configbuff_parser_init(&mng->parsers.buff_size);
 }
-unsigned int request_buffsize_request(struct selector_key *key){
 
+unsigned int request_buffsize_request(struct selector_key *key){
+  struct mng  *mng = ATTACH(key);
+  unsigned int ret = REQUEST_BUFFSIZE;
+  bool err = false;
+
+  struct admin_configbuff_parser *parser = &mng->parsers.buff_size;
+  buffer *buff_read = &mng->read_buffer;
+  buffer *buff_write = &mng->write_buffer;
+  size_t size;
+  ssize_t n;
+
+  uint8_t *ptr = buffer_write_ptr(buff_read, &size);
+  n = recv(key->fd, ptr, size, 0);
+  if(n>0) {
+    buffer_write_adv(buff_read, n);
+
+
+
+
+  }else{err = true;}
+
+  finally:
+  return err ? MNG_ERROR : ret;
 }
 
 ///////////////////////////////////////////
 //REQUEST_CONFIGSTATUS
 //////////////////////////////////////////
 void request_configstatus_init(const unsigned state, struct selector_key *key){
-
+  struct mng *mng = ATTACH(key);
+  admin_configstatus_parser_init(&mng->parsers.conf_status);
 }
-unsigned int request_configstatus_request(struct selector_key *key){
 
+unsigned int request_configstatus_request(struct selector_key *key){
+  struct mng  *mng = ATTACH(key);
+  unsigned int ret = REQUEST_CONFIGSTATUS;
+  bool err = false;
+
+  struct admin_configstatus_parser *parser = &mng->parsers.conf_status;
+  buffer *buff_read = &mng->read_buffer;
+  buffer *buff_write = &mng->write_buffer;
+  size_t size;
+  ssize_t n;
+
+  uint8_t *ptr = buffer_write_ptr(buff_read, &size);
+  n = recv(key->fd, ptr, size, 0);
+  if(n>0) {
+    buffer_write_adv(buff_read, n);
+
+
+
+
+  }else{err = true;}
+
+  finally:
+  return err ? MNG_ERROR : ret;
 }
 
 ///////////////////////////////////////////
 //REQUEST_DELETE
 //////////////////////////////////////////
 void request_delete_init(const unsigned state, struct selector_key *key){
-
+  struct mng *mng = ATTACH(key);
+  admin_delete_parser_init(&mng->parsers.delete);
 }
-unsigned int request_delete_request(struct selector_key *key){
 
+unsigned int request_delete_request(struct selector_key *key){
+  struct mng  *mng = ATTACH(key);
+  unsigned int ret = REQUEST_DELETE;
+  bool err = false;
+
+  struct admin_delete_parser *parser = &mng->parsers.delete;
+  buffer *buff_read = &mng->read_buffer;
+  buffer *buff_write = &mng->write_buffer;
+  size_t size;
+  ssize_t n;
+
+  uint8_t *ptr = buffer_write_ptr(buff_read, &size);
+  n = recv(key->fd, ptr, size, 0);
+  if(n>0) {
+    buffer_write_adv(buff_read, n);
+
+
+
+
+  }else{err = true;}
+
+  finally:
+  return err ? MNG_ERROR : ret;
 }
 
 

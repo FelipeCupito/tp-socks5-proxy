@@ -76,6 +76,11 @@ typedef struct mng {
   union parsers {
     struct admin_connect_parser connect;
     struct admin_get_parser get;
+    struct admin_put_parser put;
+    struct admin_edit_parser edit;
+    admin_configbuff_parser buff_size;
+    admin_configstatus_parser conf_status;
+    admin_delete_parser delete;
   } parsers;
 
   // buffer de escritura
