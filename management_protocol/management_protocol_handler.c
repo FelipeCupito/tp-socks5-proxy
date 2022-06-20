@@ -245,7 +245,7 @@ static void get_users(int fd) {
     }
 
     printf("USER LIST\n\n");
-    printf("%s", (char*) users_list);
+    printf("%s\n", (char*) users_list);
 
     // TODO: preguntar si es valido asi
     free(users_list);
@@ -259,7 +259,7 @@ static void get_passwords(int fd) {
     }
 
     printf("PASSWORD LIST\n\n");
-    printf("%s", (char*) passwords_list);
+    printf("%s\n", (char*) passwords_list);
 
     free(passwords_list);
 }
@@ -274,7 +274,7 @@ static void get_connections(int fd, uint8_t command, char* msg) {
 
     unsigned int bytes = reply[3] | (reply[2] << 8) | (reply[1] << 16) | (reply[0] << 24);
 
-    printf("%s: %u", msg, bytes);
+    printf("%s: %u\n", msg, bytes);
 
     free(reply);
 }
@@ -297,7 +297,7 @@ static void get_buffer_size(int fd) {
 
     unsigned int buffer_size = reply[3] | (reply[2] << 8) | (reply[1] << 16) | (reply[0] << 24);
 
-    printf("Buffer size: %u", buffer_size);
+    printf("Buffer size: %u\n", buffer_size);
 
     free(reply);
 }
@@ -355,13 +355,13 @@ static void add_user(int fd, char* username, char* password) {
 // CONFIGBUFFSIZE ACTION handlers
 static void set_buffer_size(int fd, unsigned int size) {
     send_receive_configbuffsize(fd, size);
-    printf("New buffer size set to: %d", size);
+    printf("New buffer size set to: %d\n", size);
 }
 
 // EDIT ACTION handlers
 static void edit(int fd, char* username, char* new_field, uint8_t command, char* msg) {
     send_receive_edit(fd, username, command, new_field);
-    printf("%s: %s", msg, new_field);
+    printf("%s: %s\n", msg, new_field);
 }
 
 static void edit_username(int fd, char* username, char* new_username) {
@@ -375,7 +375,7 @@ static void edit_password(int fd, char* username, char* new_password) {
 // CONFIGSTATUS ACTION handlers
 static void config_status(int fd, uint8_t status, uint8_t command, char* msg) {
     send_receive_configstatus(fd, command, status);
-    printf("%s: %s", msg, (status == 0) ? "on" : "off");
+    printf("%s: %s\n", msg, (status == 0) ? "on" : "off");
 }
 
 static void config_auth(int fd, uint8_t status) {

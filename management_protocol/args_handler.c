@@ -90,8 +90,13 @@ static void mng_usage(char* command) {
         "   -h                  Imprime la ayuda y termina.\n"
         "   -L <GRUPO6 addr>    \n"
         "   -P <GRUPO6 port>    \n"
-        "   -a <token>          \n"
-        "   -l <OPTION>         Imprime la lista de la opción indicada.\n"
+        "   -a <token>          Token para autorizar el usuario\n"
+        "   -g <OPTION>         Imprime los datos de la opción indicada.\n"
+        "   -e user:attr:value  Edita el atributo del usuario indicado\n"
+        "   -d <username>       Elimina el usuario con el nombre username\n"
+        "   -i user:pass        Agrega el usuario con el user y pass provistos\n"
+        "   -t option:status    Configura la opción recibida con el status provisto\n"
+        "   -b <SIZE>           Ajusta el tamaño del buffer con <SIZE> provisto\n"
         "   -v                  Imprime información sobre la versión y termina.\n"
         "   ",
         command);
