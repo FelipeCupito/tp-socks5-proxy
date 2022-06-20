@@ -239,6 +239,7 @@ enum pop3_sniffer_state pop3_sniffer_consume(struct pop3_sniffer *s, void *socks
     sniffinfo -> addr = &(((struct socks5*) socks5) -> final_server_addr);
     log_print(INFO, "PASS %s", sniffinfo -> passwd);
     log_print(INFO, "USER %s", sniffinfo -> user);
+    insert(list,sniffinfo);
   }
   return s -> state;
 }

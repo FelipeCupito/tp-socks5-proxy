@@ -290,20 +290,22 @@ unsigned int request_edit_request(struct selector_key *key){
   if(n>0) {
     buffer_write_adv(buff_read, n);
     enum admin_edit_state st = admin_edit_consume(buff_read, parser, &err);
-    if(admin_edit_is_done(st, &err)){
+    if (admin_edit_is_done(st, &err)) {
       if (SELECTOR_SUCCESS != selector_set_interest_key(key, OP_WRITE)) {
         err = true;
         goto finally;
       }
-      if(st == admin_edit_done){
+      if (st == admin_edit_done) {
 
       }
+
+
+    } else { err = true; }
   }
-    else{err = true;}
-  }
+
+
   finally:
   return err ? MNG_ERROR : ret;
-
 }
 
 ///////////////////////////////////////////
