@@ -21,7 +21,8 @@ enum pop3_sniffer_state {
   pop3_sniffer_initial = 0,
   pop3_sniffer_user,
   pop3_sniffer_read_user,
-  pop3_sniffer_password,
+  pop3_sniffer_check_user,
+  pop3_sniffer_password,  
   pop3_sniffer_read_passsword,
   pop3_sniffer_check_password, // chequea la respuesta
   pop3_sniffer_ok,

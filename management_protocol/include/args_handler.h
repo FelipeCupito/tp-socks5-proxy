@@ -11,7 +11,7 @@
 #include <errno.h>
 
 #define DEFAULT_MNG_PORT 8080
-#define DEFAULT_MNG_ADDR_V4 "127.0.0.1"
+#define DEFAULT_MNG_ADDR_V4 "127.0.0.0"
 
 typedef struct manage_args {
     bool authorized;
@@ -41,7 +41,7 @@ typedef struct manage_args {
 
     bool set_flag;
     unsigned int set_size;
-    
+
 } manage_args;
 
 void parse_args_handler(const int argc, char** argv, struct manage_args* mng_args);

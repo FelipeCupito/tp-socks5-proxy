@@ -178,37 +178,33 @@ static void getPasswords(int fd) {
 }
 
 static void getHistoricalConnections(int fd) {
-    uint8_t* connectionCount = send_receive_get(fd, 0x07);
-
-    if (connectionCount == NULL) {
-        return;
-    }
-
-    printf("HISTORICAL CONNECTIONS: %d\n", *connectionCount);
-
-    free(connectionCount);
-
+    getConnections(fd, 0x07, "HISTORICAL CONNECTIONS");
 }
 
 static void getConcurrentConections(int fd) {
-    uint8_t* connectionCount = send_receive_get(fd, 0x07);
-
-    if (connectionCount == NULL) {
-        return;
-    }
-
-    printf("HISTORICAL CONNECTIONS: %d\n", *connectionCount);
-
-    free(connectionCount);
-
+    getConnections(fd, 0x08, "CURRENT CONNECTIONS");
 }
 
-static char* getConnections(int fd, uint8_t command) {
+static void getConnections(int fd, uint8_t command, char* msg) {
     uint8_t* reply = send_receive_get(fd, command);
 
     if (reply == NULL)
         return NULL;     // errores ya manejados
 
+    printf("%s: %d", msg, *reply);
+
+    free(reply);
+}
+
+static void getBufferSize(int fd, uint8_t command) {
+
+}
+
+static void getAuthStatus(int fd, uint8_t command) {
+
+}
+
+static void getSpoofStatus(int fd, uint8_t command) {
 
 }
 
@@ -252,7 +248,8 @@ static void addUser(int fd, char* username, char* password) {
 }
 
 static void deleteUser(int fd, char* username) {
-
+    printf("ADD USER ACTION REQUESTED\n");
+    send_receive_delete(fd, username);
 }
 
 static void setBufferSize(int fd, unsigned int size) {
