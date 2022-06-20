@@ -13,8 +13,6 @@ void fill_port_sockaddr(int port, struct sockaddr_in* addrV4, struct sockaddr_in
 
 void parse_args(const int argc, char **argv, config *configuration) {
 
-  //memset(configuration, 0, sizeof(config));
-
   // default socks proxy
   fill_sockaddr_v4(&configuration->socksV4, DEFAULT_SOCKS_PORT, DEFAULT_SOCKS_ADDRESS_V4);
   configuration->socksV4_flag = true;

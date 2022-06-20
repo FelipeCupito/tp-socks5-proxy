@@ -7,9 +7,6 @@ void ip_to_str(struct sockaddr_storage *addr, char *dest_ip);
 
 config conf;
 
-
-
-
 config* init_config(){
   conf.disectors_enabled = DEFAULT_DISECTORS;
   conf.mng_token = MNG_TOKEN;
@@ -43,9 +40,8 @@ int checkUser(char *user, char *pass){
 //                  GETTERS
 ////////////////////////////////////////////////////////
 int get_users(char *res, int res_size){
-  //size_t size;
-  size_t n = 0;
-  //uint8_t *ptr = buffer_write_ptr(buff_write, &size);
+
+  int n = 0;
   for (int i = 0; i < conf.users_size; i++) {
     char *user = conf.users[i].name;
     char *pass = conf.users[i].pass;
@@ -62,7 +58,6 @@ int get_users(char *res, int res_size){
   }
   res[n++] = '\0';
 
-  //buffer_write_adv(buff_write, n);
   return n;
 }
 
@@ -70,9 +65,7 @@ int get_pop3_pass(char *res, int res_size){
   if(!sniffer_hast_next())
     begin_Sniffer_List();
 
-  //size_t size;
-  size_t n = 0;
-  //uint8_t *ptr = buffer_write_ptr(buff_write, &size);
+  int n = 0;
 
   while(sniffer_hast_next() && res_size > n){
     sniff_info *pop3_info = sniffer_get_next();
@@ -104,7 +97,6 @@ int get_pop3_pass(char *res, int res_size){
   }
 
   res[n++] = '\0';
-  //buffer_write_adv(buff_write, n);
   return n;
 }
 
@@ -169,17 +161,15 @@ int is_auth_enabled(){
 //o ON X'00'
 //o OFF X'01'
 int bool_to_bytes(char *res, int res_size, bool n){
-  //size_t size;
- // uint8_t *ptr = buffer_write_ptr(buff_write, &size);
+
   if(res_size < 1){
     return -1;
   }
   if(n){
     res[0] = 0x00;
+  }else{
+    res[0] = 0x01;
   }
-  res[0] = 0x01;
-
-  //buffer_write_adv(buff_write, 4);
   return 1;
 }
 
@@ -201,17 +191,14 @@ int num_to_4bytes(char *res, int res_size, uint32_t n){
 
 
 int num_to_8bytes(char *res, int res_size, uint32_t n){
-  //size_t size;
-  //uint8_t *ptr = buffer_write_ptr(buff_write, &size);
 
   if(res_size < 8){
     return -1;
   }
   for (int i = 0; i < 8; ++i) {
-    res[i] = (n >> i*4 ) & 0xFF;
+    res[i] = (n >> i*8 ) & 0xFF;
   }
 
-  //buffer_write_adv(buff_write, 8);
   return 8;
 }
 
