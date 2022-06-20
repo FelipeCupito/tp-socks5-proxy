@@ -341,21 +341,16 @@ unsigned int request_buffsize_request(struct selector_key *key){
         err = true;
         goto finally;
       }
-      if (st == admin_edit_done) {
-
-
-
-
+      if (st == admin_configbuff_done) {
+        if(set_buff_size((char*) parser -> size) != 0){
+          parser->status = 0x04; //STATUS_ERROR
+        }
       }
       if(admin_configbuff_marshall(buff_write, parser->status) == -1){err = true;}
       ret = REPLIES;
 
     } else { err = true; }
-
-
-
-  }else{err = true;}
-
+  }
   finally:
   return err ? MNG_ERROR : ret;
 }

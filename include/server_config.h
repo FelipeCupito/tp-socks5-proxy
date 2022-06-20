@@ -102,6 +102,11 @@ int _get_current_conn(char *res, int res_size);
 
 int _get_histori_conn(char *res, int res_size);
 
+//configbuff
+int set_buff_size(char* size);
+
+int four_bytes_to_num(char* src);
+
 //is
 int is_spoofing_enabled();
 
