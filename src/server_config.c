@@ -117,7 +117,7 @@ int get_spoofing_status(char *res, int res_size){
 
 int _get_sent_bytes(char *res, int res_size){
   uint64_t n = get_sent_byte();
-  return bool_to_bytes(res, res_size, n);
+  return num_to_8bytes(res, res_size, n);
 }
 
 int _get_received_bytes(char *res, int res_size){
@@ -153,11 +153,9 @@ int is_auth_enabled(){
 }
 
 
-
 ////////////////////////////////////////
 //privadas
 ///////////////////////////////////////////
-
 //o ON X'00'
 //o OFF X'01'
 int bool_to_bytes(char *res, int res_size, bool n){
@@ -174,8 +172,6 @@ int bool_to_bytes(char *res, int res_size, bool n){
 }
 
 int num_to_4bytes(char *res, int res_size, uint32_t n){
-  //size_t size;
-  //uint8_t *ptr = buffer_write_ptr(buff_write, &size);
 
   if(res_size < 4){
     return -1;
@@ -185,8 +181,7 @@ int num_to_4bytes(char *res, int res_size, uint32_t n){
   res[2] = (n >> 8) & 0xFF;
   res[3] = n & 0xFF;
 
-  //buffer_write_adv(buff_write, 4);
-  return 4;
+ return 4;
 }
 
 
@@ -196,7 +191,7 @@ int num_to_8bytes(char *res, int res_size, uint32_t n){
     return -1;
   }
   for (int i = 0; i < 8; ++i) {
-    res[i] = (n >> i*8 ) & 0xFF;
+    res[i] = (n >> 56-i*8 ) & 0xFF;
   }
 
   return 8;
