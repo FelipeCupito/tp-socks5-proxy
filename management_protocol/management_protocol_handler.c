@@ -2,31 +2,41 @@
 
 #define GETOPTSIZE 9
 
-// Funciones privadas
-static void send_receive_delete(int fd, char* username);
-static uint8_t send_delete_request(int fd, char* username);
-static uint8_t receive_delete_reply(int fd, uint8_t* status);
+// Private Functions
 
+// ACTIONS - Replies and requests
+
+// GET (0x00)
 static uint8_t* send_receive_get(int fd, uint8_t command);
 static int send_get_request(int fd, uint8_t command);
 static uint8_t* receive_get_request(int fd, uint8_t* status);
 
+// PUT (0x01)
 static void send_receive_put(int fd, char* username, char* password);
 static int send_put_request(int fd, char* username, char* password);
 static int receive_put_reply(int fd, uint8_t* status);
 
+// EDIT (0x02)
 static void send_receive_edit(int fd, char* username, uint8_t attribute, char* value);
 static int send_edit_request(int fd, char* username, uint8_t attribute, char* value);
 static uint8_t receive_edit_reply(int fd, uint8_t* status);
 
+// CONFIGBUFFSIZE (0x03)
 static void send_receive_configbuffsize(int fd, unsigned int size);
 static int send_configbuffsize_request(int fd, unsigned int size);
 static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status);
 
+// CONFIGSTATUS (0x04)
 static void send_receive_configstatus(int fd, uint8_t field, uint8_t status);
 static int send_configstatus_request(int fd, uint8_t field, uint8_t status);
 static uint8_t receive_configstatus_reply(int fd, uint8_t* status);
 
+// DETELE (0x05)
+static void send_receive_delete(int fd, char* username);
+static uint8_t send_delete_request(int fd, char* username);
+static uint8_t receive_delete_reply(int fd, uint8_t* status);
+
+// Prints
 static void print_get_response(int status);
 static void print_put_response(int status);
 static void print_edit_response(int status);
@@ -35,34 +45,55 @@ static void print_configbuffsize_response(int status);
 static void print_delete_response(int status);
 
 static int hash_get(char* get_option);
+static void error_quit(int fd, char* msg);
 
+// OPTIONS - Handlers
 
-static void getUsers(int fd);
-static void getPasswords(int fd);
-static void getBufferSize(int fd);
-static void getAuthStatus(int fd);
-static void getSpoofStatus(int fd);
-static void getSentBytes(int fd);
-static void getReceivedBytes(int fd);
-static void getBytes(int fd, uint8_t command, char* msg);
-static void getHistoricalConnections(int fd);
-static void getConcurrentConections(int fd);
-static void getConnections(int fd, uint8_t command, char* msg);
-static void getStatus(int fd, uint8_t command, char* msg);
+// GET
 
-static void addUser(int fd, char* username, char* password);
-static void deleteUser(int fd, char* username);
-static void setBufferSize(int fd, unsigned int size);
+// 0x00
+static void get_users(int fd);
+// 0x01
+static void get_passwords(int fd);
+// 0x02
+static void get_buffer_size(int fd);
+// 0x03
+static void get_auth_status(int fd);
+// 0x04
+static void get_spoof_status(int fd);
+// 0x05
+static void get_sent_bytes(int fd);
+// 0x06
+static void get_received_bytes(int fd);
+// 0x07
+static void get_historical_connections(int fd);
+// 0x08
+static void get_concurrent_conections(int fd);
 
-static void editUsername(int fd, char* username, char* newUsername);
-static void editPassword(int fd, char* username, char* newPassword);
-static void edit(int fd, char* username, char* newField, uint8_t command, char* msg);
+// PUT
+static void add_user(int fd, char* username, char* password);
 
-static void configAuth(int fd, uint8_t status);
-static void configSpoof(int fd, uint8_t status);
-static void configStatus(int fd, uint8_t status, uint8_t command, char* msg);
+// EDIT
 
-char* get_cmds[] = {"users", "passwords", "buffersize", "authstatus", "spoofingstatus", "sentbytes", "receivedbytes", "historic", "concurrent"};
+// 0x00
+static void edit_username(int fd, char* username, char* newUsername);
+// 0x01
+static void edit_password(int fd, char* username, char* newPassword);
+
+// CONFIGBUFFSIZE
+static void set_buffer_size(int fd, unsigned int size);
+
+// CONFIGSTATUS
+
+// 0x00
+static void config_auth(int fd, uint8_t status);
+// 0x01
+static void config_spoof(int fd, uint8_t status);
+
+// DELETE
+static void delete_user(int fd, char* username);
+
+char* get_cmds[] = { "users", "passwords", "buffersize", "authstatus", "spoofingstatus", "sentbytes", "receivedbytes", "historic", "concurrent" };
 
 char* get_msg[] = { "Success", "Invalid action", "Invalid option" };
 char* put_msg[] = { "Success", "Invalid action", "Invalid username length", "Invalid password length" };
@@ -87,10 +118,10 @@ enum get_options {
 void login(int fd, struct manage_args* args) {
     char* password = args->try_password;
 
-     //Creamos primer mensaje
+    //Creamos primer mensaje
     size_t password_len = strlen(password);
 
-    if(password_len > 255) {
+    if (password_len > 255) {
         fprintf(stderr, "[AUTH] Password too long\n");
         exit(1);
     }
@@ -105,11 +136,11 @@ void login(int fd, struct manage_args* args) {
     printf("Code %u\n", msg[0]);
     printf("pass len: %u\n", msg[1]);
     printf("About to send auth with %s\n", (char*) (msg + 2));
-    
+
     // using send due to connected state
-    int bytes = send(fd, msg, password_len+4, 0);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
+    int bytes = send(fd, msg, password_len + 4, 0);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
     printf("bytes sent: %d\n", bytes);
-  
+
 
     // recibir respuesta
     char res[1];
@@ -137,65 +168,66 @@ void login(int fd, struct manage_args* args) {
     free(msg);
 }
 
-void executeCommands(int fd, struct manage_args* args) {
+void execute_commands(int fd, struct manage_args* args) {
     if (args->add_flag && args->add_username != NULL && args->add_password != NULL) {
-        addUser(fd, args->add_username, args->add_password);
+        add_user(fd, args->add_username, args->add_password);
     }
     if (args->set_flag) {
-        setBufferSize(fd, args->set_size);
+        set_buffer_size(fd, args->set_size);
     }
     if (args->delete_flag && args->delete_username != NULL) {
-        deleteUser(fd, args->delete_username);
+        delete_user(fd, args->delete_username);
     }
-    if(args->edit_flag && args->edit_username != NULL && args->edit_value != NULL) {
-        if(args->edit_attribute == 0) {
-            editUsername(fd, args->edit_username, args->edit_value);
+    if (args->edit_flag && args->edit_username != NULL && args->edit_value != NULL) {
+        if (args->edit_attribute == 0) {
+            edit_username(fd, args->edit_username, args->edit_value);
         }
-        if(args->edit_attribute == 1) {
-            editPassword(fd, args->edit_username, args-> edit_value);
+        if (args->edit_attribute == 1) {
+            edit_password(fd, args->edit_username, args->edit_value);
         }
     }
-    if(args->toggle_flag) {
-        if(strcmp("auth", args->toggle_option) == 0) {
-            if(strcmp("on", args->toggle_status) == 0) 
-                configAuth(fd, 0x00);
-            if(strcmp("off", args->toggle_status) == 0)
-                configAuth(fd, 0x01);
-        } else if(strcmp("spoof", args->toggle_option) == 0) {
-            if(strcmp("on", args->toggle_status) == 0) 
-                configSpoof(fd, 0x00);
-            if(strcmp("off", args->toggle_status) == 0)
-                configSpoof(fd, 0x01);
+    if (args->toggle_flag) {
+        if (strcmp("auth", args->toggle_option) == 0) {
+            if (strcmp("on", args->toggle_status) == 0)
+                config_auth(fd, 0x00);
+            if (strcmp("off", args->toggle_status) == 0)
+                config_auth(fd, 0x01);
+        }
+        else if (strcmp("spoof", args->toggle_option) == 0) {
+            if (strcmp("on", args->toggle_status) == 0)
+                config_spoof(fd, 0x00);
+            if (strcmp("off", args->toggle_status) == 0)
+                config_spoof(fd, 0x01);
         }
     }
     if (args->get_flag) {
         switch (hash_get(args->get_option)) {
             case USERS:
-                getUsers(fd);
+                get_users(fd);
                 break;
             case PASSWORDS:
-                getPasswords(fd);
+                get_passwords(fd);
                 break;
             case BUFFERSIZE:
-                getBufferSize(fd);
+                get_buffer_size(fd);
                 break;
             case AUTH_STATUS:
-                getAuthStatus(fd);
+                get_auth_status(fd);
                 break;
             case SPOOFING_STATUS:
-                getSpoofStatus(fd);
+                get_spoof_status(fd);
                 break;
             case SENT_BYTES:
-                getSentBytes(fd);
+                get_sent_bytes(fd);
                 break;
             case RECEIVED_BYTES:
-                getReceivedBytes(fd);
+                get_received_bytes(fd);
                 break;
             case HISTORIC_CONNECTIONS:
-                getHistoricalConnections(fd);
+                get_historical_connections(fd);
                 break;
             case CONCURRENT_CONNECTIONS:
-                getConcurrentConections(fd);
+                get_concurrent_conections(fd);
                 break;
             default:
                 break;
@@ -204,7 +236,7 @@ void executeCommands(int fd, struct manage_args* args) {
 }
 
 // GET ACTION handlers
-static void getUsers(int fd) {
+static void get_users(int fd) {
     uint8_t* users_list = send_receive_get(fd, 0x00);
 
     if (users_list == NULL) {
@@ -218,7 +250,7 @@ static void getUsers(int fd) {
     free(users_list);
 }
 
-static void getPasswords(int fd) {
+static void get_passwords(int fd) {
     uint8_t* passwords_list = send_receive_get(fd, 0x01);
 
     if (passwords_list == NULL) {
@@ -231,16 +263,8 @@ static void getPasswords(int fd) {
     free(passwords_list);
 }
 
-static void getHistoricalConnections(int fd) {
-    getConnections(fd, 0x07, "HISTORICAL CONNECTIONS");
-}
-
-static void getConcurrentConections(int fd) {
-    getConnections(fd, 0x08, "CURRENT CONNECTIONS");
-}
-
 // TODO: Chequear si esta bien el shifting
-static void getConnections(int fd, uint8_t command, char* msg) {
+static void get_connections(int fd, uint8_t command, char* msg) {
     uint8_t* reply = send_receive_get(fd, command);
 
     if (reply == NULL) {
@@ -254,11 +278,19 @@ static void getConnections(int fd, uint8_t command, char* msg) {
     free(reply);
 }
 
+static void get_historical_connections(int fd) {
+    get_connections(fd, 0x07, "HISTORICAL CONNECTIONS");
+}
+
+static void get_concurrent_conections(int fd) {
+    get_connections(fd, 0x08, "CURRENT CONNECTIONS");
+}
+
 // TODO: Chequear si esta bien el shifting
-static void getBufferSize(int fd) {
+static void get_buffer_size(int fd) {
     uint8_t* reply = send_receive_get(fd, 0x02);
 
-    if(reply == NULL) {
+    if (reply == NULL) {
         return;
     }
 
@@ -269,19 +301,10 @@ static void getBufferSize(int fd) {
     free(reply);
 }
 
-static void getAuthStatus(int fd) {
-    getStatus(fd, 0x03, "Auth status");
-}
-
-// TODO: Chequear que respuesta recibe
-static void getSpoofStatus(int fd) {
-    getStatus(fd, 0x04, "Spoof status");
-}
-
-static void getStatus(int fd, uint8_t command, char* msg) {
+static void get_status(int fd, uint8_t command, char* msg) {
     uint8_t* reply = send_receive_get(fd, command);
 
-    if(reply == NULL) {
+    if (reply == NULL) {
         return;
     }
 
@@ -290,19 +313,19 @@ static void getStatus(int fd, uint8_t command, char* msg) {
     printf("%s: %s\n", msg, status);
 }
 
-// TODO: Chequear si esta bien el shifting
-static void getSentBytes(int fd) {
-    getBytes(fd, 0x05, "Sent Bytes");
+static void get_auth_status(int fd) {
+    get_status(fd, 0x03, "Auth status");
 }
 
-static void getReceivedBytes(int fd) {
-    getBytes(fd, 0x06, "Received Bytes");
+// TODO: Chequear que respuesta recibe
+static void get_spoof_status(int fd) {
+    get_status(fd, 0x04, "Spoof status");
 }
 
-static void getBytes(int fd, uint8_t command, char* msg) {
+static void get_bytes(int fd, uint8_t command, char* msg) {
     uint8_t* reply = send_receive_get(fd, command);
 
-    if(reply == NULL) {
+    if (reply == NULL) {
         return;
     }
 
@@ -313,103 +336,62 @@ static void getBytes(int fd, uint8_t command, char* msg) {
     free(reply);
 }
 
+// TODO: Chequear si esta bien el shifting
+static void get_sent_bytes(int fd) {
+    get_bytes(fd, 0x05, "Sent Bytes");
+}
+
+static void get_received_bytes(int fd) {
+    get_bytes(fd, 0x06, "Received Bytes");
+}
+
 // PUT ACTION handlers
-static void addUser(int fd, char* username, char* password) {
+static void add_user(int fd, char* username, char* password) {
     printf("ADD USER ACTION REQUESTED\n");
     send_receive_put(fd, username, password);
 }
 
-// DELETE ACTION handlers
-static void deleteUser(int fd, char* username) {
-    printf("DELETE USER ACTION REQUESTED\n");
-    send_receive_delete(fd, username);
-}
-
 // CONFIGBUFFSIZE ACTION handlers
-static void setBufferSize(int fd, unsigned int size) {
+static void set_buffer_size(int fd, unsigned int size) {
     send_receive_configbuffsize(fd, size);
     printf("New buffer size set to: %d", size);
 }
 
 // EDIT ACTION handlers
-static void editUsername(int fd, char* username, char* newUsername) {
-    edit(fd, username, newUsername, 0x00, "Username changed to");
+static void edit(int fd, char* username, char* new_field, uint8_t command, char* msg) {
+    send_receive_edit(fd, username, command, new_field);
+    printf("%s: %s", msg, new_field);
 }
 
-static void editPassword(int fd, char* username, char* newPassword) {
-    edit(fd, username, newPassword, 0x01, "Password changed to");
+static void edit_username(int fd, char* username, char* new_username) {
+    edit(fd, username, new_username, 0x00, "Username changed to");
 }
 
-static void edit(int fd, char* username, char* newField, uint8_t command, char* msg) {
-    send_receive_edit(fd, username, command, newField);
-    printf("%s: %s", msg, newField);
+static void edit_password(int fd, char* username, char* new_password) {
+    edit(fd, username, new_password, 0x01, "Password changed to");
 }
 
 // CONFIGSTATUS ACTION handlers
-static void configAuth(int fd, uint8_t status) {
-    configStatus(fd, status, 0x03, "Auth status changed to");
-}
-
-static void configSpoof(int fd, uint8_t status) {
-    configStatus(fd, status, 0x04, "Spoof status changed to");
-}
-
-static void configStatus(int fd, uint8_t status, uint8_t command, char* msg) {
+static void config_status(int fd, uint8_t status, uint8_t command, char* msg) {
     send_receive_configstatus(fd, command, status);
-    printf("%s: %s", msg, (status == 0)? "on" : "off");
+    printf("%s: %s", msg, (status == 0) ? "on" : "off");
+}
+
+static void config_auth(int fd, uint8_t status) {
+    config_status(fd, status, 0x03, "Auth status changed to");
+}
+
+static void config_spoof(int fd, uint8_t status) {
+    config_status(fd, status, 0x04, "Spoof status changed to");
+}
+
+// DELETE ACTION handlers
+static void delete_user(int fd, char* username) {
+    printf("DELETE USER ACTION REQUESTED\n");
+    send_receive_delete(fd, username);
 }
 
 // Requests and replies
-
-/* ------------------------------------------------------ */
-/*                         DELETE                         */
-/* ------------------------------------------------------ */
-
-static void send_receive_delete(int fd, char* username) {
-    if (send_delete_request(fd, username) <= 0) {
-        printf("[DELETE] Error in sending request\n");
-        perror(strerror(errno));
-        exit(1);
-    }
-
-    uint8_t status;
-    int recv_bytes = receive_delete_reply(fd, &status);
-
-    if (recv_bytes <= 0) {
-        perror(strerror(errno));
-        printf("[DELETE] Server error\n");
-    }
-    else {
-        print_delete_response(status);
-    }
-}
-
-static uint8_t send_delete_request(int fd, char* username) {
-    // TODO preguntar
-    int sent_bytes;
-    size_t username_len = strlen(username);
-    uint8_t* request = NULL;
-
-    request = realloc(request, 3 + username_len + 1);
-    request[0] = 0x05;
-    request[1] = 0x00;
-    request[2] = username_len;
-    strcpy((char*) (request + 3), username);
-
-    sent_bytes = send(fd, request, username_len + 3, MSG_NOSIGNAL);
-
-    free(request);
-    return sent_bytes;
-}
-
-static uint8_t receive_delete_reply(int fd, uint8_t* status) {
-    int rcv_bytes;
-    uint8_t reply;
-    rcv_bytes = recv(fd, &reply, 1, 0);
-
-    *status = reply;
-    return rcv_bytes;
-}
 
 /* ------------------------------------------------------ */
 /*                           GET                          */
@@ -433,7 +415,7 @@ static uint8_t* send_receive_get(int fd, uint8_t command) {
         }
         else {
             perror(strerror(errno));
-            printf("[GET] Server error\n");
+            error_quit(fd, "GET: Server error");
         }
     }
 
@@ -461,7 +443,7 @@ static uint8_t* receive_get_request(int fd, uint8_t* status) {
     recv_bytes = recv(fd, info, 2, 0);
 
     if (recv_bytes <= 0) {
-        exit(1);
+        error_quit(fd, "GET: Server error");
     }
 
     if (recv_bytes < 2) {
@@ -502,21 +484,19 @@ static void send_receive_put(int fd, char* username, char* password) {
     // TODO: Chequear manejo de errores
     if (sent_bytes <= 0) {
         perror(strerror(errno));
-        printf("[PUT] Error in sending request\n");
-        exit(1);
+        error_quit(fd, "PUT: Error in sending request");
     }
 
-    uint8_t status;
+    uint8_t status = 0;
     int rcv_bytes = receive_put_reply(fd, &status);
 
     if (rcv_bytes <= 0) {
         perror(strerror(errno));
-        printf("[PUT] Server error\n");
-        exit(1);
+        error_quit(fd, "PUT: Server error");
     }
-    else {
-        print_put_response(status);
-    }
+
+    print_put_response(status);
+
 }
 
 static int send_put_request(int fd, char* username, char* password) {
@@ -554,21 +534,19 @@ static int receive_put_reply(int fd, uint8_t* status) {
 
 static void send_receive_edit(int fd, char* username, uint8_t attribute, char* value) {
     if (send_edit_request(fd, username, attribute, value) <= 0) {
-        printf("[EDIT] Error in sending the request\n");
         perror(strerror(errno));
-        exit(1);
+        error_quit(fd, "EDIT: Error in sending the request");
     }
 
     uint8_t status;
     int rcv_bytes = receive_edit_reply(fd, &status);
 
     if (rcv_bytes <= 0) {
-        perror(strerror(errno));
-        printf("[EDIT] Server error\n");
+        if (rcv_bytes < 0)
+            perror(strerror(errno));
+        error_quit(fd, "EDIT: Server error");
     }
-    else {
-        print_edit_response(status);
-    }
+    print_edit_response(status);
 }
 
 static int send_edit_request(int fd, char* username, uint8_t attribute, char* value) {
@@ -623,13 +601,10 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
         if (recv_bytes < 0) {
             // Negativo -> error
             perror(strerror(errno));
-
         }
-        printf("[CONFIGBUFFSIZE] Server error\n");
+        error_quit(fd, "CONFIGBUFFSIZE: Server error");
     }
-    else {
-        print_configbuffsize_response(status);
-    }
+    print_configbuffsize_response(status);
 }
 
 static int send_configbuffsize_request(int fd, unsigned int size) {
@@ -649,7 +624,7 @@ static uint8_t receive_configbuffsize_reply(int fd, uint8_t* status) {
     uint8_t reply[1];
     rcv_bytes = recv(fd, reply, 1, 0);
 
-    status = reply;
+    *status = reply[0];
 
     return rcv_bytes;
 }
@@ -675,11 +650,9 @@ static void send_receive_configstatus(int fd, uint8_t field, uint8_t status) {
             // Negativo -> error
             perror(strerror(errno));
         }
-        printf("[CONFIGSTATUS] Server error\n");
+        error_quit(fd, "CONFIGSTATUS: Server error");
     }
-    else {
-        print_configstatus_response(status);
-    }
+    print_configstatus_response(status);
 }
 
 // TOGGLE
@@ -692,10 +665,6 @@ static int send_configstatus_request(int fd, uint8_t field, uint8_t status) {
     request[2] = status;
 
     sent_bytes = send(fd, request, 3, 0);
-
-    if (sent_bytes) {
-        // server error?
-    }
 
     return sent_bytes;
 }
@@ -711,12 +680,60 @@ static uint8_t receive_configstatus_reply(int fd, uint8_t* status) {
 }
 
 /* ------------------------------------------------------ */
+/*                         DELETE                         */
+/* ------------------------------------------------------ */
+
+static void send_receive_delete(int fd, char* username) {
+    if (send_delete_request(fd, username) <= 0) {
+        printf("[DELETE] Error in sending request\n");
+        perror(strerror(errno));
+        exit(1);
+    }
+
+    uint8_t status;
+    int recv_bytes = receive_delete_reply(fd, &status);
+
+    if (recv_bytes <= 0) {
+        perror(strerror(errno));
+        error_quit(fd, "DELETE: Server error");
+    }
+    print_delete_response(status);
+}
+
+static uint8_t send_delete_request(int fd, char* username) {
+    // TODO preguntar
+    int sent_bytes;
+    size_t username_len = strlen(username);
+    uint8_t* request = NULL;
+
+    request = realloc(request, 3 + username_len + 1);
+    request[0] = 0x05;
+    request[1] = 0x00;
+    request[2] = username_len;
+    strcpy((char*) (request + 3), username);
+
+    sent_bytes = send(fd, request, username_len + 3, MSG_NOSIGNAL);
+
+    free(request);
+    return sent_bytes;
+}
+
+static uint8_t receive_delete_reply(int fd, uint8_t* status) {
+    int rcv_bytes;
+    uint8_t reply;
+    rcv_bytes = recv(fd, &reply, 1, 0);
+
+    *status = reply;
+    return rcv_bytes;
+}
+
+/* ------------------------------------------------------ */
 /*                   REPLY STATUS MESSAGE                 */
 /* ------------------------------------------------------ */
 
 static void print_get_response(int status) {
     if (status >= 0 && status < GET_MSG_SIZE) {
-        printf("Response: [GET] %s\n", get_msg[status]);
+        log_print(INFO, "Response: [GET] %s\n", get_msg[status]);
     }
     else {
         printf("[GET] Unknown status\n");
@@ -725,7 +742,7 @@ static void print_get_response(int status) {
 
 static void print_put_response(int status) {
     if (status >= 0 && status < PUT_MSG_SIZE) {
-        printf("Response: [PUT] %s\n", put_msg[status]);
+        log_print(INFO, "Response: [PUT] %s\n", put_msg[status]);
     }
     else {
         printf("[PUT] Unknown status\n");
@@ -734,7 +751,7 @@ static void print_put_response(int status) {
 
 static void print_edit_response(int status) {
     if (status >= 0 && status < EDIT_MSG_SIZE) {
-        printf("Response: [EDIT] %s\n", edit_msg[status]);
+        log_print(INFO, "Response: [EDIT] %s\n", edit_msg[status]);
     }
     else {
         printf("[EDIT] Unknown status\n");
@@ -743,7 +760,7 @@ static void print_edit_response(int status) {
 
 static void print_configstatus_response(int status) {
     if (status >= 0 && status < CONFIGSTATUS_MSG_SIZE) {
-        printf("Response: [CONFIGSTATUS] %s\n", configstatus_msg[status]);
+        log_print(INFO, "Response: [CONFIGSTATUS] %s\n", configstatus_msg[status]);
     }
     else {
         printf("[CONFIGSTATUS] Unknown status\n");
@@ -752,7 +769,7 @@ static void print_configstatus_response(int status) {
 
 static void print_configbuffsize_response(int status) {
     if (status >= 0 && status < CONFIGBUFFSIZE_MGS_SIZE) {
-        printf("Response: [CONFIGBUFFSIZE] %s\n", configbuffsize_msg[status]);
+        log_print(INFO, "Response: [CONFIGBUFFSIZE] %s\n", configbuffsize_msg[status]);
     }
     else {
         printf("[CONFIGSTATUS] Unknown status\n");
@@ -761,7 +778,7 @@ static void print_configbuffsize_response(int status) {
 
 static void print_delete_response(int status) {
     if (status >= 0 && status < DELETE_MSG_SIZE) {
-        printf("Response: [DELETE] %s\n", delete_msg[status]);
+        log_print(INFO, "Response: [DELETE] %s\n", delete_msg[status]);
     }
     else {
         printf("[DELETE] Unknown status\n");
@@ -769,10 +786,14 @@ static void print_delete_response(int status) {
 }
 
 static int hash_get(char* get_option) {
-    for(int i = 0; i < GETOPTSIZE; i++) {
-        if(strcmp(get_option, get_cmds[i]) == 0)
+    for (int i = 0; i < GETOPTSIZE; i++) {
+        if (strcmp(get_option, get_cmds[i]) == 0)
             return i;
     }
-
     return -1;
+}
+
+static void error_quit(int fd, char* msg) {
+    close(fd);
+    log_print(FATAL, msg);
 }

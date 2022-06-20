@@ -8,37 +8,42 @@ static bool done = false;
 
 int main(const int argc, char** argv) {
 
-    struct manage_args args;
-    parse_args_handler(argc, argv, &args);
+  struct manage_args args;
+  parse_args_handler(argc, argv, &args);
 
-    args.authorized = false;
+  args.authorized = false;
 
-    int fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+  int fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    struct sockaddr_in socksaddr;
-    socksaddr.sin_port = htons(args.mng_port);
-    socksaddr.sin_family = AF_INET;
-    inet_pton(AF_INET, args.mng_addr, &socksaddr.sin_addr);
+  struct sockaddr_in socksaddr;
+  socksaddr.sin_port = htons(args.mng_port);
+  socksaddr.sin_family = AF_INET;
+  inet_pton(AF_INET, args.mng_addr, &socksaddr.sin_addr);
 
-    if (-1 == connect(fd, (struct sockaddr*) &socksaddr, sizeof(socksaddr))) {
-        perror("couldn't connect");
-        return -1;
-    }
+  if (-1 == connect(fd, (struct sockaddr*) &socksaddr, sizeof(socksaddr))) {
+    perror("couldn't connect");
+    return -1;
+  }
 
-    signal(SIGTERM, sigterm_handler);
-    signal(SIGINT, sigterm_handler);
+  signal(SIGTERM, sigterm_handler);
+  signal(SIGINT, sigterm_handler);
 
-    if(args.try_password == NULL) {
-      printf("INTRODUCE PASS\n");
-      close(fd);
-      exit(1);
-    }
-    login(fd, &args);
-
-    executeCommands(fd, &args);
-
+  if (args.try_password == NULL) {
     close(fd);
-    return 0;
+    log_print(FATAL, "Authentication required");
+  }
+
+  login(fd, &args);
+
+  if (!args.authorized) {
+    close(fd);
+    log_print(FATAL, "Authentication failed");
+  }
+
+  execute_commands(fd, &args);
+
+  close(fd);
+  return 0;
 }
 
 static void sigterm_handler(const int signal) {

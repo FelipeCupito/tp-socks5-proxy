@@ -16,10 +16,10 @@
 #define CONFIGSTATUS_MSG_SIZE 4
 #define CONFIGBUFFSIZE_MGS_SIZE 4
 
-static const uint8_t STATUS_OK                     = 0x00;
-static const uint8_t STATUS_ERROR_INVALID_ACTION   = 0x01;
-static const uint8_t STATUS_ERROR_INVALID_FIELD    = 0x02;
-static const uint8_t STATUS_ERROR_INVALID_STATUS    = 0x03;
+static const uint8_t STATUS_OK = 0x00;
+static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;
+static const uint8_t STATUS_ERROR_INVALID_FIELD = 0x02;
+static const uint8_t STATUS_ERROR_INVALID_STATUS = 0x03;
 
 static const uint8_t CONFIGSTATUS_ACTION = 0x04;
 
@@ -36,6 +36,6 @@ enum connection_status {
 };
 
 void login(int fd, struct manage_args* args);
-void executeCommands(int fd, struct manage_args* args);
+void execute_commands(int fd, struct manage_args* args);
 
 #endif

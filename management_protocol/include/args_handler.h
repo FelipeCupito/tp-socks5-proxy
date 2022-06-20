@@ -12,7 +12,8 @@
 #include "../../include/logger.h"
 
 #define DEFAULT_MNG_PORT 8080
-#define DEFAULT_MNG_ADDR_V4 "127.0.0.0"
+#define DEFAULT_MNG_ADDR_V4 "127.0.0.1"
+#define DEFAULT_MNG_ADDR_V6 "::1"
 
 typedef struct manage_args {
     bool authorized;
@@ -22,7 +23,7 @@ typedef struct manage_args {
     uint8_t version;
 
     char* try_password;
-    
+
     bool get_flag;
     char* get_option;
 
