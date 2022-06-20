@@ -73,25 +73,25 @@ int checkToken(char *token);
 int checkUser(char *user, char *pass);
 
 //getters
-int get_users(buffer *buff_write);
+int get_users(char *res, int res_size);
 
-int get_pop3_pass(buffer *buff_write);
+int get_pop3_pass(char *res, int res_size);
 
-int get_buff_size(buffer *buff_write);
+int get_buff_size(char *res, int res_size);
 
-int get_auth_status(buffer *buff_write);
+int get_auth_status(char *res, int res_size);
 
-int get_spoofing_status(buffer *buff_write);
+int get_spoofing_status(char *res, int res_size);
 
-int _get_sent_bytes(buffer *buff_write);
+int _get_sent_bytes(char *res, int res_size);
 
-int _get_received_bytes(buffer *buff_write);
+int _get_received_bytes(char *res, int res_size);
 
-int _get_transfered_bytes(buffer *buff_write);
+int _get_transfered_bytes(char *res, int res_size);
 
-int _get_current_conn(buffer *buff_write);
+int _get_current_conn(char *res, int res_size);
 
-int _get_histori_conn(buffer *buff_write);
+int _get_histori_conn(char *res, int res_size);
 
 //is
 int is_spoofing_enabled();

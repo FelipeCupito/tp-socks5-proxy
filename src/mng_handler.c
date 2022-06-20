@@ -106,6 +106,7 @@ mng* mng_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clnt
   //init buffers
   buffer_init(&(newMng->write_buffer), MNG_BUFFER_SIZE + 1, newMng->raw_buff_a);
   buffer_init(&(newMng->read_buffer), MNG_BUFFER_SIZE + 1, newMng->raw_buff_b);
+  buffer_init(&(newMng->aux_buffer), MNG_BUFFER_SIZE + 1, newMng->raw_buff_c);
 
   // init fds
   newMng->client_fd = client;

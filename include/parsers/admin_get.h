@@ -13,14 +13,14 @@
 
 enum option {
   users = 0x00,
-  passwords,
-  buffsize,
-  auth_status,
-  spoofing_status,
-  sent_bytes,
-  recv_bytes,
-  historic_connections,
-  current_connectios,
+  passwords = 0x01,
+  buffsize = 0x02,
+  auth_status = 0x03,
+  spoofing_status = 0x04,
+  sent_bytes = 0x05,
+  recv_bytes = 0x06,
+  historic_connections = 0x07,
+  current_connectios = 0x08,
 };
 
 enum admin_get_state {
@@ -46,6 +46,6 @@ enum admin_get_state admin_get_consume(buffer *b, admin_get_parser *p, bool *err
 
 bool admin_get_is_done(const enum admin_get_state state, bool *error);
 
-int admin_get_marshall(buffer *b, const uint8_t status, uint8_t *res);
+int admin_get_marshall(buffer *b, const uint8_t status, char *res, int res_size);
 
 #endif

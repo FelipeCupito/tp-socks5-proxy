@@ -790,6 +790,7 @@ static int hash_get(char* get_option) {
         if (strcmp(get_option, get_cmds[i]) == 0)
             return i;
     }
+
     return -1;
 }
 

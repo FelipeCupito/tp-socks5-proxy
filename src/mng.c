@@ -1,12 +1,13 @@
 #include "../include/mng.h"
 
-
+#define MAX_RES_SIZE 255
 ///////////////////////////////////////////
 //CONNECT_READ
 //////////////////////////////////////////
 void mng_connect_read_init(const unsigned state, struct selector_key *key) {
   struct mng *mng = ATTACH(key);
   admin_connect_parser_init(&mng->parsers.connect);
+
 }
 
 unsigned int mng_connect_read(struct selector_key *key){
@@ -102,8 +103,11 @@ unsigned int mng_request(struct selector_key *key){
 
   unsigned int ret = REQUEST;
   bool err = false;
-  
   buffer *buff_read = &ATTACH(key)->read_buffer;
+
+  buffer_reset(&ATTACH(key)->write_buffer);
+  buffer_reset(&ATTACH(key)->read_buffer);
+
   size_t size;
   ssize_t n;
 
@@ -137,7 +141,8 @@ unsigned int mng_request(struct selector_key *key){
         ret = REQUEST_DELETE;
         break;
     }
-  }
+  }else {err = true;}
+
   finally:
     return err ? MNG_ERROR : ret;
 }
@@ -174,41 +179,41 @@ unsigned int request_get_request(struct selector_key *key){
       }
 
       if(st == admin_get_done ){
-        uint8_t res;
+        char res[MAX_RES_SIZE];
+        int res_size;
         switch(parser->option) {
-          //todo: que pasa si no puede escribir toda la respuesta
           case users:
-            res = get_users(buff_write);
+            res_size = get_users(res, MAX_RES_SIZE);
             break;
           case passwords:
-            res = get_pop3_pass(buff_write);
+            res_size = get_pop3_pass(res, MAX_RES_SIZE);
             break;
           case buffsize:
-            res = get_buff_size(buff_write);
+            res_size = get_buff_size(res, MAX_RES_SIZE);
             break;
           case auth_status:
-            res = get_auth_status(buff_write);
+            res_size = get_auth_status(res, MAX_RES_SIZE);
             break;
           case spoofing_status:
-            res = get_spoofing_status(buff_write);
+            res_size = get_spoofing_status(res, MAX_RES_SIZE);
             break;
           case sent_bytes:
-            res = _get_sent_bytes(buff_write);
+            res_size = _get_sent_bytes(res, MAX_RES_SIZE);
             break;
           case recv_bytes:
-            res = _get_received_bytes(buff_write);
+            res_size = _get_received_bytes(res, MAX_RES_SIZE);
             break;
           case historic_connections:
-            res = _get_histori_conn(buff_write);
+            res_size = _get_histori_conn(res, MAX_RES_SIZE);
             break;
           case current_connectios:
-            res = _get_current_conn(buff_write);
+            res_size = _get_current_conn(res, MAX_RES_SIZE);
             break;
           default:
-            res = 0;
+            res_size = 0;
             break;
         }
-        if (admin_get_marshall(buff_write,parser->status, &res) == -1) {err = true;}
+        if (admin_get_marshall(buff_write,parser->status, res, res_size) == -1) {err = true;}
       }
       ret = REPLIES;
     }
@@ -390,6 +395,27 @@ unsigned int request_delete_request(struct selector_key *key){
 //REPLIES
 //////////////////////////////////////////
 unsigned int mng_replies(struct selector_key *key){
+  struct mng  *mng = ATTACH(key);
 
-    return 0;
+  unsigned int ret = REPLIES;
+  bool err = false;
+
+  buffer *buff = &mng->write_buffer;
+  size_t size;
+  ssize_t n;
+
+  uint8_t *ptr = buffer_read_ptr(buff, &size);
+  n = send(key->fd, ptr, size, MSG_NOSIGNAL);
+
+  if (n <= 0) {
+    err = true;
+  } else {
+    buffer_read_adv(buff, n);
+    if (!buffer_can_read(buff)) {
+      selector_set_interest(key->s,key->fd, OP_NOOP);
+      ret = MNG_DONE;
+    }
+  }
+
+  return err ? MNG_ERROR : ret;
 }

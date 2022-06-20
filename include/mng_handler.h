@@ -84,8 +84,8 @@ typedef struct mng {
   } parsers;
 
   // buffer de escritura
-  uint8_t raw_buff_a[MNG_BUFFER_SIZE], raw_buff_b[MNG_BUFFER_SIZE];
-  buffer read_buffer, write_buffer;
+  uint8_t raw_buff_a[MNG_BUFFER_SIZE], raw_buff_b[MNG_BUFFER_SIZE], raw_buff_c[MNG_BUFFER_SIZE];
+  buffer read_buffer, write_buffer, aux_buffer;
 
   //
 
