@@ -26,7 +26,7 @@
 
 //mng server
 #define DEFAULT_MNG_ADDRESS_V4 "127.0.0.1"
-#define DEFAULT_MNG_ADDRESS_V6 "::"
+#define DEFAULT_MNG_ADDRESS_V6 "::1"
 #define DEFAULT_MNG_PORT 8080
 
 

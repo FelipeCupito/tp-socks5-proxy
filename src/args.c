@@ -23,8 +23,7 @@ void parse_args(const int argc, char **argv, config *configuration) {
   fill_sockaddr_v4(&configuration->mngV4, DEFAULT_MNG_PORT, DEFAULT_MNG_ADDRESS_V4);
   configuration->mngV4_flag = true;
   fill_sockaddr_v6(&configuration->mngV6, DEFAULT_MNG_PORT, DEFAULT_MNG_ADDRESS_V6);
-  //TODO: sino (unable to bind socket_v6)
-  configuration->mngV6_flag = false;
+  configuration->mngV6_flag = true;
 
 
   // guardo los argumentos
