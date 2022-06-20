@@ -22,11 +22,8 @@ typedef struct manage_args {
 
     char* try_password;
 
-    bool list_flag;
-    unsigned int list_option;
-
     bool get_flag;
-    unsigned int get_option;
+    char* get_option;
 
     bool add_flag;
     char* add_username;

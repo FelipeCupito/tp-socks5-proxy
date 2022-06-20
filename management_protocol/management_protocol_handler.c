@@ -1,5 +1,7 @@
 #include "include/management_protocol_handler.h"
 
+#define GETOPTSIZE 9
+
 // Funciones privadas
 static void send_receive_delete(int fd, char* username);
 static uint8_t send_delete_request(int fd, char* username);
@@ -32,11 +34,20 @@ static void print_configstatus_response(int status);
 static void print_configbuffsize_response(int status);
 static void print_delete_response(int status);
 
+static int hash_get(char* get_option);
+
 
 static void getUsers(int fd);
 static void getPasswords(int fd);
+static void getBufferSize(int fd);
 static void getHistoricalConnections(int fd);
 static void getConcurrentConections(int fd);
+static void getConnections(int fd, uint8_t command, char* msg);
+
+static void addUser(int fd, char* username, char* password);
+static void deleteUser(int fd, char* username);
+
+char* get_cmds[] = {"users", "passwords", "buffersize", "authstatus", "spoofingstatus", "sentbytes", "receivedbytes", "historic", "concurrent"};
 
 char* get_msg[] = { "Success", "Invalid action", "Invalid option" };
 char* put_msg[] = { "Success", "Invalid action", "Invalid username length", "Invalid password length" };
@@ -46,15 +57,12 @@ char* delete_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid us
 char* configstatus_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid status" };
 char* configbuffsize_msg[] = { "Success", "Invalid action", "Invalid buffer size length", "Invalid buffer size" };
 
-enum list_options {
+enum get_options {
     USERS,
     PASSWORDS,
     BUFFERSIZE,
     AUTH_STATUS,
     SPOOFING_STATUS,
-} list_options;
-
-enum get_options {
     SENT_BYTES,
     RECEIVED_BYTES,
     HISTORIC_CONNECTIONS,
@@ -66,7 +74,14 @@ void login(int fd, struct manage_args* args) {
 
      //Creamos primer mensaje
     size_t password_len = strlen(password);
-    //TODO: si password_len > 255 error;
+
+    if(password_len > 255) {
+        fprintf(stderr, "[AUTH] Password too long\n");
+        exit(1);
+    }
+
+    // TODO: Fijarse que hay un warning de que no esta inicializado
+    // hacer uint8_t*msg = NULL;
     uint8_t* msg = realloc(msg, 2 + password_len + 2);
     msg[0] = 0x00;
     msg[1] = password_len;
@@ -108,8 +123,8 @@ void login(int fd, struct manage_args* args) {
 }
 
 void executeCommands(int fd, struct manage_args* args) {
-    if (args->list_flag) {
-        switch (args->list_option) {
+    if (args->get_flag) {
+        switch (hash_get(args->get_option)) {
             case USERS:
                 getUsers(fd);
                 break;
@@ -117,17 +132,12 @@ void executeCommands(int fd, struct manage_args* args) {
                 getPasswords(fd);
                 break;
             case BUFFERSIZE:
+                getBufferSize(fd);
                 break;
             case AUTH_STATUS:
                 break;
             case SPOOFING_STATUS:
                 break;
-            default:
-                break;
-        }
-    }
-    if (args->get_flag) {
-        switch (args->get_option) {
             case SENT_BYTES:
                 //getSentBytes(fd);
                 break;
@@ -137,16 +147,20 @@ void executeCommands(int fd, struct manage_args* args) {
                 getHistoricalConnections(fd);
                 break;
             case CONCURRENT_CONNECTIONS:
+                getConcurrentConections(fd);
                 break;
             default:
                 break;
         }
     }
-    if (args->add_flag) {
-
+    if (args->add_flag && args->add_username != NULL && args->add_password != NULL) {
+        addUser(fd, args->add_username, args->add_password);
     }
     if (args->set_flag) {
         //setBufferSize(fd, args->set_size);
+    }
+    if (args->delete_flag && args->delete_username != NULL) {
+        deleteUser(fd, args->delete_username);
     }
 }
 
@@ -188,16 +202,29 @@ static void getConcurrentConections(int fd) {
 static void getConnections(int fd, uint8_t command, char* msg) {
     uint8_t* reply = send_receive_get(fd, command);
 
-    if (reply == NULL)
-        return NULL;     // errores ya manejados
+    if (reply == NULL) {
+        return;     // errores ya manejados
+    }
 
-    printf("%s: %d", msg, *reply);
+    unsigned int bytes = ((*reply) << 8);
+
+    printf("%s: %u", msg, bytes);
 
     free(reply);
 }
 
-static void getBufferSize(int fd, uint8_t command) {
+static void getBufferSize(int fd) {
+    uint8_t* reply = send_receive_get(fd, 0x02);
 
+    if(reply == NULL) {
+        return;
+    }
+
+    unsigned int buffer_size = ((*reply) << 8);
+
+    printf("Buffer size: %u", buffer_size);
+
+    free(reply);
 }
 
 static void getAuthStatus(int fd, uint8_t command) {
@@ -266,6 +293,7 @@ static void send_receive_delete(int fd, char* username) {
     if (send_delete_request(fd, username) <= 0) {
         printf("[DELETE] Error in sending request\n");
         perror(strerror(errno));
+        exit(1);
     }
 
     uint8_t status;
@@ -399,6 +427,7 @@ static void send_receive_put(int fd, char* username, char* password) {
     if (sent_bytes <= 0) {
         perror(strerror(errno));
         printf("[PUT] Error in sending request\n");
+        exit(1);
     }
 
     uint8_t status;
@@ -407,6 +436,7 @@ static void send_receive_put(int fd, char* username, char* password) {
     if (rcv_bytes <= 0) {
         perror(strerror(errno));
         printf("[PUT] Server error\n");
+        exit(1);
     }
     else {
         print_put_response(status);
@@ -450,6 +480,7 @@ static void send_receive_edit(int fd, char* username, uint8_t attribute, char* v
     if (send_edit_request(fd, username, attribute, value) <= 0) {
         printf("[EDIT] Error in sending the request\n");
         perror(strerror(errno));
+        exit(1);
     }
 
     uint8_t status;
@@ -506,6 +537,7 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
     if (send_configbuffsize_request(fd, size) <= 0) {
         printf("[CONFIGBUFFSIZE] Error in sending request\n");
         perror(strerror(errno));
+        exit(1);
     }
 
     uint8_t status;
@@ -556,6 +588,7 @@ static void send_receive_configstatus(int fd, uint8_t field, uint8_t status) {
 
     if (send_configstatus_request(fd, field, status) <= 0) {
         perror(strerror(errno));
+        exit(1);
     }
 
     uint8_t reply_status;
@@ -658,4 +691,13 @@ static void print_delete_response(int status) {
     else {
         printf("[DELETE] Unknown status\n");
     }
+}
+
+static int hash_get(char* get_option) {
+    for(int i = 0; i < GETOPTSIZE; i++) {
+        if(strcmp(get_option, get_cmds[i]) == 0)
+            return i;
+    }
+
+    return -1;
 }

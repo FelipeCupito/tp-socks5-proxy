@@ -13,14 +13,13 @@ void parse_args_handler(const int argc, char** argv, struct manage_args* mng_arg
     int c;
     char delimiter[] = ":";
 
-    mng_args->list_flag = false;
     mng_args->get_flag = false;
     mng_args->add_flag = false;
     mng_args->toggle_flag = false;
     mng_args->delete_flag = false;
     mng_args->set_flag = false;
 
-    while ((c = getopt(argc, argv, "hL:P:a:l:g:e:d:i:s:t:b:v")) != -1) {
+    while ((c = getopt(argc, argv, "hL:P:a:g:e:d:i:s:t:b:v")) != -1) {
         switch (c) {
             case 'h':
                 // Help
@@ -35,13 +34,9 @@ void parse_args_handler(const int argc, char** argv, struct manage_args* mng_arg
             case 'a':
                 mng_args->try_password = optarg;
                 break;
-            case 'l':
-                mng_args->list_flag = true;
-                mng_args->list_option = atoi(optarg);
-                break;
             case 'g':
                 mng_args->get_flag = true;
-                mng_args->get_option = atoi(optarg);
+                mng_args->get_option = optarg;
                 break;
             case 'e':
                 // edit user
