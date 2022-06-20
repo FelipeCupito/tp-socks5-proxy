@@ -104,8 +104,8 @@ mng* mng_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clnt
   stm_init(&(newMng->stm));
 
   //init buffers
-  buffer_init(&(newMng->write_buffer), BUFFER_SIZE + 1, newMng->raw_buff_a);
-  buffer_init(&(newMng->read_buffer), BUFFER_SIZE + 1, newMng->raw_buff_b);
+  buffer_init(&(newMng->write_buffer), MNG_BUFFER_SIZE + 1, newMng->raw_buff_a);
+  buffer_init(&(newMng->read_buffer), MNG_BUFFER_SIZE + 1, newMng->raw_buff_b);
 
   // init fds
   newMng->client_fd = client;
@@ -115,7 +115,7 @@ mng* mng_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clnt
   newMng->client_addr_len = clntAddrLen;
 
   //si esta en 1 se puede liberar la memoria
-  newMng->close = 0;
+  newMng->status = OK;
 
   return newMng;
 }

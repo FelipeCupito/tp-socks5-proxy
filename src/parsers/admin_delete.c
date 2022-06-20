@@ -5,7 +5,7 @@ static const uint8_t STATUS_ERROR_INVALID_ACTION    = 0x01;
 static const uint8_t STATUS_ERROR_INVALID_FIELD     = 0x02;
 static const uint8_t STATUS_ERROR_INVALID_ULEN      = 0x03;
 static const uint8_t STATUS_ERROR                   = 0x04;
-static const uint8_t STATUS_UNKNOWN_USER_FAIL       = 0x05;
+static const uint8_t STATUS_UNKNOWN_USER_FAIL       = 0x05; //TODO: no se usa
 
 static const uint8_t DELETE_ACTION = 0x05;
 static const uint8_t USERS_FIELD = 0x00;
