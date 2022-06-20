@@ -12,7 +12,6 @@ void admin_get_parser_init (struct admin_get_parser *p) {
 }
 
 enum admin_get_state get_option(const uint8_t b, struct admin_get_parser* p) {
-  enum admin_get_state next;
   switch (b) {
     case users:
     case passwords:
@@ -24,23 +23,22 @@ enum admin_get_state get_option(const uint8_t b, struct admin_get_parser* p) {
     case auth_status:
     case spoofing_status:
       p -> option = b;
-      next = admin_get_done;
+      p -> state = admin_get_done;
     break;
     default:
-      next = admin_get_error_option;
+      p -> state = admin_get_error_option;
     break;
   }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_get_state get_action(const uint8_t b, struct admin_get_parser* p) {
-  enum admin_get_state next = admin_get_error_action;
   if (b == GET_ACTION) {
-    next = admin_get_option;
+    p -> state = admin_get_option;
   }
 
-  return next;
+  return p -> state;
 }
 
 enum admin_get_state admin_get_parser_feed (admin_get_parser *p, uint8_t b) {
