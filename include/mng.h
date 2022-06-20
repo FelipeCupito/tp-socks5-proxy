@@ -35,13 +35,13 @@ enum request_actions{
 };
 
 ///////////////////////////////////////////
-//HELLO_READ
+//CONNECT_READ
 //////////////////////////////////////////
 void mng_connect_read_init(const unsigned state, struct selector_key *key);
 unsigned int mng_connect_read(struct selector_key *key);
 
 ///////////////////////////////////////////
-//HELLO_WRITE
+//CONNECT_WRITE
 //////////////////////////////////////////
 unsigned int mng_connect_write(struct selector_key *key);
 

@@ -7,7 +7,7 @@ static const uint8_t STATUS_ERROR_INVALID_KEYLEN    = 0x03;
 static const uint8_t STATUS_ERROR_INVALID_ATTRIBUTE = 0x04;
 static const uint8_t STATUS_ERROR_INVALID_VALUELEN  = 0x05;
 static const uint8_t STATUS_ERROR                   = 0x06;
-static const uint8_t STATUS_UNKOWN_USER_FAIL        = 0x07;
+static const uint8_t STATUS_UNKOWN_USER_FAIL        = 0x07; //TODO: no se usa
 
 static const uint8_t EDIT_ACTION = 0x02;
 static const uint8_t USERS_FIELD = 0x00;

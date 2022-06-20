@@ -2,7 +2,7 @@
 
 
 ///////////////////////////////////////////
-//HELLO_READ
+//CONNECT_READ
 //////////////////////////////////////////
 void mng_connect_read_init(const unsigned state, struct selector_key *key) {
   struct mng *mng = ATTACH(key);
@@ -39,11 +39,11 @@ unsigned int mng_connect_read(struct selector_key *key){
           if (admin_connect_marshall(buff_write, 0x00) == -1) {err = true;}
         }else{
           //la contraseña es incorrecta
-          ATTACH(key)->close = 1;
+          ATTACH(key)->status = CLOSE;
           if (admin_connect_marshall(buff_write, 0X04) == -1) {err = true;}
         }
       }else{
-        ATTACH(key)->close = 1;
+        ATTACH(key)->status = CLOSE;
         if (admin_connect_marshall(buff_write, parser->status) == -1) { err = true; }
       }
       ret = CONNECT_WRITE;
@@ -58,7 +58,7 @@ return err ? MNG_ERROR : ret;
 
 
 ///////////////////////////////////////////
-//HELLO_WRITE
+//CONNECT_WRITE
 //////////////////////////////////////////
 unsigned int mng_connect_write(struct selector_key *key){
   struct mng  *mng = ATTACH(key);
@@ -78,7 +78,7 @@ unsigned int mng_connect_write(struct selector_key *key){
   } else {
     buffer_read_adv(buff, n);
     if (!buffer_can_read(buff)) {
-      if(ATTACH(key)->close == 0){
+      if(ATTACH(key)->status != CLOSE){
         //no se cierra
         if (SELECTOR_SUCCESS == selector_set_interest(key->s,key->fd, OP_READ)) {
           ret = REQUEST;
@@ -160,8 +160,6 @@ unsigned int request_get_request(struct selector_key *key){
   size_t size;
   ssize_t n;
 
-
-  //TODO: ver que hay en el buff_read!!!!
   uint8_t *ptr = buffer_write_ptr(buff_read, &size);
   n = recv(key->fd, ptr, size, 0);
 
@@ -176,32 +174,41 @@ unsigned int request_get_request(struct selector_key *key){
       }
 
       if(st == admin_get_done ){
-        uint8_t res[255];
+        uint8_t res;
         switch(parser->option) {
+          //todo: que pasa si no puede escribir toda la respuesta
           case users:
-
+            res = get_users(buff_write);
             break;
           case passwords:
+            res = get_pass(buff_write);
             break;
           case buffsize:
+            res = get_buff_size(buff_write);
             break;
           case auth_status:
+            res = get_auth_status(buff_write);
             break;
           case spoofing_status:
+            res = get_spoofing_status(buff_write);
             break;
           case sent_bytes:
+            res = _get_sent_bytes(buff_write);
             break;
           case recv_bytes:
+            res = _get_received_bytes(buff_write);
             break;
           case historic_connections:
+            res = _get_histori_conn(buff_write);
             break;
           case current_connectios:
+            res = _get_current_conn(buff_write);
             break;
           default:
-
+            res = 0;
             break;
         }
-        if (admin_get_marshall(buff_write,parser->status, res) == -1) {err = true;}
+        if (admin_get_marshall(buff_write,parser->status, &res) == -1) {err = true;}
       }
       ret = REPLIES;
     }

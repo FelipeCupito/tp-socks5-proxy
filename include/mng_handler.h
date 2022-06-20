@@ -16,6 +16,7 @@
 #include "selector.h"
 #include "stm.h"
 #include "mng.h"
+#include "server_config.h"
 #include "parsers/admin_connect.h"
 #include "parsers/admin_get.h"
 #include "parsers/admin_edit.h"
@@ -25,7 +26,7 @@
 #include "parsers/admin_configstatus.h"
 
 
-#define BUFFER_SIZE 4096 // TODO: sacar
+
 #define ATTACH(key) ((struct mng *)(key)->data)
 
 /////////////////////////////////////////////////////////////////////////
@@ -54,6 +55,10 @@ enum mng_state {
 /////////////////////////////////////////////////////////////////////////
 // Store de cada estado
 /////////////////////////////////////////////////////////////////////////
+enum status{
+  CLOSE = 0,
+  OK,
+};
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -74,10 +79,12 @@ typedef struct mng {
   } parsers;
 
   // buffer de escritura
-  uint8_t raw_buff_a[BUFFER_SIZE], raw_buff_b[BUFFER_SIZE];
+  uint8_t raw_buff_a[MNG_BUFFER_SIZE], raw_buff_b[MNG_BUFFER_SIZE];
   buffer read_buffer, write_buffer;
 
-  int close;
+  //
+
+  enum status status;
 } mng;
 
 #endif

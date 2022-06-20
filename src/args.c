@@ -84,6 +84,10 @@ void parse_args(const int argc, char **argv, config *configuration) {
     }
   }
 
+  if(nusers > 0){
+    configuration->auth_enabled = true;
+  }
+
   if (optind < argc) {
     log_print(LOG_ERROR, "argument not accepted: ");
     while (optind < argc) {
