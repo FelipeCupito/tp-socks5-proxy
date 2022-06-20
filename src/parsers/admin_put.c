@@ -16,12 +16,14 @@ void admin_put_parser_init (struct admin_put_parser *p) {
 
   if (&p->user == NULL) {
     p -> state = admin_put_error;
+    p -> status = STATUS_ERROR;
     return;
   }
 
   memset(&p->pass, 0, sizeof(p->pass));
   if(&p->pass == NULL){
       p->state = admin_put_error;
+      p -> status = STATUS_ERROR;
       return;
   }
 
@@ -45,6 +47,7 @@ enum admin_put_state admin_put_parser_feed (admin_put_parser *p, uint8_t b){
       p -> state = admin_put_field;
     } else {
       p -> state = admin_put_error_action;
+      p -> status = STATUS_ERROR_INVALID_ACTION;
     }
     break;
   case admin_put_field:
@@ -52,11 +55,13 @@ enum admin_put_state admin_put_parser_feed (admin_put_parser *p, uint8_t b){
       p -> state = admin_put_namelen;
     } else {
       p -> state = admin_put_error_field;
+      p -> status = STATUS_ERROR_INVALID_FIELD;
     }
     break;
   case admin_put_namelen:
     if (b <= 0) {
       p -> state = admin_put_error_namelen;
+      p -> status = STATUS_ERROR_INVALID_NAMELEN;
     } else {
       remaining_set(p,b);
       p -> user.userlen = b;
@@ -78,6 +83,7 @@ enum admin_put_state admin_put_parser_feed (admin_put_parser *p, uint8_t b){
   case admin_put_passlen:
     if (b <= 0) {
       p -> state = admin_put_error_passlen;
+      p -> status = STATUS_ERROR_INVALID_PASSLEN;
     } else {
       remaining_set(p,b);
       p -> pass.passlen = b;
@@ -91,6 +97,7 @@ enum admin_put_state admin_put_parser_feed (admin_put_parser *p, uint8_t b){
     if (remaining_is_done(p)) {
       *( (p->pass.passwd) + p->read ) = '\0';
       p -> state = admin_put_done;
+      p -> status = STATUS_OK;
     } else {
       p -> state = admin_put_pass;
     }

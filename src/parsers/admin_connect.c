@@ -12,6 +12,7 @@ void admin_connect_parser_init (struct admin_connect_parser *p) {
 
   if (&p->password == NULL) {
     p -> state = admin_connect_error;
+    p -> status = STATUS_ERROR;
     return;
   }
 
@@ -36,11 +37,13 @@ enum admin_connect_state admin_connect_parser_feed(admin_connect_parser *p, uint
         p -> state = admin_connect_passlen;
       } else {
         p -> state = admin_connect_error_version;
+        p -> status = STATUS_ERROR_IN_VERSION;
       }
       break;
     case admin_connect_passlen:
       if (b <= 0) {
         p -> state = admin_connect_error_passlen;
+        p -> status = STATUS_ERROR_IN_PASSLEN;
       } else {
         remaining_set(p,b);
         p -> password.passlen = b;
@@ -54,6 +57,7 @@ enum admin_connect_state admin_connect_parser_feed(admin_connect_parser *p, uint
       if (remaining_is_done(p)) {
         *( (p->password.passwd) + p->read ) = '\0';
         p -> state = admin_connect_done;
+        p -> status = STATUS_OK;
       }
       break;
     case admin_connect_done:

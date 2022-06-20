@@ -25,6 +25,7 @@ enum admin_configbuff_state configbuff_action(admin_configbuff_parser *p, uint8_
     p -> state = admin_configbuff_size;
   } else {
     p -> state = admin_configbuff_error_action;
+    p -> status = STATUS_ERROR_INVALID_ACTION;
   }
 
   return p -> state;
@@ -40,8 +41,10 @@ enum admin_configbuff_state size(admin_configbuff_parser *p, uint8_t b) {
     uint32_t aux_size = p -> size[3] | (p -> size[2] << 8) | (p -> size[1] << 16) | (p -> size[0] << 24);
     if (aux_size <= 0) {
       p -> state = admin_configbuff_error_size;
+      p -> status = STATUS_ERROR_INVALID_SIZE;
     } else {
       p -> state = admin_configbuff_done;
+      p -> status = STATUS_OK;
     }
   }
 

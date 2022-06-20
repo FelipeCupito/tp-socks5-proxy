@@ -184,8 +184,8 @@ START_TEST(test_admin_get_invalid_action)
     FIXBUF(b, data);
     bool errored = false;
     enum admin_get_state st = admin_get_consume(&b, &parser, &errored);
-    ck_assert_uint_eq(true, errored);
     ck_assert_uint_eq(admin_get_error_action, st);
+    ck_assert_uint_eq(true, errored);
 }
 END_TEST
 

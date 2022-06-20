@@ -24,9 +24,11 @@ enum admin_get_state get_option(const uint8_t b, struct admin_get_parser* p) {
     case spoofing_status:
       p -> option = b;
       p -> state = admin_get_done;
+      p -> status = STATUS_OK;
     break;
     default:
       p -> state = admin_get_error_option;
+      p -> status = STATUS_ERROR_INVALID_OPTION;
     break;
   }
 
@@ -36,6 +38,9 @@ enum admin_get_state get_option(const uint8_t b, struct admin_get_parser* p) {
 enum admin_get_state get_action(const uint8_t b, struct admin_get_parser* p) {
   if (b == GET_ACTION) {
     p -> state = admin_get_option;
+  } else {
+    p -> state = admin_get_error_action;
+    p -> status = STATUS_ERROR_INVALID_ACTION;
   }
 
   return p -> state;
