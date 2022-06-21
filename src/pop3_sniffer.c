@@ -260,6 +260,6 @@ void pop3sniff(uint8_t *ptr, ssize_t size, void *socks5){
             memcpy(pop3_ptr,ptr,count);
             buffer_write_adv(&s -> buffer,count);
         }
-        enum pop3_sniffer_state st = pop3_sniffer_consume(s, socks5);
+        pop3_sniffer_consume(s, socks5);
     }
 }

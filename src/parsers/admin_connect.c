@@ -4,7 +4,7 @@ static const uint8_t STATUS_OK = 0X00;
 static const uint8_t STATUS_ERROR_IN_VERSION = 0x01;
 static const uint8_t STATUS_ERROR_IN_PASSLEN = 0X02;
 static const uint8_t STATUS_ERROR = 0X03;
-static const uint8_t STATUS_AUTH_FAIL = 0X04; //TODO: no se usa
+//static const uint8_t STATUS_AUTH_FAIL = 0X04; //TODO: no se usa
  
 void admin_connect_parser_init (struct admin_connect_parser *p) {
   p -> state  = admin_connect_version;

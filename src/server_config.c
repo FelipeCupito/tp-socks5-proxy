@@ -92,7 +92,6 @@ int edit_user(char *username, char *new_value, uint8_t attr){
 
 int set_buff_size(uint8_t* size){
   int res = four_bytes_to_num(size);
-  log_print(INFO,"SIZE: %d", res);
   conf.socks_buffer_size = res;
   return res;
 }
@@ -323,7 +322,7 @@ int num_to_8bytes(char *res, int res_size, uint32_t n){
     return -1;
   }
   for (int i = 0; i < 8; ++i) {
-    res[i] = (n >> 56-i*8 ) & 0xFF;
+    res[i] = (n >> (56-i*8) ) & 0xFF;
   }
 
   return 8;
