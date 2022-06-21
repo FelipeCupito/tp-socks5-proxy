@@ -18,6 +18,9 @@
 void init_metrics();
 
 // SETTERS
+void add_connecting_clients();
+void end_connecting_clients();
+
 void add_connection();
 void end_connection();
 void add_sent_byte(int n);

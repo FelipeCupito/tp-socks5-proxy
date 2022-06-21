@@ -154,16 +154,15 @@ void socks5_passive_accept(struct selector_key *key) {
     goto finally;
   }
 
-  if(MAX_CONNECTIONS < get_current_conn()){
+  if(MAX_CONNECTIONS-1 < get_current_conn()){
     socks->status = status_connection_refused;
     log_conn(socks, socks->status);
     err = 1;
     goto finally;
   } else{
-    add_connection();
+    add_connecting_clients();
     socks->status = status_connecting;
   }
-
 
   // clntSock is connected to a client!
   if (selector_fd_set_nio(client) == -1) {
@@ -221,6 +220,7 @@ void socks5_done(struct selector_key *key) {
     log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
     end_connection();
   }
+  end_connecting_clients();
 
   const int fds[] = {
           ATTACHMENT(key)->client_fd,

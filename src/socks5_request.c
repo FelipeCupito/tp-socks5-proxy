@@ -282,7 +282,7 @@ unsigned int request_connecting(struct selector_key *key) {
       // se conecto
       *request->status = status_succeeded;
       *conn->final_server_fd = key->fd;
-      //add_connection();
+      add_connection();
       log_conn(ATTACHMENT(key), *request->status);
     } else {
       //no se puedo conexion, intento con otro ip.
