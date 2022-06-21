@@ -173,6 +173,7 @@ void execute_commands(int fd, struct manage_args* args) {
         add_user(fd, args->add_username, args->add_password);
     }
     if (args->set_flag) {
+        log_print(INFO,"set buff size");
         set_buffer_size(fd, args->set_size);
     }
     if (args->delete_flag && args->delete_username != NULL) {
@@ -617,6 +618,11 @@ static int send_configbuffsize_request(int fd, unsigned int size) {
     request[2] = (size >> 16) & 0xFF;
     request[3] = (size >> 8) & 0xFF;
     request[4] = size & 0xFF;
+
+    printf("request[1]: %x\n", request[1]);
+    printf("request[2]: %x\n", request[2]);
+    printf("request[3]: %x\n", request[3]);
+    printf("request[4]: %x\n", request[4]);
 
     sent_bytes = send(fd, request, 5, MSG_NOSIGNAL);
 

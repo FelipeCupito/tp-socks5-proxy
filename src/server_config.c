@@ -295,7 +295,7 @@ int bool_to_bytes(char *res, int res_size, bool n){
 }
 
 int four_bytes_to_num(char* src) {
-  uint32_t num = src[3] | (src[2] << 8) | (src[1] << 16) | (src[0] << 24);
+  uint32_t num = (uint32_t) src[3] | (uint32_t) (src[2] << 8) | (uint32_t) (src[1] << 16) | (uint32_t) (src[0] << 24);
   return num;
 }
 
