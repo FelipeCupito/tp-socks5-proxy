@@ -13,6 +13,7 @@
 #include "buffer.h"
 #include "logger.h"
 #include "listgeneric.h"
+#include "server_config.h"
 
 #define MAX_USR_PASS_SIZE 0XFF
 #define MAX_BUFF_POP3_SIZE 4096
