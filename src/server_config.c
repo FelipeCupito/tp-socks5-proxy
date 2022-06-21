@@ -89,7 +89,8 @@ int edit_user(char *username, char *new_value, uint8_t attr){
 ////////////////////////////////////////////////////////
 //                      CONFIGBUFF
 ////////////////////////////////////////////////////////
-int set_buff_size(char* size){
+
+int set_buff_size(uint8_t* size){
   int res = four_bytes_to_num(size);
   log_print(INFO,"SIZE: %d", res);
   conf.socks_buffer_size = res;
@@ -297,8 +298,8 @@ int bool_to_bytes(char *res, int res_size, bool n){
   return 1;
 }
 
-int four_bytes_to_num(char* src) {
-  uint32_t num = (uint32_t) src[3] | (uint32_t) (src[2] << 8) | (uint32_t) (src[1] << 16) | (uint32_t) (src[0] << 24);
+int four_bytes_to_num(uint8_t* src) {
+  uint32_t num =  src[3] | (src[2] << 8) | (src[1] << 16) | (src[0] << 24);
   return num;
 }
 
