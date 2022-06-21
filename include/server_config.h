@@ -105,11 +105,9 @@ uint32_t get_socks_buffer_size();
 
 //configbuff
 int set_buff_size(uint8_t* size);
-
 int four_bytes_to_num(uint8_t* src);
 
 //configstatus
-
 int set_auth_status(uint8_t status);
 int set_sniff_status(uint8_t status);
 void set_status(uint8_t field, uint8_t status);

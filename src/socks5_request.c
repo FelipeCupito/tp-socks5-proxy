@@ -46,8 +46,7 @@ unsigned int request_read(struct selector_key *key) {
   } else {
     buffer_write_adv(buff, n);
     request_state st = request_consume(buff, &data->parser, &err);
-    //TODO: request_is_done el ultimo parametro no tiene que ser &err?????
-    if (request_is_done(st, 0)) {
+    if (request_is_done(st, &err)) {
       ret = request_process(key, data);
     }
   }

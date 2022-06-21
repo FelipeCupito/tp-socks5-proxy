@@ -85,6 +85,7 @@ unsigned int copy_read(struct selector_key *key) {
       shutdown(*data->other_copy->fd, SHUT_WR);
       data->other_copy->interest &= ~OP_WRITE;
     }
+    ret = DONE;
   }
 
   //TODO: si devulve -1 ->error, sino ver que hago con lo que devulvo
@@ -125,6 +126,7 @@ unsigned copy_write(struct selector_key *key) {
       shutdown(*data->other_copy->fd, SHUT_RD);
       data->other_copy->interest &= ~OP_READ;
     }
+    ret = DONE;
   }
 
   copy_determine_interests(key->s, data);
