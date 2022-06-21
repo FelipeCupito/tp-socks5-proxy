@@ -349,8 +349,10 @@ unsigned int request_buffsize_request(struct selector_key *key){
       if(admin_configbuff_marshall(buff_write, parser->status) == -1){err = true;}
       ret = REPLIES;
 
-    } else { err = true; }
-  }
+    }
+
+  }else { err = true; }
+
   finally:
   return err ? MNG_ERROR : ret;
 }
@@ -417,7 +419,7 @@ unsigned int request_delete_request(struct selector_key *key){
         err = true;
         goto finally;
       }
-      if (st == admin_edit_done) {
+      if (st == admin_delete_done) {
         if (delete_user((char *) parser->username) != 0) {
           parser->status = 0x05; //STATUS_UNKNOWN_USER_FAIL;
         }

@@ -46,7 +46,7 @@ int checkUser(char *user, char *pass){
 int delete_user(char *username){
 
   bool find_flag = false;
-  for (int i = 0; i < conf.users_size; ++i) {
+  for (int i = 0; i < conf.users_size && !find_flag ; ++i) {
     struct users user = conf.users[i];
     if(equal(user, username)){
       find_flag = true;
@@ -57,6 +57,7 @@ int delete_user(char *username){
     }
   }
   if(find_flag){
+    conf.users_size--;
     return 0;
   }
   return -1;
@@ -68,7 +69,7 @@ int delete_user(char *username){
 int edit_user(char *username, char *new_value, uint8_t attr){
   struct users* user = get_user(username);
 
-  if(user == NULL ||strlen(new_value) >= MAX_STR_SIZE){
+  if(user == NULL ||strlen(new_value) >= MAX_USERNAME_SIZE){
     return -1;
   }
 
@@ -84,14 +85,11 @@ int edit_user(char *username, char *new_value, uint8_t attr){
 ////////////////////////////////////////////////////////
 //                      CONFIGBUFF
 ////////////////////////////////////////////////////////
-
 int set_buff_size(char* size){
   int res = four_bytes_to_num(size);
   conf.socks_buffer_size = res;
   return 0;
 }
-
-
 
 ////////////////////////////////////////////////////////
 //                      PUT
@@ -100,7 +98,7 @@ int add_user(char* user, char* pass){
   if(conf.users_size + 1 >= MAX_USERS )
     return -1;
 
-  if(strlen(user) > MAX_STR_SIZE || strlen(user) > MAX_STR_SIZE){
+  if(strlen(user) > MAX_USERNAME_SIZE || strlen(user) > MAX_USERNAME_SIZE){
     return -1;
   }
 
@@ -117,7 +115,6 @@ int add_user(char* user, char* pass){
 //                  GETTERS
 ////////////////////////////////////////////////////////
 int get_users(char *res, int res_size){
-
   int n = 0;
   for (int i = 0; i < conf.users_size; i++) {
     char *user = conf.users[i].name;
@@ -127,7 +124,7 @@ int get_users(char *res, int res_size){
       n++;
     }
     res[n++] = ' ';
-    for (int j = 0; user[j] != '\0' && res_size-2 > n; j++) {
+    for (int j = 0; pass[j] != '\0' && res_size-2 > n; j++) {
       res[n] = pass[j];
       n++;
     }
@@ -143,7 +140,6 @@ int get_pop3_pass(char *res, int res_size){
     begin_Sniffer_List();
 
   int n = 0;
-  log_print(INFO, "%d", sniffer_hast_next());
   while(sniffer_hast_next() && res_size > n){
     sniff_info *pop3_info = sniffer_get_next();
     char *user_socks = pop3_info->proxy_username;
@@ -217,6 +213,10 @@ int _get_histori_conn(char *res, int res_size){
   return num_to_4bytes(res, res_size, n);
 }
 
+uint32_t get_socks_buffer_size(){
+  return conf.socks_buffer_size;
+}
+
 
 ////////////////////////////////////////////////////////
 //
@@ -262,7 +262,7 @@ int bool_to_bytes(char *res, int res_size, bool n){
   if(res_size < 1){
     return -1;
   }
-  if(n){
+  if(n == true){
     res[0] = 0x00;
   }else{
     res[0] = 0x01;
