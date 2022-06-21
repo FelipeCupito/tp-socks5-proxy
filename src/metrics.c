@@ -7,6 +7,7 @@ static int current_connections = 0;
 static int connecting_clients = 0;
 
 
+static int connecting_clients = 0;
 
 //INIT
 void init_metrics(){
