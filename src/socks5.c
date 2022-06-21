@@ -119,6 +119,9 @@ struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, s
   //si esta en 1 se puede liberar la memoria
   newSocks->toFree = 0;
 
+  newSocks->server_resolution = NULL;
+  newSocks->current_server_resolution = NULL;
+
   return newSocks;
 }
 
@@ -235,6 +238,7 @@ void socks5_close(struct selector_key *key) {
 void socks5_free(struct socks5 *socks5){
   if(socks5->server_resolution != NULL){
     freeaddrinfo(socks5->server_resolution);
+    socks5->server_resolution = NULL;
   }
   free(socks5->raw_buff_a);
   free(socks5->raw_buff_b);

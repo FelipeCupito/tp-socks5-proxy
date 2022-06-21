@@ -228,12 +228,12 @@ int _get_transfered_bytes(char *res, int res_size){
 }
 
 int _get_current_conn(char *res, int res_size){
-  uint32_t n = get_sent_byte();
+  uint32_t n = get_current_conn();
   return num_to_4bytes(res, res_size, n);
 }
 
 int _get_histori_conn(char *res, int res_size){
-  uint32_t n = get_sent_byte();
+  uint32_t n = get_histori_conn();
   return num_to_4bytes(res, res_size, n);
 }
 
