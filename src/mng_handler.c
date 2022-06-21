@@ -146,7 +146,7 @@ void mng_passive_accept(struct selector_key *key) {
   }
 
 
-  if(MAX_CONNECTIONS < get_current_conn()){
+  if(MAX_CONNECTIONS-1 < get_current_conn()){
     log_print(LOG_ERROR, "no se acceptan mas conexiones");
     err = 1;
     goto finally;
