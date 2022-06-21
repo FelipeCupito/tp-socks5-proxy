@@ -151,7 +151,7 @@ void mng_passive_accept(struct selector_key *key) {
     err = 1;
     goto finally;
   } else{
-    add_connection();
+    add_connecting_clients();
   }
 
   // clntSock is connected to a client!
@@ -205,7 +205,7 @@ void mng_block(struct selector_key *key) {
 
 void mng_done(struct selector_key *key) {
 
-  end_connection(status_close);
+  end_connecting_clients();
   int fd = ATTACH(key)->client_fd;
   selector_unregister_fd(key->s, fd);
   close(fd);

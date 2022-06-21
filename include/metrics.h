@@ -20,7 +20,7 @@ void init_metrics();
 
 // SETTERS
 void add_connection();
-void end_connection(enum socks_response_status status);
+void end_connection();
 void add_sent_byte(int n);
 void add_received_bytes(int n);
 

@@ -160,7 +160,7 @@ void socks5_passive_accept(struct selector_key *key) {
     err = 1;
     goto finally;
   } else{
-    add_connection();
+    add_connecting_clients();
     socks->status = status_connecting;
   }
 
@@ -216,10 +216,11 @@ void socks5_block(struct selector_key *key) {
 
 void socks5_done(struct selector_key *key) {
 
-  //if (ATTACHMENT(key)->status == status_close){
+  if (ATTACHMENT(key)->status == status_close){
     log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
-    end_connection(ATTACHMENT(key)->status);
-  //}
+    end_connection();
+  }
+  end_connecting_clients();
 
   const int fds[] = {
           ATTACHMENT(key)->client_fd,
