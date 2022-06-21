@@ -21,7 +21,7 @@
 
 #define MAX_SOCKS_USERS 10
 #define MNG_TOKEN "holacomoestas"
-#define MAX_CONNECTIONS 508
+#define MAX_CONNECTIONS (508-1) //se reserva una para el mng client
 
 #define DEFAULT_SOCKS_BUFFER_SIZE 1024
 #define DEFAULT_DISECTORS true

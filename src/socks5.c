@@ -217,11 +217,11 @@ void socks5_block(struct selector_key *key) {
 
 void socks5_done(struct selector_key *key) {
 
-  if (ATTACHMENT(key)->status == status_close){
+  //if (ATTACHMENT(key)->status == status_close){
     log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
     end_connection();
-  }
-
+  //}
+  
   const int fds[] = {
           ATTACHMENT(key)->client_fd,
           ATTACHMENT(key)->final_server_fd,
