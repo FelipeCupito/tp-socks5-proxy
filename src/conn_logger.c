@@ -16,6 +16,7 @@ char *status_str[] = {"succeeded",
                       "Command not supported",
                       "Address type not supported",
                       "close",
+                      "connecting",
                       "ERROR"};
 
 

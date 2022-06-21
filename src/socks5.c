@@ -164,7 +164,6 @@ void socks5_passive_accept(struct selector_key *key) {
     socks->status = status_connecting;
   }
 
-
   // clntSock is connected to a client!
   if (selector_fd_set_nio(client) == -1) {
     err = 1;
