@@ -217,9 +217,9 @@ void socks5_block(struct selector_key *key) {
 void socks5_done(struct selector_key *key) {
 
   if (ATTACHMENT(key)->status == status_close){
-    log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
     end_connection();
   }
+  log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
   end_connecting_clients();
 
   const int fds[] = {
@@ -229,7 +229,6 @@ void socks5_done(struct selector_key *key) {
 
   for (int i = 0; i < 2; ++i) {
     if (fds[i] != -1) {
-
       selector_unregister_fd(key->s, fds[i]);
     }
     close(fds[i]);
@@ -238,7 +237,7 @@ void socks5_done(struct selector_key *key) {
 
 void socks5_close(struct selector_key *key) {
   struct socks5 *socks = ATTACHMENT(key);
-  if(socks->status != status_close){
+  if(socks->final_server_fd == -1){
     socks5_free(socks);
   }else if(socks->toFree > 0){
     socks5_free(key->data);
