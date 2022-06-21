@@ -19,7 +19,9 @@ OTFILES=$(patsubst %.c,./%.o,$(TESTFILES))
 %.o: %.c $(HFILES)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all:$(OFILES) 
+all: server client
+
+server:$(OFILES)
 	$(CC) $(OFILES) $(CFLAGS) $(LDFLAG) -o server
 
 client:

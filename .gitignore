@@ -58,6 +58,7 @@ client
 #txt
 *.txt
 !Wannapprove_Protocol_v0.txt
+
 # History
 .bash-history
 .bash_history
