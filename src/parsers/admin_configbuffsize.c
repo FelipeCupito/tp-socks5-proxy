@@ -36,7 +36,7 @@ enum admin_configbuff_state size(admin_configbuff_parser *p, uint8_t b) {
   log_print(INFO, "byte %d.\n", b);
   p -> size[i] = b;
   p -> read ++;
-
+  
   if (remaining_is_done(p)) {
     uint32_t aux_size = p -> size[3] | (p -> size[2] << 8) | (p -> size[1] << 16) | (p -> size[0] << 24);
     if (aux_size <= 0) {
