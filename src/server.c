@@ -146,11 +146,11 @@ int main(const int argc, char **argv) {
 
 //TODO: borrar
   log_print(INFO, "Metrics:");
-  log_print(INFO, " |-> conexiones actuales: %d", get_current_conn());
-  log_print(INFO, " |-> conexiones historicas: %d", get_histori_conn());
-  log_print(INFO, " |-> bytes enviados: %d", get_sent_byte());
-  log_print(INFO, " |-> bytes recividos: %d", get_received_bytes());
-  log_print(INFO, " |-> bytes trasmitidos: %d", get_transfered_bytes());
+  log_print(INFO, " |-> concurrent connections: %d", get_current_conn());
+  log_print(INFO, " |-> historic connections: %d", get_histori_conn());
+  log_print(INFO, " |-> sent bytes: %d", get_sent_byte());
+  log_print(INFO, " |-> received bytes: %d", get_received_bytes());
+  log_print(INFO, " |-> transferred bytes: %d", get_transfered_bytes());
 
   log_print(INFO, "Proxy END");
   int ret = 0;
