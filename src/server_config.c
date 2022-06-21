@@ -119,7 +119,7 @@ void set_status(uint8_t field, uint8_t status){
 //                      PUT
 ////////////////////////////////////////////////////////
 int add_user(char* user, char* pass){
-  if(server_conf.users_size + 1 >= MAX_USERS )
+  if(server_conf.users_size + 1 >= MAX_SOCKS_USERS )
     return -1;
 
   if(strlen(user) > MAX_USERNAME_SIZE || strlen(user) > MAX_USERNAME_SIZE){

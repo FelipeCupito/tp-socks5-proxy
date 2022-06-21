@@ -66,5 +66,4 @@ client
 
 # VSCode
 .vscode
-
-.idea
+.idea/workspace.xml
