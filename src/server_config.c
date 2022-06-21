@@ -87,8 +87,32 @@ int edit_user(char *username, char *new_value, uint8_t attr){
 ////////////////////////////////////////////////////////
 int set_buff_size(char* size){
   int res = four_bytes_to_num(size);
+  log_print(INFO,"SIZE: %d", res);
   conf.socks_buffer_size = res;
-  return 0;
+  return res;
+}
+
+////////////////////////////////////////////////////////
+//                      CONFIGSTATUS
+////////////////////////////////////////////////////////
+int set_auth_status(uint8_t status){
+  log_print(INFO, "status %d", (bool) status);
+  conf.auth_enabled = (bool) status;
+  return conf.auth_enabled;
+}
+
+int set_sniff_status(uint8_t status){
+  conf.disectors_enabled = (bool) status;
+  return conf.disectors_enabled;
+}
+
+void set_status(uint8_t field, uint8_t status){
+  int ret;
+  if (field == 0x03) {
+    ret = set_auth_status(status);
+  } else {
+    ret = set_sniff_status(status);
+  }
 }
 
 ////////////////////////////////////////////////////////
@@ -271,7 +295,7 @@ int bool_to_bytes(char *res, int res_size, bool n){
 }
 
 int four_bytes_to_num(char* src) {
-  uint32_t num = src[3] | (src[2] << 8) | (src[1] << 16) | (src[0] << 24);
+  uint32_t num = (uint32_t) src[3] | (uint32_t) (src[2] << 8) | (uint32_t) (src[1] << 16) | (uint32_t) (src[0] << 24);
   return num;
 }
 

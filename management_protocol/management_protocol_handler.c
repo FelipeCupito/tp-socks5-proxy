@@ -93,7 +93,7 @@ static void config_spoof(int fd, uint8_t status);
 // DELETE
 static void delete_user(int fd, char* username);
 
-char* get_cmds[] = { "users", "passwords", "buffersize", "authstatus", "spoofingstatus", "sentbytes", "receivedbytes", "historic", "concurrent" };
+char* get_cmds[] = { "users", "passwords", "buffersize", "authstatus", "spoofstatus", "sentbytes", "rcvbytes", "historic", "concurrent" };
 
 char* get_msg[] = { "Success", "Invalid action", "Invalid option" };
 char* put_msg[] = { "Success", "Invalid action", "Invalid username length", "Invalid password length" };
@@ -133,8 +133,14 @@ void login(int fd, struct manage_args* args) {
     msg[1] = password_len;
     strcpy((char*) (msg + 2), password);
 
+    printf("Code %u\n", msg[0]);
+    printf("pass len: %u\n", msg[1]);
+    printf("About to send auth with %s\n", (char*) (msg + 2));
+
     // using send due to connected state
     int bytes = send(fd, msg, password_len + 4, 0);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
+    printf("bytes sent: %d\n", bytes);
+
 
     // recibir respuesta
     char res[1];
@@ -167,6 +173,7 @@ void execute_commands(int fd, struct manage_args* args) {
         add_user(fd, args->add_username, args->add_password);
     }
     if (args->set_flag) {
+        log_print(INFO,"set buff size");
         set_buffer_size(fd, args->set_size);
     }
     if (args->delete_flag && args->delete_username != NULL) {
@@ -500,6 +507,13 @@ static int send_put_request(int fd, char* username, char* password) {
     size_t username_len = strlen(username);
     size_t password_len = strlen(password);
 
+    if(username_len > 10) {
+        error_quit(fd, "PUT: Username too long (max 10).");
+    }
+    if(password_len > 10) {
+        error_quit(fd, "PUT: Password too long (max 10).");
+    }
+
     request = realloc(request, 2 + 2 * sizeof(int) + username_len + password_len + 1);
     request[0] = 0x01;
     request[1] = 0x00;
@@ -551,6 +565,14 @@ static int send_edit_request(int fd, char* username, uint8_t attribute, char* va
     size_t username_len = strlen(username);
     size_t value_len = strlen(value);
 
+    if(username_len > 10) {
+        error_quit(fd, "EDIT: Username too long (max 10).");
+    }
+
+    if(value_len > 10) {
+        error_quit(fd, "EDIT: Value too long (max 10).");
+    }
+
     request = realloc(request, 5 + username_len + value_len + 1);
     request[0] = 0x02;
     request[1] = 0x00;
@@ -591,7 +613,7 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
 
     uint8_t status;
     int recv_bytes = receive_configbuffsize_reply(fd, &status);
-    log_print(INFO, "%d", recv_bytes);
+
     if (recv_bytes <= 0) {
         if (recv_bytes < 0) {
             // Negativo -> error
@@ -605,12 +627,17 @@ static void send_receive_configbuffsize(int fd, unsigned int size) {
 static int send_configbuffsize_request(int fd, unsigned int size) {
     int sent_bytes = 0;
     uint8_t request[5];
-    log_print(INFO, "dsfdf");
+
     request[0] = 0x03;
     request[1] = (size >> 24) & 0xFF;
     request[2] = (size >> 16) & 0xFF;
     request[3] = (size >> 8) & 0xFF;
     request[4] = size & 0xFF;
+
+    printf("request[1]: %x\n", request[1]);
+    printf("request[2]: %x\n", request[2]);
+    printf("request[3]: %x\n", request[3]);
+    printf("request[4]: %x\n", request[4]);
 
     sent_bytes = send(fd, request, 5, MSG_NOSIGNAL);
 
@@ -703,6 +730,10 @@ static uint8_t send_delete_request(int fd, char* username) {
     int sent_bytes;
     size_t username_len = strlen(username);
     uint8_t* request = NULL;
+
+    if(username_len > 10) {
+        error_quit(fd, "DELETE: Username too long (max 10).");
+    }
 
     request = realloc(request, 3 + username_len + 1);
     request[0] = 0x05;
