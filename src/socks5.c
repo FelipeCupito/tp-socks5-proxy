@@ -221,7 +221,7 @@ void socks5_done(struct selector_key *key) {
     log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
     end_connection();
   //}
-  
+
   const int fds[] = {
           ATTACHMENT(key)->client_fd,
           ATTACHMENT(key)->final_server_fd,
