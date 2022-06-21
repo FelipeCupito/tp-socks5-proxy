@@ -10,7 +10,7 @@ static bool done = false;
 
 int main(const int argc, char** argv) {
 
-	int fd;
+	int fd = -1;
 	struct manage_args args;
 	parse_args_handler(argc, argv, &args);
 

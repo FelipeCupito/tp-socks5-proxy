@@ -133,10 +133,6 @@ void login(int fd, struct manage_args* args) {
     msg[1] = password_len;
     strcpy((char*) (msg + 2), password);
 
-    printf("Code %u\n", msg[0]);
-    printf("pass len: %u\n", msg[1]);
-    printf("About to send auth with %s\n", (char*) (msg + 2));
-
     // using send due to connected state
     int bytes = send(fd, msg, password_len + 4, 0);   // MSG_NOSIGNAL -> don't generate a SIGPIPE
     printf("bytes sent: %d\n", bytes);
@@ -191,15 +187,21 @@ void execute_commands(int fd, struct manage_args* args) {
         if (strcmp("auth", args->toggle_option) == 0) {
             if (strcmp("on", args->toggle_status) == 0)
                 config_auth(fd, 0x00);
-            if (strcmp("off", args->toggle_status) == 0)
+            else if (strcmp("off", args->toggle_status) == 0)
                 config_auth(fd, 0x01);
+            else
+                error_quit(fd, "Invalid auth status");
         }
         else if (strcmp("spoof", args->toggle_option) == 0) {
             if (strcmp("on", args->toggle_status) == 0)
                 config_spoof(fd, 0x00);
-            if (strcmp("off", args->toggle_status) == 0)
+            else if (strcmp("off", args->toggle_status) == 0)
                 config_spoof(fd, 0x01);
+            else
+                error_quit(fd, "Invalid spoofing status");
         }
+        else
+            error_quit(fd, "CONFIGSTATUS: Invalid toggle option (only auth and spoof)");
     }
     if (args->get_flag) {
         switch (hash_get(args->get_option)) {
@@ -331,9 +333,15 @@ static void get_bytes(int fd, uint8_t command, char* msg) {
         return;
     }
 
-    uint64_t reply_bytes = reply[7] | (reply[6] << 8) | (reply[5] << 16) | (reply[4] << 24) | (reply[3] << 32) | (reply[2] << 40) | (reply[1] << 48) | (reply[0] << 56);
+    uint64_t reply_bytes = 0;
+    // TODO: Check if it is okay
+    for(int i = 0; i < 8; i--) {
+        reply_bytes |= reply[i] << (56 - i * 8);
+    }
+    // uint64_t reply_bytes = reply[7] | (reply[6] << 8) | (reply[5] << 16) | (reply[4] << 24); 
+    // reply_bytes |= (reply[3] << 32) | (reply[2] << 40) | (reply[1] << 48) | (reply[0] << 56);
 
-    printf("%s: %ld\n", msg, reply_bytes);
+    printf("%s: %lu\n", msg, reply_bytes);
 
     free(reply);
 }
