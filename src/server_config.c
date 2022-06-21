@@ -46,16 +46,20 @@ int checkUser(char *user, char *pass){
 int delete_user(char *username){
 
   bool find_flag = false;
+  struct users *user;
   for (int i = 0; i < conf.users_size && !find_flag ; ++i) {
-    struct users user = conf.users[i];
-    if(equal(user, username)){
+    user = &conf.users[i];
+    if(equal(*user, username)){
       find_flag = true;
     }
     if(find_flag && i < (conf.users_size-1)){
-      struct users next_user = conf.users[i+1];
-      copy_user(user, next_user);
+      struct users next_user = conf.users[conf.users_size-1];
+      strcpy(conf.users[i].name, next_user.name);
+      strcpy(conf.users[i].pass, next_user.pass);
+
     }
   }
+
   if(find_flag){
     conf.users_size--;
     return 0;
@@ -97,22 +101,20 @@ int set_buff_size(uint8_t* size){
 //                      CONFIGSTATUS
 ////////////////////////////////////////////////////////
 int set_auth_status(uint8_t status){
-  log_print(INFO, "status %d", (bool) status);
-  conf.auth_enabled = (bool) status;
+  conf.auth_enabled = (bool) !status;
   return conf.auth_enabled;
 }
 
 int set_sniff_status(uint8_t status){
-  conf.disectors_enabled = (bool) status;
+  conf.disectors_enabled = (bool) !status;
   return conf.disectors_enabled;
 }
 
 void set_status(uint8_t field, uint8_t status){
-  int ret;
   if (field == 0x03) {
-    ret = set_auth_status(status);
+    set_auth_status(status);
   } else {
-    ret = set_sniff_status(status);
+    set_sniff_status(status);
   }
 }
 
@@ -271,13 +273,14 @@ int equal(struct users usr1, char *username){
 }
 
 struct users* get_user(char *username){
-  for (int i = 0; i < conf.users_size; ++i) {
+  int aux = conf.users_size;
+  for (int i = 0; i < aux; i++) {
     char *user = conf.users[i].name;
     if(strcmp(user, username) == 0){
       return &conf.users[i];
     }
-    return NULL;
   }
+  return NULL;
 }
 
 //o ON X'00'
