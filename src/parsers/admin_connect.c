@@ -4,17 +4,19 @@ static const uint8_t STATUS_OK = 0X00;
 static const uint8_t STATUS_ERROR_IN_VERSION = 0x01;
 static const uint8_t STATUS_ERROR_IN_PASSLEN = 0X02;
 static const uint8_t STATUS_ERROR = 0X03;
-//static const uint8_t STATUS_AUTH_FAIL = 0X04; //TODO: no se usa
+//static const uint8_t STATUS_AUTH_FAIL = 0X04;
  
 void admin_connect_parser_init (struct admin_connect_parser *p) {
   p -> state  = admin_connect_version;
   memset(&p -> password, 0, sizeof(p -> password));
 
+  /*
   if (&p->password == NULL) {
     p -> state = admin_connect_error;
     p -> status = STATUS_ERROR;
     return;
   }
+   */
 
   p -> version = 0x00;
   p -> remaining = 0;
@@ -68,12 +70,10 @@ enum admin_connect_state admin_connect_parser_feed(admin_connect_parser *p, uint
       break;
     case admin_connect_error_version:
       p -> status = STATUS_ERROR_IN_VERSION;
-        break;
+      break;
     case admin_connect_error_passlen:
       p -> status = STATUS_ERROR_IN_PASSLEN;
-        break;
       break;
-
     default:
       log_print(FATAL, "Invalid state %d.\n", p->state);
       break;

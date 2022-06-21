@@ -11,11 +11,11 @@
 #include <sys/types.h>  // socket
 #include <unistd.h>
 
-#include "parsers/auth.h"
-#include "buffer.h"
-#include "stm.h"
-#include "selector.h"
-#include "logger.h"
+//#include "parsers/auth.h"
+//#include "buffer.h"
+//#include "stm.h"
+//#include "selector.h"
+//#include "logger.h"
 #include "socks5.h"
 #include "server_config.h"
 

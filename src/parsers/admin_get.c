@@ -22,7 +22,7 @@ enum admin_get_state get_option(const uint8_t b, struct admin_get_parser* p) {
     case buffsize:
     case auth_status:
     case spoofing_status:
-      p -> option = b;
+      p->option = b;
       p->state = admin_get_done;
       p->status = STATUS_OK;
     break;

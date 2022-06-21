@@ -26,7 +26,7 @@ static uint8_t check_credentials(const struct auth_data *auth){
 static unsigned auth_process(struct auth_data *auth){
     unsigned ret = AUTH_WRITE;
     uint8_t status = check_credentials(auth);
-    if(auth_marshalll(auth->wb,status) == -1){
+    if(auth_marshall(auth->wb,status) == -1){
         ret = ERROR;
     }
     auth->status = status;

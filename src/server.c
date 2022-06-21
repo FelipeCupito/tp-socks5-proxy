@@ -21,9 +21,9 @@
 
 #include "../include/socks5.h"
 #include "../include/args.h"
-#include "../include/selector.h"
-#include "../include/logger.h"
-#include "../include/server_config.h"
+//#include "../include/selector.h"
+//#include "../include/logger.h"
+//#include "../include/server_config.h"
 #include "../include/mng_handler.h"
 
 
@@ -31,7 +31,6 @@
 #define MAX_FD 1024 // cantidad maxima de fd de aceptados por el selector
 #define INET_ADDRSTRLEN 16
 #define INET6_ADDRSTRLEN 46
-#define SELECT_TIMEOUT 10
 
 // funciones privadas
 char *init_server_v4(int *fd, struct sockaddr_in addr);
@@ -93,7 +92,7 @@ int main(const int argc, char **argv) {
   signal(SIGINT, sigterm_handler);
 
   // creo el selector
-  const struct selector_init conf = {
+  const struct selector_init selector_conf = {
       .signal = SIGALRM,
       .select_timeout =
           {
@@ -102,7 +101,7 @@ int main(const int argc, char **argv) {
           },
   };
 
-  if (0 != selector_init(&conf)) {
+  if (0 != selector_init(&selector_conf)) {
     err_msg = "initializing selector";
     goto finally;
   }
@@ -144,7 +143,6 @@ int main(const int argc, char **argv) {
     }
   }
 
-//TODO: borrar
   log_print(INFO, "Metrics:");
   log_print(INFO, " |-> concurrent connections: %d", get_current_conn());
   log_print(INFO, " |-> historic connections: %d", get_histori_conn());

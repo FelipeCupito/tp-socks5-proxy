@@ -12,20 +12,20 @@ static const uint8_t USERS_FIELD = 0X00;
 
 void admin_put_parser_init (struct admin_put_parser *p) {
   p -> state = admin_put_action;
-  memset(&p -> user, 0, sizeof(p -> user));
 
-  if (&p->user == NULL) {
+  memset(&p->user, 0, sizeof(p -> user));
+  /*if (&p->user == NULL) {
     p -> state = admin_put_error;
     p -> status = STATUS_ERROR;
     return;
-  }
+  }*/
 
   memset(&p->pass, 0, sizeof(p->pass));
-  if(&p->pass == NULL){
+  /*if(&p->pass == NULL){
       p->state = admin_put_error;
       p -> status = STATUS_ERROR;
       return;
-  }
+  }*/
 
   p -> remaining = 0;
   p -> read = 0;
@@ -176,6 +176,6 @@ int admin_put_marshall(buffer *b, const uint8_t status) {
     return -1;
   }
   buff[0] = status;
-  buffer_write_adv(b, n);
+  buffer_write_adv(b, (ssize_t)n);
   return 1;
 }
