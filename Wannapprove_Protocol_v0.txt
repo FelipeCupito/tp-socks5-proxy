@@ -1,6 +1,6 @@
-﻿																										May - June 2022
+﻿May - June 2022
 
-										WANNAPPROVE Protocol Version 0
+WANNAPPROVE Protocol Version 0
 
 Authors:
 	Cupitó, Felipe
@@ -146,7 +146,7 @@ Then the WANNAPPROVE server will evaluate the format of the request and if the p
 				o USERNAME X'00'
 				o PASSWORD X'01'
 
-		>> Reply for EDIT ACTION
+		>>	Reply for EDIT ACTION
 
 			+--------+
 			| STATUS |
