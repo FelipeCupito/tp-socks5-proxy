@@ -154,7 +154,7 @@ void socks5_passive_accept(struct selector_key *key) {
     goto finally;
   }
 
-  if(MAX_CONNECTIONS < get_current_conn()){
+  if(MAX_CONNECTIONS-1 < get_current_conn()){
     socks->status = status_connection_refused;
     log_conn(socks, socks->status);
     err = 1;
