@@ -141,21 +141,32 @@ void socks5_passive_accept(struct selector_key *key) {
   socks5 *socks = NULL;
 
   // Wait for a client to connect
-  //TODO: ver cual es el max de socks5
+
   const int client = accept(key->fd, (struct sockaddr *)&clntAddr, &clntAddrLen);
   if (client == -1) {
     err = 1;
     goto finally;
   }
 
-  // clntSock is connected to a client!
-  if (selector_fd_set_nio(client) == -1) {
+  socks = socks5_new(client, &clntAddr, clntAddrLen);
+  if(socks == NULL){
     err = 1;
     goto finally;
   }
 
-  socks = socks5_new(client, &clntAddr, clntAddrLen);
-  if(socks == NULL){
+  if(MAX_CONNECTIONS < get_current_conn()){
+    socks->status = status_connection_refused;
+    log_conn(socks, socks->status);
+    err = 1;
+    goto finally;
+  } else{
+    add_connection();
+    socks->status = status_connecting;
+  }
+
+
+  // clntSock is connected to a client!
+  if (selector_fd_set_nio(client) == -1) {
     err = 1;
     goto finally;
   }
@@ -229,8 +240,7 @@ void socks5_close(struct selector_key *key) {
   struct socks5 *socks = ATTACHMENT(key);
   if(socks->status != status_close){
     socks5_free(socks);
-  }else
-  if(socks->toFree > 0){
+  }else if(socks->toFree > 0){
     socks5_free(key->data);
   }else{
     socks->toFree ++;

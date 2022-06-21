@@ -19,9 +19,9 @@
 #include "metrics.h"
 #include "pop3_sniffer.h"
 
-#define MAX_USERS 10
-
+#define MAX_SOCKS_USERS 10
 #define MNG_TOKEN "holacomoestas"
+#define MAX_CONNECTIONS 508
 
 #define DEFAULT_SOCKS_BUFFER_SIZE 1024
 #define DEFAULT_DISECTORS true
@@ -57,7 +57,7 @@ typedef struct config{
   char *mng_token;
 
   //user config
-  struct users users[MAX_USERS];
+  struct users users[MAX_SOCKS_USERS];
   int users_size;
 } config;
 

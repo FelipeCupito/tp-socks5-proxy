@@ -64,9 +64,9 @@ void parse_args(const int argc, char **argv, config *configuration) {
       fill_port_sockaddr(port(optarg), &configuration->mngV4, &configuration->mngV6);
       break;
     case 'u':
-      if (nusers >= MAX_USERS) {
+      if (nusers >= MAX_SOCKS_USERS) {
         log_print(LOG_ERROR, "maximum number of command line users reached: %d.\n",
-            MAX_USERS);
+            MAX_SOCKS_USERS);
       } else {
         user(optarg, configuration->users + nusers);
         nusers++;

@@ -13,8 +13,6 @@ void mng_close(struct selector_key *key);
 /////////////////////////////////////////////////////////////////////////
 // FD HANDLER
 /////////////////////////////////////////////////////////////////////////
-
-
 const struct fd_handler mng_passive_handler = {
         .handle_read = mng_passive_accept,
         .handle_write = NULL,
@@ -141,18 +139,26 @@ void mng_passive_accept(struct selector_key *key) {
     goto finally;
   }
 
-  // clntSock is connected to a client!
-  if (selector_fd_set_nio(client) == -1) {
-    err = 1;
-    goto finally;
-  }
-
   newMng = mng_new(client, &clntAddr, clntAddrLen);
   if(newMng == NULL){
     err = 1;
     goto finally;
   }
 
+
+  if(MAX_CONNECTIONS < get_current_conn()){
+    log_print(LOG_ERROR, "no se acceptan mas conexiones");
+    err = 1;
+    goto finally;
+  } else{
+    add_connection();
+  }
+
+  // clntSock is connected to a client!
+  if (selector_fd_set_nio(client) == -1) {
+    err = 1;
+    goto finally;
+  }
 
   if (SELECTOR_SUCCESS !=
       selector_register(key->s, client, &mng_handler, OP_READ, newMng)) {
@@ -199,6 +205,7 @@ void mng_block(struct selector_key *key) {
 
 void mng_done(struct selector_key *key) {
 
+  end_connection();
   int fd = ATTACH(key)->client_fd;
   selector_unregister_fd(key->s, fd);
   close(fd);

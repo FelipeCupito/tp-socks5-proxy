@@ -23,21 +23,16 @@
 #include "socks5_hello.h"
 #include "socks5_request.h"
 #include "pop3_sniffer.h"
-
-
-#define BUFFER_SIZE 4096 // TODO: sacar
+#include "metrics.h"
+#include "conn_logger.h"
 
 #define ATTACHMENT(key) ((struct socks5 *)(key)->data)
 
 void socks5_passive_accept(struct selector_key *key);
 
-
 /////////////////////////////////////////////////////////////////////////
 // FD HANDLER
 /////////////////////////////////////////////////////////////////////////
-
-
-
 extern const struct fd_handler socks5_passive_handler;
 extern const struct fd_handler socks5_handler;
 
