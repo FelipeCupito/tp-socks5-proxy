@@ -45,6 +45,49 @@ After successfully compiling the project, one can execute each part of if follow
 ```
 $ ./server
 ```
+By default, the proxy listens to port 1080. For IPv4, it uses the 127.0.0.1 address and for IPv6, ::1.
+For the proxy configuration, it listens to port 8080 and uses the same address as the proxy by default.
+
+There are different methods allowed by the server to be run, these are:
+
+#### 3.i.a Helper
+In order to view all commands supported by the proxy, run:
+```
+$ ./server -h
+```
+
+#### 3.i.b Address
+In order to change the address used by the proxy, run:
+```
+$ ./server -l <ADDRESS>
+```
+
+In order to modify the address used by the managemente service, run:
+```
+$ ./server -L <ADDRESS>
+```
+
+#### 3.i.c Ports
+In order to change the port that listens to the incoming SOCKS connections, run:
+```
+$ ./server -p <PORT>
+```
+
+In order to modify the port that listens to the incoming Wannapprove connections, run:
+```
+$ ./server -P <PORT>
+```
+
+#### 3.i.d Request example
+This is an example of how to use curl with the default settings:
+```
+$ curl -x socks5h://127.0.0.1:1080 www.google.com
+```
+
+For more information on how to use the server, execute in the terminal:
+```
+$ man ./socks5d.8
+```
 
 ### 3.ii. Client
 There are different methods allowed by the client to be run, these are:
@@ -113,6 +156,12 @@ This allows the admin to delete an existing user.
 $ ./client -a password -d username
 ```
 Where 'username' is the username of the user that is being deleted.
+
+
+For more information on how to use the client for Wannapprove protocol, run:
+```
+$ man ./wannapprove.8
+```
 
 ## 4. Cleaning
 In order to delete all the binary and executable files generated in compilation, run:
