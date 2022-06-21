@@ -20,8 +20,11 @@ void add_connection(){
     current_connections++;
 }
 
-void end_connection(){
+void end_connection(enum socks_response_status status){
     current_connections--;
+    if(status != status_close){
+      historic_connections--;
+    }
     if(current_connections < 0)
         log_print(LOG_ERROR, "current_connections: %d es < 0", current_connections);
 }
