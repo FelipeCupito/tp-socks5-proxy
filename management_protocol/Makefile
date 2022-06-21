@@ -3,10 +3,10 @@ CFILES=$(wildcard *.c)
 OFILES=$(CFILES:.c=.o)
 
 all: $(OFILES)
-	$(CC) $(CFILES) ../src/logger.c -o client $(CFLAGS)
+	$(CC) $(CFILES) ../src/logger.c -o ../client $(CFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -I./include -I../src/include/logger.h -c $< -o $@
 
 clean:
-	rm -rf $(OFILES)
+	rm -rf $(OFILES) ../client
