@@ -17,7 +17,7 @@ static int send_put_request(int fd, char* username, char* password);
 static int receive_put_reply(int fd, uint8_t* status);
 
 // EDIT (0x02)
-static void send_receive_edit(int fd, char* username, uint8_t attribute, char* value);
+static int send_receive_edit(int fd, char* username, uint8_t attribute, char* value);
 static int send_edit_request(int fd, char* username, uint8_t attribute, char* value);
 static uint8_t receive_edit_reply(int fd, uint8_t* status);
 
@@ -361,8 +361,9 @@ static void set_buffer_size(int fd, unsigned int size) {
 
 // EDIT ACTION handlers
 static void edit(int fd, char* username, char* new_field, uint8_t command, char* msg) {
-    send_receive_edit(fd, username, command, new_field);
-    printf("%s: %s\n", msg, new_field);
+    int num = send_receive_edit(fd, username, command, new_field);
+    if(num == 0)
+        printf("%s: %s\n", msg, new_field);
 }
 
 static void edit_username(int fd, char* username, char* new_username) {
@@ -541,7 +542,7 @@ static int receive_put_reply(int fd, uint8_t* status) {
 /*                         EDIT                           */
 /* ------------------------------------------------------ */
 
-static void send_receive_edit(int fd, char* username, uint8_t attribute, char* value) {
+static int send_receive_edit(int fd, char* username, uint8_t attribute, char* value) {
     if (send_edit_request(fd, username, attribute, value) <= 0) {
         perror(strerror(errno));
         error_quit(fd, "EDIT: Error in sending the request");
@@ -556,6 +557,9 @@ static void send_receive_edit(int fd, char* username, uint8_t attribute, char* v
         error_quit(fd, "EDIT: Server error");
     }
     print_edit_response(status);
+    if(status != 0)
+        return -1;
+    return 0;
 }
 
 static int send_edit_request(int fd, char* username, uint8_t attribute, char* value) {
@@ -633,11 +637,6 @@ static int send_configbuffsize_request(int fd, unsigned int size) {
     request[2] = (size >> 16) & 0xFF;
     request[3] = (size >> 8) & 0xFF;
     request[4] = size & 0xFF;
-
-    printf("request[1]: %x\n", request[1]);
-    printf("request[2]: %x\n", request[2]);
-    printf("request[3]: %x\n", request[3]);
-    printf("request[4]: %x\n", request[4]);
 
     sent_bytes = send(fd, request, 5, MSG_NOSIGNAL);
 

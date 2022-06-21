@@ -26,12 +26,12 @@
 #define DEFAULT_SOCKS_BUFFER_SIZE 1024
 #define DEFAULT_DISECTORS true
 
-#define MNG_BUFFER_SIZE 4096 // TODO: sacar
-#define MAX_STR_SIZE 255
+#define MNG_BUFFER_SIZE 4096
+#define MAX_USERNAME_SIZE 10
 //variables:
 struct users {
-  char name[MAX_STR_SIZE];
-  char pass[MAX_STR_SIZE];
+  char name[MAX_USERNAME_SIZE];
+  char pass[MAX_USERNAME_SIZE];
 };
 
 typedef struct config{
@@ -59,9 +59,8 @@ typedef struct config{
   //user config
   struct users users[MAX_USERS];
   int users_size;
-
-
 } config;
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -102,10 +101,11 @@ int _get_current_conn(char *res, int res_size);
 
 int _get_histori_conn(char *res, int res_size);
 
-//configbuff
-int set_buff_size(char* size);
 
-int four_bytes_to_num(char* src);
+//configbuff
+int set_buff_size(uint8_t* size);
+
+int four_bytes_to_num(uint8_t* src);
 
 //configstatus
 
