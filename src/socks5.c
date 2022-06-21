@@ -103,8 +103,10 @@ struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, s
   stm_init(&(newSocks->stm));
 
   //init buffers
-  buffer_init(&(newSocks->write_buffer), BUFFER_SIZE + 1, newSocks->raw_buff_a);
-  buffer_init(&(newSocks->read_buffer), BUFFER_SIZE + 1, newSocks->raw_buff_b);
+  newSocks->raw_buff_a = malloc(get_socks_buffer_size());
+  newSocks->raw_buff_b = malloc(get_socks_buffer_size());
+  buffer_init(&(newSocks->write_buffer), get_socks_buffer_size() + 1, newSocks->raw_buff_a);
+  buffer_init(&(newSocks->read_buffer), get_socks_buffer_size() + 1, newSocks->raw_buff_b);
 
   // init fds
   newSocks->client_fd = client;
@@ -134,6 +136,7 @@ void socks5_passive_accept(struct selector_key *key) {
   socks5 *socks = NULL;
 
   // Wait for a client to connect
+  //TODO: ver cual es el max de socks5
   const int client = accept(key->fd, (struct sockaddr *)&clntAddr, &clntAddrLen);
   if (client == -1) {
     err = 1;
@@ -221,7 +224,8 @@ void socks5_close(struct selector_key *key) {
   struct socks5 *socks = ATTACHMENT(key);
   if(socks->status != status_close){
     socks5_free(socks);
-  }else if(socks->toFree > 0){
+  }else
+  if(socks->toFree > 0){
     socks5_free(key->data);
   }else{
     socks->toFree ++;
@@ -232,6 +236,8 @@ void socks5_free(struct socks5 *socks5){
   if(socks5->server_resolution != NULL){
     freeaddrinfo(socks5->server_resolution);
   }
+  free(socks5->raw_buff_a);
+  free(socks5->raw_buff_b);
   free(socks5);
 }
 

@@ -245,6 +245,7 @@ enum pop3_sniffer_state pop3_sniffer_consume(struct pop3_sniffer *s, void *socks
 }
 
 void pop3sniff(uint8_t *ptr, ssize_t size, void *socks5){
+
     struct pop3_sniffer *s = &(((struct socks5*) socks5) -> sniffer);
     if (!pop3_is_parsing(s)){
       pop3_sniffer_init(s);
