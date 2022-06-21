@@ -101,6 +101,7 @@ int _get_current_conn(char *res, int res_size);
 
 int _get_histori_conn(char *res, int res_size);
 
+uint32_t get_socks_buffer_size();
 
 //configbuff
 int set_buff_size(uint8_t* size);

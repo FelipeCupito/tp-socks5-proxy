@@ -5,7 +5,6 @@ int num_to_4bytes(char *res, int res_size, uint32_t n);
 int bool_to_bytes(char *res, int res_size, bool n);
 void ip_to_str(struct sockaddr_storage *addr, char *dest_ip);
 struct users* get_user(char *username);
-void copy_user(struct users usr1, struct users usr2);
 int equal(struct users usr1, char *username);
 
 config conf;
@@ -56,7 +55,6 @@ int delete_user(char *username){
       struct users next_user = conf.users[conf.users_size-1];
       strcpy(conf.users[i].name, next_user.name);
       strcpy(conf.users[i].pass, next_user.pass);
-
     }
   }
 
@@ -259,12 +257,6 @@ int is_auth_enabled(){
 ////////////////////////////////////////
 //privadas
 ///////////////////////////////////////////
-
-void copy_user(struct users usr1, struct users usr2){
-  strcpy(usr1.name, usr2.name);
-  strcpy(usr1.pass, usr2.pass);
-}
-
 int equal(struct users usr1, char *username){
   if(strcmp(usr1.name, username) == 0)
     return 1;
