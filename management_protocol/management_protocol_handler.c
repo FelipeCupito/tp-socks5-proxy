@@ -93,15 +93,15 @@ static void config_spoof(int fd, uint8_t status);
 // DELETE
 static void delete_user(int fd, char* username);
 
-char* get_cmds[] = { "users", "passwords", "buffersize", "authstatus", "spoofstatus", "sentbytes", "rcvbytes", "historic", "concurrent" };
+char* get_cmds[] = { "users", "passwords", "buffersize", "authstatus", "spoofstatus", "sentbytes", "rcvbytes", "historic", "concurrent"};
 
-char* get_msg[] = { "Success", "Invalid action", "Invalid option" };
-char* put_msg[] = { "Success", "Invalid action", "Invalid username length", "Invalid password length" };
-char* edit_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid username length", "Invalid attribute", "Invalid value length" };
+char* get_msg[] = { "Success", "Invalid action", "Invalid option", "Error"};
+char* put_msg[] = { "Success", "Invalid action", "Invalid username length", "Invalid password length", "Error"};
+char* edit_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid username length", "Invalid attribute", "Invalid value length", "Error", "Unknown user"};
 // TODO: Preguntar que es invalid field en delete
-char* delete_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid username length", "Unknown user fail" };
-char* configstatus_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid status" };
-char* configbuffsize_msg[] = { "Success", "Invalid action", "Invalid buffer size length", "Invalid buffer size" };
+char* delete_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid username length", "Error", "Unknown user fail" };
+char* configstatus_msg[] = { "Success", "Invalid action", "Invalid field", "Invalid status", "Error"};
+char* configbuffsize_msg[] = { "Success", "Invalid action", "Invalid buffer size length", "Invalid buffer size", "Error"};
 
 enum get_options {
     USERS,
@@ -178,10 +178,10 @@ void execute_commands(int fd, struct manage_args* args) {
     if (args->edit_flag && args->edit_username != NULL && args->edit_value != NULL) {
         if (args->edit_attribute == 0) {
             edit_username(fd, args->edit_username, args->edit_value);
-        }
-        if (args->edit_attribute == 1) {
+        } else if (args->edit_attribute == 1) {
             edit_password(fd, args->edit_username, args->edit_value);
-        }
+        } else
+            error_quit(fd, "EDIT: Invalid attribute");
     }
     if (args->toggle_flag) {
         if (strcmp("auth", args->toggle_option) == 0) {
@@ -190,7 +190,7 @@ void execute_commands(int fd, struct manage_args* args) {
             else if (strcmp("off", args->toggle_status) == 0)
                 config_auth(fd, 0x01);
             else
-                error_quit(fd, "Invalid auth status");
+                error_quit(fd, "CONFIGSTATUS: Invalid auth status");
         }
         else if (strcmp("spoof", args->toggle_option) == 0) {
             if (strcmp("on", args->toggle_status) == 0)
@@ -198,7 +198,7 @@ void execute_commands(int fd, struct manage_args* args) {
             else if (strcmp("off", args->toggle_status) == 0)
                 config_spoof(fd, 0x01);
             else
-                error_quit(fd, "Invalid spoofing status");
+                error_quit(fd, "CONFIGSTATUS: Invalid spoofing status");
         }
         else
             error_quit(fd, "CONFIGSTATUS: Invalid toggle option (only auth and spoof)");
