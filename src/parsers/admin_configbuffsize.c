@@ -33,7 +33,6 @@ enum admin_configbuff_state configbuff_action(admin_configbuff_parser *p, uint8_
 
 enum admin_configbuff_state size(admin_configbuff_parser *p, uint8_t b) {
   int i = p -> read;
-  log_print(INFO, "byte %d.\n", b);
   p -> size[i] = b;
   p -> read ++;
   
