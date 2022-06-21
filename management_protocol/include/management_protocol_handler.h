@@ -9,12 +9,12 @@
 #define MAX_FIELD_SIZE 256
 #define SERVER_ERROR 0xFF
 
-#define GET_MSG_SIZE 3
-#define PUT_MSG_SIZE 4
-#define EDIT_MSG_SIZE 6
-#define DELETE_MSG_SIZE 5
-#define CONFIGSTATUS_MSG_SIZE 4
-#define CONFIGBUFFSIZE_MGS_SIZE 4
+#define GET_MSG_SIZE 4
+#define PUT_MSG_SIZE 5
+#define EDIT_MSG_SIZE 8
+#define DELETE_MSG_SIZE 6
+#define CONFIGSTATUS_MSG_SIZE 5
+#define CONFIGBUFFSIZE_MGS_SIZE 5
 
 static const uint8_t STATUS_OK = 0x00;
 static const uint8_t STATUS_ERROR_INVALID_ACTION = 0x01;
