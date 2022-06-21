@@ -205,7 +205,7 @@ void mng_block(struct selector_key *key) {
 
 void mng_done(struct selector_key *key) {
 
-  end_connection();
+  end_connection(status_close);
   int fd = ATTACH(key)->client_fd;
   selector_unregister_fd(key->s, fd);
   close(fd);

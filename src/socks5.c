@@ -218,7 +218,7 @@ void socks5_done(struct selector_key *key) {
 
   //if (ATTACHMENT(key)->status == status_close){
     log_conn(ATTACHMENT(key), ATTACHMENT(key)->status);
-    end_connection();
+    end_connection(ATTACHMENT(key)->status);
   //}
 
   const int fds[] = {
