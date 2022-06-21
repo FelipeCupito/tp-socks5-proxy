@@ -11,13 +11,13 @@
 #include <sys/types.h>  // socket
 #include <unistd.h>
 
-#include "buffer.h"
-#include "stm.h"
-#include "selector.h"
-#include "logger.h"
+//#include "buffer.h"
+//#include "stm.h"
+//#include "selector.h"
+//#include "logger.h"
 #include "socks5.h"
 #include "metrics.h"
-#include "pop3_sniffer.h"
+//#include "pop3_sniffer.h"
 
 
 void copy_init(const unsigned state, struct selector_key *key);

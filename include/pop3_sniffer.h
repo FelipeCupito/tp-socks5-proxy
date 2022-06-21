@@ -31,7 +31,7 @@ enum pop3_sniffer_state {
 };
 
 
-listADT list;
+
 
 typedef struct pop3_sniffer {
   enum pop3_sniffer_state state;

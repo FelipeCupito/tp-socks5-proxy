@@ -17,6 +17,7 @@ void socks5_free(struct socks5 *socks5);
 /////////////////////////////////////////////////////////////////////////
 // FD HANDLER
 /////////////////////////////////////////////////////////////////////////
+
 const struct fd_handler socks5_passive_handler = {
     .handle_read = socks5_passive_accept,
     .handle_write = NULL,
@@ -24,11 +25,12 @@ const struct fd_handler socks5_passive_handler = {
 };
 
 const struct fd_handler socks5_handler = {
-    .handle_read = socks5_read,
-    .handle_write = socks5_write,
-    .handle_close = socks5_close,
-    .handle_block = socks5_block,
+        .handle_read = socks5_read,
+        .handle_write = socks5_write,
+        .handle_close = socks5_close,
+        .handle_block = socks5_block,
 };
+
 
 /////////////////////////////////////////////////////////////////////////
 // ESTADOS DE SOCKS5

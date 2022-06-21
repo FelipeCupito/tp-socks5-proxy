@@ -16,6 +16,8 @@ void freeElem(void * elem) {
 	free(sniffinfo);
 }
 
+listADT list;
+
 void freeSniffer() {
   freeList(list);
 }

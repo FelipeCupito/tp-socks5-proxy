@@ -13,9 +13,7 @@
 #include <stdint.h> // SIZE_MAX
 #include <sys/select.h>
 #include <sys/signal.h>
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #define N(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -301,10 +299,18 @@ void selector_destroy(fd_selector s) {
         }
       }
       pthread_mutex_destroy(&s->resolution_mutex);
-      for (struct blocking_job *j = s->resolution_jobs; j != NULL;
-           j = j->next) {
-        free(j);
+
+      struct blocking_job *j = s->resolution_jobs;
+      while(j != NULL) {
+        struct blocking_job *aux = j;
+
+        j = j->next;
+        free(aux);
       }
+      //for (struct blocking_job *j = s->resolution_jobs; j != NULL; j = j->next) {
+      //  free(j);
+      //}
+
       free(s->fds);
       s->fds = NULL;
       s->fd_size = 0;

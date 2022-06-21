@@ -4,16 +4,16 @@ void auth_parser_init (struct auth_parser *p) {
   p -> state = auth_version;
   memset(&p -> user, 0, sizeof(p -> user));
 
-  if (&p->user == NULL) {
+  /*if (&p->user == NULL) {
     p -> state = auth_error;
     return;
-  }
+  }*/
 
   memset(&p->pass, 0, sizeof(p->pass));
-  if(&p->pass == NULL){
+  /*if(&p->pass == NULL){
       p->state = auth_error;
       return;
-  }
+  }*/
 
   p -> version = 0x01;
   p -> remaining = 0;
@@ -144,8 +144,8 @@ enum auth_state auth_consume(buffer *buff, struct auth_parser *p, bool *errored)
   return state;
 }
 
-//TODO: esta mall
-int auth_marshalll(buffer *b, const uint8_t status) {
+
+int auth_marshall(buffer *b, const uint8_t status) {
   size_t n;
   uint8_t *buff = buffer_write_ptr(b, &n);
 

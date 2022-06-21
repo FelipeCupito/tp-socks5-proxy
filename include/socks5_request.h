@@ -12,10 +12,6 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "buffer.h"
-#include "stm.h"
-#include "selector.h"
-#include "logger.h"
 #include "socks5.h"
 #include "conn_logger.h"
 

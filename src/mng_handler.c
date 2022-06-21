@@ -1,8 +1,8 @@
 #include "../include/mng_handler.h"
 
 // funcione privada:
-mng* mng_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clntAddrLen) ;
 void mng_passive_accept(struct selector_key *key);
+mng* mng_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clntAddrLen) ;
 void mng_done(struct selector_key *key);
 //socks5 handler
 void mng_read(struct selector_key *key);
@@ -13,6 +13,8 @@ void mng_close(struct selector_key *key);
 /////////////////////////////////////////////////////////////////////////
 // FD HANDLER
 /////////////////////////////////////////////////////////////////////////
+
+
 const struct fd_handler mng_passive_handler = {
         .handle_read = mng_passive_accept,
         .handle_write = NULL,
@@ -25,6 +27,7 @@ const struct fd_handler mng_handler = {
         .handle_close = mng_close,
         .handle_block = mng_block,
 };
+
 
 /////////////////////////////////////////////////////////////////////////
 // ESTADOS DE SOCKS5

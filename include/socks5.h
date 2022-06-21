@@ -29,13 +29,17 @@
 
 #define ATTACHMENT(key) ((struct socks5 *)(key)->data)
 
-struct socks5 *socks5_new(const int client, struct sockaddr_storage* clntAddr, socklen_t clntAddrLen);
+void socks5_passive_accept(struct selector_key *key);
+
 
 /////////////////////////////////////////////////////////////////////////
 // FD HANDLER
 /////////////////////////////////////////////////////////////////////////
-const struct fd_handler socks5_passive_handler;
-const struct fd_handler socks5_handler;
+
+
+
+extern const struct fd_handler socks5_passive_handler;
+extern const struct fd_handler socks5_handler;
 
 /////////////////////////////////////////////////////////////////////////
 // Estados posibles de cada estado de socks5

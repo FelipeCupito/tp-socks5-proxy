@@ -70,6 +70,6 @@ enum auth_state auth_consume(buffer *b, auth_parser *p, bool *error);
 
 bool auth_is_done(const enum auth_state state, bool *error);
 
-int auth_marshalll(buffer *b, const uint8_t status);
+int auth_marshall(buffer *b, const uint8_t status);
 
 #endif

@@ -11,10 +11,10 @@
 #include <sys/types.h>  // socket
 #include <unistd.h>
 
-#include "buffer.h"
-#include "logger.h"
-#include "selector.h"
-#include "stm.h"
+//#include "buffer.h"
+//#include "logger.h"
+//#include "selector.h"
+//#include "stm.h"
 #include "mng.h"
 #include "server_config.h"
 #include "parsers/admin_connect.h"
@@ -25,15 +25,13 @@
 #include "parsers/admin_configbuffsize.h"
 #include "parsers/admin_configstatus.h"
 
-
-
 #define ATTACH(key) ((struct mng *)(key)->data)
 
 /////////////////////////////////////////////////////////////////////////
 // FD HANDLER
 /////////////////////////////////////////////////////////////////////////
-const struct fd_handler mng_passive_handler;
-const struct fd_handler mng_handler;
+extern const struct fd_handler mng_passive_handler;
+extern const struct fd_handler mng_handler;
 
 /////////////////////////////////////////////////////////////////////////
 // Estados posibles de cada estado de socks5
@@ -59,7 +57,6 @@ enum status{
   CLOSE = 0,
   OK,
 };
-
 
 ////////////////////////////////////////////////////////////////////////
 // struc de cada socks5

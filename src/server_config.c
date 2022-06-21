@@ -7,29 +7,29 @@ void ip_to_str(struct sockaddr_storage *addr, char *dest_ip);
 struct users* get_user(char *username);
 int equal(struct users usr1, char *username);
 
-config conf;
+config server_conf;
 
 config* init_config(){
-  conf.disectors_enabled = DEFAULT_DISECTORS;
-  conf.mng_token = MNG_TOKEN;
-  conf.socks_buffer_size = DEFAULT_SOCKS_BUFFER_SIZE;
-  conf.users_size = 0;
+  server_conf.disectors_enabled = DEFAULT_DISECTORS;
+  server_conf.mng_token = MNG_TOKEN;
+  server_conf.socks_buffer_size = DEFAULT_SOCKS_BUFFER_SIZE;
+  server_conf.users_size = 0;
 
   pop3_sniffer_init_list();
 
-  return &conf;
+  return &server_conf;
 }
 
 int checkToken(char *token){
-  if(strcmp(conf.mng_token, token) == 0){
+  if(strcmp(server_conf.mng_token, token) == 0){
     return 1;
   }
   return 0;
 }
 
 int checkUser(char *user, char *pass){
-    for (int i = 0; i < conf.users_size; i++){
-      struct users *current_user =  &conf.users[i];
+    for (int i = 0; i < server_conf.users_size; i++){
+      struct users *current_user =  &server_conf.users[i];
       if(strcmp(current_user->name, user)== 0){
             if(strcmp(current_user->pass, pass)== 0){
                 return 1;
@@ -46,20 +46,20 @@ int delete_user(char *username){
 
   bool find_flag = false;
   struct users *user;
-  for (int i = 0; i < conf.users_size && !find_flag ; ++i) {
-    user = &conf.users[i];
+  for (int i = 0; i < server_conf.users_size && !find_flag ; ++i) {
+    user = &server_conf.users[i];
     if(equal(*user, username)){
       find_flag = true;
     }
-    if(find_flag && i < (conf.users_size-1)){
-      struct users next_user = conf.users[conf.users_size-1];
-      strcpy(conf.users[i].name, next_user.name);
-      strcpy(conf.users[i].pass, next_user.pass);
+    if(find_flag && i < (server_conf.users_size-1)){
+      struct users next_user = server_conf.users[server_conf.users_size-1];
+      strcpy(server_conf.users[i].name, next_user.name);
+      strcpy(server_conf.users[i].pass, next_user.pass);
     }
   }
 
   if(find_flag){
-    conf.users_size--;
+    server_conf.users_size--;
     return 0;
   }
   return -1;
@@ -90,7 +90,7 @@ int edit_user(char *username, char *new_value, uint8_t attr){
 
 int set_buff_size(uint8_t* size){
   int res = four_bytes_to_num(size);
-  conf.socks_buffer_size = res;
+  server_conf.socks_buffer_size = res;
   return res;
 }
 
@@ -98,13 +98,13 @@ int set_buff_size(uint8_t* size){
 //                      CONFIGSTATUS
 ////////////////////////////////////////////////////////
 int set_auth_status(uint8_t status){
-  conf.auth_enabled = (bool) !status;
-  return conf.auth_enabled;
+  server_conf.auth_enabled = (bool) !status;
+  return server_conf.auth_enabled;
 }
 
 int set_sniff_status(uint8_t status){
-  conf.disectors_enabled = (bool) !status;
-  return conf.disectors_enabled;
+  server_conf.disectors_enabled = (bool) !status;
+  return server_conf.disectors_enabled;
 }
 
 void set_status(uint8_t field, uint8_t status){
@@ -119,18 +119,18 @@ void set_status(uint8_t field, uint8_t status){
 //                      PUT
 ////////////////////////////////////////////////////////
 int add_user(char* user, char* pass){
-  if(conf.users_size + 1 >= MAX_USERS )
+  if(server_conf.users_size + 1 >= MAX_USERS )
     return -1;
 
   if(strlen(user) > MAX_USERNAME_SIZE || strlen(user) > MAX_USERNAME_SIZE){
     return -1;
   }
 
-  struct users *new_user = &conf.users[conf.users_size];
+  struct users *new_user = &server_conf.users[server_conf.users_size];
   strcpy(new_user->name, user);
   strcpy(new_user->pass, pass);
 
-  conf.users_size ++;
+  server_conf.users_size ++;
 
   return 0;
 }
@@ -140,9 +140,9 @@ int add_user(char* user, char* pass){
 ////////////////////////////////////////////////////////
 int get_users(char *res, int res_size){
   int n = 0;
-  for (int i = 0; i < conf.users_size; i++) {
-    char *user = conf.users[i].name;
-    char *pass = conf.users[i].pass;
+  for (int i = 0; i < server_conf.users_size; i++) {
+    char *user = server_conf.users[i].name;
+    char *pass = server_conf.users[i].pass;
     for (int j = 0; user[j] != '\0' && res_size-3 > n; j++) {
       res[n] = user[j];
       n++;
@@ -198,7 +198,7 @@ int get_pop3_pass(char *res, int res_size){
 }
 
 int get_buff_size(char *res, int res_size){
-  uint32_t n = conf.socks_buffer_size;
+  uint32_t n = server_conf.socks_buffer_size;
   return num_to_4bytes(res, res_size, n);
 }
 
@@ -238,7 +238,7 @@ int _get_histori_conn(char *res, int res_size){
 }
 
 uint32_t get_socks_buffer_size(){
-  return conf.socks_buffer_size;
+  return server_conf.socks_buffer_size;
 }
 
 
@@ -246,11 +246,11 @@ uint32_t get_socks_buffer_size(){
 //
 ////////////////////////////////////////////////////////
 int is_spoofing_enabled(){
-  return conf.disectors_enabled;
+  return server_conf.disectors_enabled;
 }
 
 int is_auth_enabled(){
-    return conf.auth_enabled;
+    return server_conf.auth_enabled;
 }
 
 
@@ -264,11 +264,11 @@ int equal(struct users usr1, char *username){
 }
 
 struct users* get_user(char *username){
-  int aux = conf.users_size;
+  int aux = server_conf.users_size;
   for (int i = 0; i < aux; i++) {
-    char *user = conf.users[i].name;
+    char *user = server_conf.users[i].name;
     if(strcmp(user, username) == 0){
-      return &conf.users[i];
+      return &server_conf.users[i];
     }
   }
   return NULL;
