@@ -103,9 +103,9 @@ int _get_histori_conn(char *res, int res_size);
 
 
 //configbuff
-int set_buff_size(char* size);
+int set_buff_size(uint8_t* size);
 
-int four_bytes_to_num(char* src);
+int four_bytes_to_num(uint8_t* src);
 
 //configstatus
 
