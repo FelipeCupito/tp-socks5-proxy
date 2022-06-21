@@ -507,6 +507,13 @@ static int send_put_request(int fd, char* username, char* password) {
     size_t username_len = strlen(username);
     size_t password_len = strlen(password);
 
+    if(username_len > 10) {
+        error_quit(fd, "PUT: Username too long (max 10).");
+    }
+    if(password_len > 10) {
+        error_quit(fd, "PUT: Password too long (max 10).");
+    }
+
     request = realloc(request, 2 + 2 * sizeof(int) + username_len + password_len + 1);
     request[0] = 0x01;
     request[1] = 0x00;
@@ -557,6 +564,14 @@ static int send_edit_request(int fd, char* username, uint8_t attribute, char* va
     uint8_t* request = NULL;
     size_t username_len = strlen(username);
     size_t value_len = strlen(value);
+
+    if(username_len > 10) {
+        error_quit(fd, "EDIT: Username too long (max 10).");
+    }
+
+    if(value_len > 10) {
+        error_quit(fd, "EDIT: Value too long (max 10).");
+    }
 
     request = realloc(request, 5 + username_len + value_len + 1);
     request[0] = 0x02;
@@ -715,6 +730,10 @@ static uint8_t send_delete_request(int fd, char* username) {
     int sent_bytes;
     size_t username_len = strlen(username);
     uint8_t* request = NULL;
+
+    if(username_len > 10) {
+        error_quit(fd, "DELETE: Username too long (max 10).");
+    }
 
     request = realloc(request, 3 + username_len + 1);
     request[0] = 0x05;
