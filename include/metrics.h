@@ -20,11 +20,13 @@ void init_metrics();
 
 // SETTERS
 void add_connection();
-void end_connection();
+void end_connection(enum socks_response_status status);
 void add_sent_byte(int n);
 void add_received_bytes(int n);
 
 // GETTERS
+void add_connecting_clients();
+void end_connecting_clients();
 int get_current_conn();
 int get_histori_conn();
 uint64_t get_sent_byte();

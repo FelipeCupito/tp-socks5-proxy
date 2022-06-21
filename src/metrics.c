@@ -4,6 +4,8 @@ static uint64_t sent_byte = 0;
 static uint64_t received_bytes = 0;
 static int historic_connections = 0;
 static int current_connections = 0;
+static int connecting_clients = 0;
+
 
 
 //INIT
@@ -15,6 +17,14 @@ void init_metrics(){
 }
 
 // SETTERS
+void add_connecting_clients(){
+  connecting_clients++;
+}
+
+void end_connecting_clients(){
+  connecting_clients--;
+}
+
 void add_connection(){
     historic_connections++;
     current_connections++;
