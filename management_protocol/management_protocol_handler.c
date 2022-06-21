@@ -335,11 +335,9 @@ static void get_bytes(int fd, uint8_t command, char* msg) {
 
     uint64_t reply_bytes = 0;
     // TODO: Check if it is okay
-    for(int i = 0; i < 8; i--) {
+    for(int i = 0; i < 8; i++) {
         reply_bytes |= reply[i] << (56 - i * 8);
     }
-    // uint64_t reply_bytes = reply[7] | (reply[6] << 8) | (reply[5] << 16) | (reply[4] << 24); 
-    // reply_bytes |= (reply[3] << 32) | (reply[2] << 40) | (reply[1] << 48) | (reply[0] << 56);
 
     printf("%s: %lu\n", msg, reply_bytes);
 
